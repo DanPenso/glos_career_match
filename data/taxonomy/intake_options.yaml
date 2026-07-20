@@ -1,0 +1,176 @@
+# Intake dropdown / checkbox options for Gloucestershire leaver recommender
+
+leaver_types:
+  - School leaver (Year 11 / 13)
+  - College / FE leaver
+  - University undergraduate (final year)
+  - Recent graduate
+  - Postgraduate student
+  - Career changer
+
+locations:
+  - Cheltenham
+  - Gloucester
+  - Stroud
+  - Cirencester / Cotswolds
+  - Tewkesbury / North Gloucestershire
+  - Forest of Dean
+  - Anywhere in Gloucestershire
+  - Willing to commute / hybrid
+
+course_areas:
+  school_college:
+    - Maths / Further Maths
+    - Physics / Chemistry / Biology
+    - Computer Science / IT
+    - Engineering / Design Technology
+    - Business / Economics
+    - Art / Design / Media
+    - English / Languages
+    - Geography / Environmental Science
+    - Health & Social Care
+    - Sport / PE
+    - Hospitality / Catering
+    - Construction / Trades
+    - Agriculture / Land-based
+    - Other / Undecided
+  university:
+    - Computer Science / Cyber / Software
+    - Engineering / Manufacturing
+    - Business / Management / Marketing
+    - Biological / Life Sciences
+    - Agriculture / Food / Environmental
+    - Psychology / Social Sciences
+    - Creative Arts / Media
+    - Nursing / Allied Health
+    - Education
+    - Maths / Data / Stats
+    - Law / Politics
+    - Other
+
+interests:
+  - Cybersecurity & digital defence
+  - Software / apps / web
+  - Data & AI
+  - Aerospace & advanced manufacturing
+  - Mechanical / electrical engineering
+  - Agri-tech & food systems
+  - Environment & sustainability
+  - Healthcare & wellbeing
+  - Education & training
+  - Creative / design / events
+  - Business / sales / entrepreneurship
+  - Public service & community
+  - Construction & built environment
+  - Hospitality / tourism / retail
+  - Finance / accounting
+
+passions:
+  - Solving puzzles / problems
+  - Building or fixing things
+  - Helping people face-to-face
+  - Creating visual / written content
+  - Working outdoors
+  - Leading teams / organising
+  - Analysing numbers / patterns
+  - Protecting systems / people
+  - Growing food / nature
+  - Performing / presenting
+  - Making products people use
+  - Improving how organisations run
+
+work_experience_types:
+  - None yet
+  - 1 year of industry exp
+  - 2 years of industry exp
+  - 3 or more years of industry exp
+  - Part-time retail / hospitality
+  - Work experience placement (school)
+  - Internship / sandwich year
+  - Apprenticeship (previous)
+  - Volunteering
+  - Family / small business
+  - Coding / personal projects
+  - Sports coaching / mentoring
+  - Caring responsibilities
+
+qualification_levels:
+  - GCSEs / Level 2
+  - A-levels / BTEC / T Levels / Level 3
+  - Higher apprenticeship / HNC / HND / Level 4–5
+  - Undergraduate degree / Level 6
+  - Postgraduate
+
+availability:
+  - Immediate
+  - Within 3 months
+  - Within 6–12 months
+  - Exploring only
+
+# Sector tags used in company matching (must align with companies_seed.csv)
+sectors:
+  - cyber_digital
+  - aerospace_manufacturing
+  - agri_tech_food
+  - health_care
+  - public_sector
+  - creative_events
+  - construction_green
+  - hospitality_tourism
+  - hospitality_retail
+  - business_professional
+  - education_training
+
+# Maps course labels → company sector tags (so course-only intake still gets pathways)
+course_to_sector:
+  Maths / Further Maths: [business_professional, cyber_digital]
+  Physics / Chemistry / Biology: [aerospace_manufacturing, health_care, agri_tech_food]
+  Computer Science / IT: [cyber_digital]
+  Engineering / Design Technology: [aerospace_manufacturing, construction_green]
+  Business / Economics: [business_professional]
+  Art / Design / Media: [creative_events]
+  English / Languages: [creative_events, business_professional]
+  Geography / Environmental Science: [agri_tech_food, construction_green, public_sector]
+  Health & Social Care: [health_care, education_training]
+  Sport / PE: [health_care, education_training]
+  Hospitality / Catering: [hospitality_tourism]
+  Construction / Trades: [construction_green]
+  Agriculture / Land-based: [agri_tech_food]
+  Computer Science / Cyber / Software: [cyber_digital]
+  Engineering / Manufacturing: [aerospace_manufacturing]
+  Business / Management / Marketing: [business_professional, hospitality_retail]
+  Biological / Life Sciences: [health_care, agri_tech_food]
+  Agriculture / Food / Environmental: [agri_tech_food]
+  Psychology / Social Sciences: [health_care, education_training, public_sector]
+  Creative Arts / Media: [creative_events]
+  Nursing / Allied Health: [health_care]
+  Education: [education_training]
+  Maths / Data / Stats: [cyber_digital, business_professional]
+  Law / Politics: [public_sector, business_professional]
+
+# Maps intake interests → company sector tags
+interest_to_sector:
+  Cybersecurity & digital defence: [cyber_digital]
+  Software / apps / web: [cyber_digital]
+  Data & AI: [cyber_digital, business_professional]
+  Aerospace & advanced manufacturing: [aerospace_manufacturing]
+  Mechanical / electrical engineering: [aerospace_manufacturing, construction_green]
+  Agri-tech & food systems: [agri_tech_food]
+  Environment & sustainability: [agri_tech_food, construction_green, public_sector]
+  Healthcare & wellbeing: [health_care]
+  Education & training: [education_training]
+  Creative / design / events: [creative_events]
+  Business / sales / entrepreneurship: [business_professional, hospitality_retail]
+  Public service & community: [public_sector, education_training]
+  Construction & built environment: [construction_green]
+  Hospitality / tourism / retail: [hospitality_tourism, hospitality_retail]
+  Finance / accounting: [business_professional, public_sector]
+
+# Maps leaver type → preferred entry routes on companies
+leaver_to_entry_routes:
+  School leaver (Year 11 / 13): [apprenticeship, school_leaver, traineeship]
+  College / FE leaver: [apprenticeship, school_leaver, internship]
+  University undergraduate (final year): [graduate, higher_apprenticeship, internship]
+  Recent graduate: [graduate, higher_apprenticeship, internship]
+  Postgraduate student: [graduate, higher_apprenticeship, internship]
+  Career changer: [apprenticeship, graduate, internship, school_leaver]

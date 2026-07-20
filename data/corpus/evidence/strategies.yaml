@@ -1,0 +1,569 @@
+# Research-backed careers strategy cards for RAG retrieval.
+# Paraphrased guidance only — cite source_id; do not invent personal odds.
+
+cards:
+  - id: gatsby_stable_plan
+    strategy: stable_careers_plan
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014)
+    strength: strong
+    tags: [plan, next_steps, adviser]
+    claim: >
+      Good careers support is a planned programme, not a one-off tip. Young people do
+      better when advice is structured and repeated over time.
+    do: >
+      Treat this match as one option inside a short plan: pick a route, one skill to
+      build, and one person to speak to this month.
+    do_not_claim: Do not present a single company as the only right answer.
+
+  - id: gatsby_lmi
+    strategy: labour_market_information
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014)
+    strength: strong
+    tags: [lmi, vacancies, research]
+    claim: >
+      Learning from career and labour market information helps young people make
+      realistic choices about routes and employers.
+    do: >
+      Check current local vacancies (for example Find an apprenticeship) and note
+      typical entry requirements before you apply.
+    do_not_claim: Do not invent salaries, closing dates, or guaranteed openings.
+
+  - id: gatsby_personalised
+    strategy: personalised_guidance
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014)
+    strength: strong
+    tags: [personal, adviser, inclusion]
+    claim: >
+      Effective guidance addresses each young person’s needs, interests and barriers —
+      not a generic leaflet for everyone.
+    do: >
+      Book a short chat with a careers adviser or trusted adult to sense-check this
+      match against your quals, travel, and support needs.
+    do_not_claim: Do not ignore disability, caring, or travel barriers.
+
+  - id: gatsby_employer_encounters
+    strategy: employer_encounters
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014)
+    strength: strong
+    tags: [employers, encounters, network]
+    claim: >
+      Encounters with employers and employees are a core part of good careers guidance.
+      Employer “pull” complements school or college “push”.
+    do: >
+      Arrange one real encounter this month: open day, careers talk, workplace visit,
+      or a short informational chat with someone in the role.
+    do_not_claim: Website browsing alone is not a substitute for employer encounters.
+
+  - id: gatsby_workplace_experience
+    strategy: workplace_experience
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014)
+    strength: strong
+    tags: [work_experience, placement, shadowing]
+    claim: >
+      Experiences of workplaces help young people understand real job tasks and whether
+      a route fits them.
+    do: >
+      Ask about work experience, taster days, volunteering, or shadowing linked to this
+      sector — even a half-day visit helps.
+    do_not_claim: Do not imply unpaid work experience is the same as a paid job offer.
+
+  - id: gatsby_fe_he_encounters
+    strategy: further_higher_education_encounters
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014)
+    strength: strong
+    tags: [college, university, apprenticeship_provider]
+    claim: >
+      Encounters with further and higher education (and training providers) help young
+      people compare routes fairly.
+    do: >
+      Compare at least two training options for this path (apprenticeship standard,
+      college course, or university/higher apprenticeship) before you lock in.
+    do_not_claim: Do not push university as the only prestigious route.
+
+  - id: gatsby_personal_guidance
+    strategy: personal_guidance
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014)
+    strength: strong
+    tags: [adviser, guidance, interview]
+    claim: >
+      Personal guidance interviews with a trained adviser help young people turn
+      information into decisions and actions.
+    do: >
+      Use this briefing as homework for a guidance chat: bring one preferred route and
+      two questions about entry requirements.
+    do_not_claim: An app briefing is not a replacement for personal guidance.
+
+  - id: gatsby_curriculum_link
+    strategy: link_learning_to_careers
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014)
+    strength: strong
+    tags: [subjects, portfolio, skills]
+    claim: >
+      Linking curriculum learning to careers helps young people see how subjects and
+      projects connect to real roles.
+    do: >
+      Pick one school/college project, coursework piece, or hobby build and rewrite it
+      as evidence for this employer’s typical skills.
+    do_not_claim: Do not invent technical experience you do not have.
+
+  - id: gatsby_2025_inclusion
+    strategy: inclusive_guidance
+    source_id: gatsby_2025
+    source_label: Gatsby Good Career Guidance — The Next 10 Years
+    strength: strong
+    tags: [inclusion, access, support]
+    claim: >
+      Updated Gatsby practice emphasises inclusive careers programmes that respond to
+      different needs and use evidence of what helps young people progress.
+    do: >
+      If travel, health, confidence, or access barriers worry you, say so early and ask
+      the employer or adviser what support or flexible routes exist.
+    do_not_claim: Do not assume every young person can take the same first step.
+
+  - id: gatsby_2025_multiple_benchmarks
+    strategy: multi_element_support
+    source_id: gatsby_2025
+    source_label: Gatsby Good Career Guidance — The Next 10 Years
+    strength: strong
+    tags: [holistic, programme, outcomes]
+    claim: >
+      There is no single magic bullet. Better outcomes come from doing several elements
+      of good careers guidance consistently well.
+    do: >
+      Combine three things this month: check vacancies, practise an application story,
+      and speak to one person in the industry.
+    do_not_claim: Do not rely on motivation tips alone.
+
+  - id: cec_meaningful_encounters
+    strategy: meaningful_employer_outreach
+    source_id: cec_employer
+    source_label: Careers & Enterprise Company — Employer Standards
+    strength: strong
+    tags: [employers, encounters, applications]
+    claim: >
+      High-quality employer outreach — talks, mentoring, workplace visits, and help with
+      applications — improves young people’s readiness and interest in applying.
+    do: >
+      Prefer activities where you practise real application or interview skills, not only
+      a short assembly talk.
+    do_not_claim: Do not invent statistics about your personal chance of getting hired.
+
+  - id: cec_application_prep
+    strategy: application_practice
+    source_id: cec_employer
+    source_label: Careers & Enterprise Company — Employer Standards
+    strength: strong
+    tags: [applications, interview, cv]
+    claim: >
+      Helping young people prepare for application processes is often the weakest part of
+      employer outreach, and many Year 11 students lack confidence talking about skills
+      in interviews.
+    do: >
+      Write one STAR story (Situation, Task, Action, Result) for a challenge you solved,
+      and practise saying it aloud for two minutes.
+    do_not_claim: Do not claim a polished CV guarantees an interview.
+
+  - id: cec_sustained_engagement
+    strategy: sustained_engagement
+    source_id: cec_employer
+    source_label: Careers & Enterprise Company — Employer Standards
+    strength: moderate
+    tags: [long_term, network, follow_up]
+    claim: >
+      Employers who engage over the longer term and offer meaningful opportunities report
+      stronger talent-pipeline benefits; one-off contact is less useful.
+    do: >
+      After any open day or talk, follow up within a week with a short thank-you and one
+      specific question about entry routes.
+    do_not_claim: Do not spam recruiters with generic messages.
+
+  - id: cec_parent_teacher
+    strategy: engage_supporters
+    source_id: cec_employer
+    source_label: Careers & Enterprise Company — Employer Standards
+    strength: moderate
+    tags: [parents, teachers, support]
+    claim: >
+      Engaging parents and teachers alongside young people helps strengthen pathways into
+      early-career opportunities.
+    do: >
+      Show this match to a parent, carer, or teacher and ask them to help you check travel
+      and application deadlines.
+    do_not_claim: Do not assume every young person has an available parent supporter.
+
+  - id: cec_multiple_encounters_outcome
+    strategy: multiple_encounters_outcome
+    source_id: cec_gatsby
+    source_label: Careers & Enterprise Company — careers education impact evidence
+    strength: moderate
+    tags: [employers, encounters, neet_context]
+    claim: >
+      Careers education that includes multiple employer encounters is linked in UK
+      analyses to better destination outcomes at population level.
+    do: >
+      Aim for more than one employer contact over the next term — variety beats a single
+      brand talk.
+    do_not_claim: >
+      Never convert population statistics into a personal probability that this young
+      person will be NEET or hired.
+
+  - id: yff_apprenticeships
+    strategy: apprenticeship_routes
+    source_id: yff_toolkit
+    source_label: Youth Futures Foundation — Youth Employment Toolkit
+    strength: strong
+    tags: [apprenticeship, vocational, training]
+    claim: >
+      Evidence summaries for high-income countries find vocational training and
+      apprenticeships are among the more promising routes to help disadvantaged young
+      people into work.
+    do: >
+      If an apprenticeship fits, search the live vacancy service this week and note the
+      standard name, level, and Maths/English requirements.
+    do_not_claim: Do not promise that every apprenticeship leads to a permanent job.
+
+  - id: yff_mentoring
+    strategy: mentoring_coaching
+    source_id: yff_toolkit
+    source_label: Youth Futures Foundation — Youth Employment Toolkit
+    strength: moderate
+    tags: [mentoring, coaching, support]
+    claim: >
+      Mentoring and coaching are widely used supports; evidence of impact varies, so treat
+      them as helpful persistence supports rather than guaranteed job-getters.
+    do: >
+      Ask if your college, Careers Hub, or employer scheme can pair you with a mentor or
+      buddy during applications and early weeks in role.
+    do_not_claim: Do not claim mentoring alone will get someone a job.
+
+  - id: yff_on_the_job
+    strategy: on_the_job_training
+    source_id: yff_toolkit
+    source_label: Youth Futures Foundation — Youth Employment Toolkit
+    strength: strong
+    tags: [training, workplace, skills]
+    claim: >
+      On-the-job training approaches are associated with improved employment chances for
+      young people facing labour-market barriers.
+    do: >
+      Prioritise routes where you learn while earning or while placed with an employer
+      (apprenticeship, traineeship, internships with structured training).
+    do_not_claim: Do not dismiss college learning — combine study with practical exposure.
+
+  - id: yff_combine_supports
+    strategy: combined_interventions
+    source_id: yff_2025
+    source_label: Youth Futures / Campbell — What works for youth employment (2025)
+    strength: strong
+    tags: [holistic, wraparound, support]
+    claim: >
+      Mixed-methods reviews suggest combining supports (for example training plus mentoring
+      or job search help) often works better than a single isolated intervention.
+    do: >
+      Pair your application with one skills action and one human support (adviser, mentor,
+      or workplace contact).
+    do_not_claim: Do not recommend stacking unrelated courses without a clear goal.
+
+  - id: yff_implementation
+    strategy: retention_and_support
+    source_id: yff_2025
+    source_label: Youth Futures / Campbell — What works for youth employment (2025)
+    strength: moderate
+    tags: [retention, barriers, completion]
+    claim: >
+      Implementation evidence highlights barriers to participation and retention; young
+      people often need support to start and stay on programmes.
+    do: >
+      Before you start a course or apprenticeship, plan transport, kit costs, and who you
+      will message if a week feels overwhelming.
+    do_not_claim: Do not blame young people alone for drop-out when systems are hard.
+
+  - id: oecd_apprenticeship_quality
+    strategy: quality_apprenticeship
+    source_id: oecd_apprentice
+    source_label: OECD — Seven Questions about Apprenticeships (2018)
+    strength: strong
+    tags: [apprenticeship, quality, workplace_learning]
+    claim: >
+      High-quality apprenticeships ease school-to-work transitions when workplace learning
+      is real, structured, and supported — not just cheap labour.
+    do: >
+      When you look at a vacancy, check what training days, mentor, and qualification you
+      will actually get — ask the employer if it is unclear.
+    do_not_claim: Do not treat every apprenticeship vacancy as equal quality.
+
+  - id: oecd_youth_at_risk_prep
+    strategy: preparatory_programmes
+    source_id: oecd_apprentice
+    source_label: OECD — Seven Questions about Apprenticeships (2018)
+    strength: strong
+    tags: [prep, bridge, apprenticeship]
+    claim: >
+      For youth who need extra support, preparatory programmes and personalised help often
+      work better than financial incentives alone.
+    do: >
+      If you are not ready for a full apprenticeship yet, ask about traineeships, pre-
+      apprenticeship, or college bridging courses that feed the same sector.
+    do_not_claim: Do not shame someone for needing a stepping-stone route.
+
+  - id: oecd_mentoring_during
+    strategy: support_during_training
+    source_id: oecd_wbl
+    source_label: OECD — Work-based Learning for Youth at Risk (2016)
+    strength: strong
+    tags: [mentoring, literacy, completion]
+    claim: >
+      Support during work-based learning — mentoring, coaching, and remedial literacy or
+      numeracy where needed — helps completion and skill gain.
+    do: >
+      If Maths or English worries you, start a short refresh now and ask providers what
+      Functional Skills support they offer alongside the role.
+    do_not_claim: Do not hide literacy needs until after you start and struggle alone.
+
+  - id: oecd_employer_cost_benefit
+    strategy: productive_contribution
+    source_id: oecd_wbl
+    source_label: OECD — Work-based Learning for Youth at Risk (2016)
+    strength: moderate
+    tags: [employers, readiness, workplace]
+    claim: >
+      Employers are more willing to offer work-based learning when young people can become
+      productive with the right preparation and support.
+    do: >
+      Show readiness with punctuality examples, a short portfolio, and questions that prove
+      you researched the employer.
+    do_not_claim: Do not invent work history.
+
+  - id: yeuk_work_experience_gap
+    strategy: close_experience_gap
+    source_id: yeuk_2025
+    source_label: Youth Employment UK — Youth Voice Census 2025
+    strength: youth_voice
+    tags: [work_experience, access, youth_voice]
+    claim: >
+      Large numbers of young people say they value work experience, yet far fewer actually
+      get it; careers advice and employer engagement have been declining for many.
+    do: >
+      Do not wait for school to arrange everything — ask one local employer or charity
+      about a short taster, and use Careers Hub / Find an apprenticeship events.
+    do_not_claim: Do not imply every school currently offers excellent work experience.
+
+  - id: yeuk_employer_expectations
+    strategy: clarify_employer_expectations
+    source_id: yeuk_2025
+    source_label: Youth Employment UK — Youth Voice Census 2025
+    strength: youth_voice
+    tags: [employers, confidence, skills]
+    claim: >
+      Many young people feel unsure what employers want and lack confidence discussing
+      skills in applications and interviews.
+    do: >
+      From this employer’s summary, list three skills they care about and one example from
+      your life for each.
+    do_not_claim: Do not invent soft-skill buzzwords without examples.
+
+  - id: yeuk_application_confidence
+    strategy: build_application_confidence
+    source_id: yeuk_2025
+    source_label: Youth Employment UK — Youth Voice Census 2025
+    strength: youth_voice
+    tags: [applications, interview, confidence]
+    claim: >
+      Youth voice data shows persistent gaps in feeling ready for applications, interviews,
+      and understanding employer expectations.
+    do: >
+      Do one timed practice this week: 10 minutes on an application question or a mock
+      interview with a friend, teacher, or adviser.
+    do_not_claim: Do not equate confidence tips with guaranteed success.
+
+  - id: yeuk_wellbeing_barriers
+    strategy: wellbeing_and_access
+    source_id: yeuk_2025
+    source_label: Youth Employment UK — Youth Voice Census 2025
+    strength: youth_voice
+    tags: [wellbeing, barriers, support]
+    claim: >
+      Young people report wellbeing and health barriers that disrupt education and work;
+      support needs to be practical, not only motivational.
+    do: >
+      If health or anxiety is a barrier, ask about workplace adjustments, phased starts, or
+      support services before you write yourself off.
+    do_not_claim: Do not diagnose or minimise mental health.
+
+  - id: eef_aspiration_alignment
+    strategy: align_ambition_and_qualifications
+    source_id: eef_careers
+    source_label: EEF careers education evidence review (Hughes & Mann)
+    strength: moderate
+    tags: [aspirations, qualifications, realism]
+    claim: >
+      Evidence reviews find young people — especially from disadvantaged backgrounds — can
+      hold career ambitions that do not match the education or training needed.
+    do: >
+      Check the usual entry level for this route and map your current quals; if there is a
+      gap, choose a bridge course or apprenticeship level that fits now.
+    do_not_claim: Do not crush ambition — reframe the stepping stones.
+
+  - id: eef_careers_education_impact
+    strategy: quality_careers_education
+    source_id: eef_careers
+    source_label: EEF careers education evidence review (Hughes & Mann)
+    strength: moderate
+    tags: [careers_education, outcomes, disadvantage]
+    claim: >
+      International evidence reviewed for the EEF suggests good-quality careers education
+      can improve academic, social and economic outcomes, with particular value for
+      disadvantaged young people.
+    do: >
+      Use structured activities (research, encounters, guidance) rather than one motivating
+      quote; write your next three actions down.
+    do_not_claim: Do not claim careers education alone closes all attainment gaps.
+
+  - id: dfe_provider_access
+    strategy: compare_providers
+    source_id: dfe_guidance
+    source_label: DfE careers guidance statutory expectations
+    strength: moderate
+    tags: [providers, apprenticeship, college]
+    claim: >
+      National guidance expects young people to hear about the full range of education and
+      training providers, including apprenticeships — not only one institution’s route.
+    do: >
+      For this sector, note one apprenticeship option and one college or higher-education
+      option so you can compare calmly.
+    do_not_claim: Do not present statutory guidance as a personal legal entitlement detail
+      unless you are sure of the current wording.
+
+  - id: dfe_personal_guidance_access
+    strategy: access_personal_guidance
+    source_id: dfe_guidance
+    source_label: DfE careers guidance statutory expectations
+    strength: moderate
+    tags: [adviser, school, college]
+    claim: >
+      Schools and colleges are expected to provide careers guidance programmes aligned to
+      the Gatsby Benchmarks, including personal guidance.
+    do: >
+      Ask your school or college careers leader how to book personal guidance if you have
+      not had a one-to-one yet.
+    do_not_claim: Do not assume every setting already meets every benchmark.
+
+  - id: practical_first_step_bundle
+    strategy: monthly_action_bundle
+    source_id: gatsby_2014
+    source_label: Gatsby Good Career Guidance (Holman, 2014) — applied bundle
+    strength: strong
+    tags: [next_steps, plan, applications, employers]
+    claim: >
+      Combining labour-market checks, employer encounters, and personal guidance reflects
+      the multi-benchmark approach associated with stronger careers programmes.
+    do: >
+      This month complete three concrete actions: (1) shortlist one vacancy or programme,
+      (2) contact one employer or open day, (3) practise one application answer.
+    do_not_claim: Do not overload with ten tasks — three is enough.
+
+  - id: portfolio_over_buzzwords
+    strategy: evidence_of_skills
+    source_id: cec_employer
+    source_label: Careers & Enterprise Company — Employer Standards (applied)
+    strength: moderate
+    tags: [portfolio, projects, skills]
+    claim: >
+      Employers respond better when young people can show skills through examples and
+      preparation for real application processes.
+    do: >
+      Add one visible proof piece this fortnight: GitHub, photo of a make, short write-up,
+      care reflection, or event plan — matching this sector.
+    do_not_claim: Do not fake portfolio work.
+
+  - id: local_careers_hub
+    strategy: use_local_infrastructure
+    source_id: cec_gatsby
+    source_label: Careers & Enterprise Company — Careers Hubs context
+    strength: moderate
+    tags: [careers_hub, local, events]
+    claim: >
+      Careers Hubs and structured careers programmes help schools and colleges raise the
+      quality of employer encounters and guidance.
+    do: >
+      Search for a Gloucestershire Careers Hub or local careers event and put one date in
+      your calendar.
+    do_not_claim: Do not invent event dates; tell the young person to verify locally.
+
+  - id: find_apprenticeship_habit
+    strategy: vacancy_search_habit
+    source_id: yff_toolkit
+    source_label: Youth Futures Foundation Toolkit — applied to UK apprenticeship search
+    strength: strong
+    tags: [vacancies, apprenticeship, search]
+    claim: >
+      Vocational and apprenticeship pathways are evidence-backed options; young people need
+      repeated vacancy search, not a single glance.
+    do: >
+      Set a weekly 20-minute search on Find an apprenticeship for GL postcodes and save
+      two roles that match your level.
+    do_not_claim: Do not invent vacancy counts for Gloucestershire.
+
+  - id: ask_about_mentor_early
+    strategy: ask_for_workplace_support
+    source_id: oecd_wbl
+    source_label: OECD work-based learning evidence — applied
+    strength: moderate
+    tags: [mentoring, apprenticeship, induction]
+    claim: >
+      Personalised support during training improves the chance that young people complete
+      work-based learning.
+    do: >
+      In interviews or open days, ask who will mentor you in the first 90 days and what
+      college day pattern looks like.
+    do_not_claim: Do not assume every SME has a formal mentor scheme.
+
+  - id: values_based_prep
+    strategy: values_and_examples
+    source_id: yeuk_2025
+    source_label: Youth Voice — applied to public/health recruitment
+    strength: youth_voice
+    tags: [values, interview, public_sector]
+    claim: >
+      Young people often feel unclear what employers want; values-based and example-based
+      answers help in health, care, and public service routes.
+    do: >
+      Prepare one example of teamwork and one of helping someone under pressure — keep each
+      under 90 seconds.
+    do_not_claim: Do not invent caring experience.
+
+  - id: step_stone_not_failure
+    strategy: stepping_stone_framing
+    source_id: eef_careers
+    source_label: EEF aspiration alignment — applied framing
+    strength: moderate
+    tags: [levels, progression, confidence]
+    claim: >
+      Aligning ambition with the next achievable qualification step reduces the risk of
+      mismatched plans.
+    do: >
+      If a dream role needs more experience, name the stepping-stone role or level you can
+      start this year and how it leads on.
+    do_not_claim: Do not call a Level 2/3 start a failure.
+
+  - id: research_then_contact
+    strategy: informed_outreach
+    source_id: gatsby_2014
+    source_label: Gatsby LMI + employer encounters — applied
+    strength: strong
+    tags: [research, contact, etiquette]
+    claim: >
+      Combining labour-market research with employer contact is stronger than cold messaging
+      with no context.
+    do: >
+      Before emailing an employer, write three facts you learned about them and one precise
+      question about entry routes.
+    do_not_claim: Do not encourage mass generic speculative emails.

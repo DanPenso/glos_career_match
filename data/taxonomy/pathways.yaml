@@ -1,0 +1,316 @@
+# Training / career pathway cards shown when a leaver picks matching interests.
+# Keys are company sector tags from intake_options.yaml.
+
+education_training:
+  - id: teacher_qts
+    title: Teacher training (QTS / PGCE)
+    summary: >
+      Lead classroom teaching in primary or secondary schools after a degree
+      (or equivalent) via PGCE / School Direct / salaried teacher training.
+    steps:
+      - Get classroom experience (volunteer, TA, or school placement)
+      - Check GCSE English & Maths (and Science for primary); sit equivalency if needed
+      - Apply for PGCE / QTS routes (University of Gloucestershire and school-led partners)
+      - Prepare for interview with a short teaching activity and safeguarding awareness
+    local_anchors:
+      - University of Gloucestershire teacher training
+      - Local school Teaching Assistant apprenticeships
+    typical_entry: graduate
+
+  - id: teaching_assistant
+    title: Teaching Assistant to education career
+    summary: >
+      Support pupils in class while earning; a common first step into teaching,
+      SEND support, or pastoral roles.
+    steps:
+      - Apply for Teaching Assistant apprenticeships in Gloucestershire schools
+      - Build behaviour-support and literacy/numeracy practice examples
+      - Complete safeguarding / first-aid awareness where offered
+      - Later progress to Higher Level TA, specialist SEND roles, or teacher training
+    local_anchors:
+      - Gloucestershire schools & multi-academy trusts
+      - Early years / nursery settings for younger age groups
+    typical_entry: apprenticeship
+
+  - id: early_years
+    title: Early years & childcare
+    summary: >
+      Work with under-5s in nurseries and early years settings, with clear
+      progression to Early Years Educator and room-lead roles.
+    steps:
+      - Look for Early Years Educator / Nursery Assistant apprenticeships
+      - Gather examples of caring for children (babysitting, clubs, volunteering)
+      - Learn EYFS basics and how play supports learning
+      - Progress to room leader, SENDCO support, or later teacher training
+    local_anchors:
+      - Local day nurseries and Hartpury / college early-years pathways
+    typical_entry: apprenticeship
+
+hospitality_tourism:
+  - id: hotel_ops
+    title: Hotels & guest experience
+    summary: >
+      Front of house, reception, housekeeping and supervisory routes in hotels
+      and inns across Cheltenham, Cirencester and the Cotswolds.
+    steps:
+      - Apply for hospitality / customer-service apprenticeships in hotels
+      - Practise welcoming guests and handling bookings or complaints
+      - Learn food hygiene and basic till / PMS systems if offered
+      - Progress to supervisor, duty manager, or events coordinator
+    local_anchors:
+      - Hilton and independent Cotswold hotels
+      - Pub and inn groups (e.g. Greene King) with hotel bedrooms
+    typical_entry: apprenticeship
+
+  - id: chef_kitchen
+    title: Chef & kitchen brigade
+    summary: >
+      Commis / chef apprenticeships in restaurants, hotels and pub kitchens —
+      practical training with a clear craft progression.
+    steps:
+      - Apply for Commis Chef / Culinary apprenticeships
+      - Show food interest (home cooking, college catering, part-time kitchen work)
+      - Complete food hygiene training early
+      - Progress to chef de partie → sous chef → head chef or development chef
+    local_anchors:
+      - Restaurant groups and hotel kitchens across GL postcodes
+      - College catering courses feeding into apprenticeships
+    typical_entry: apprenticeship
+
+  - id: restaurant_foh
+    title: Restaurants & front of house
+    summary: >
+      Waiting, barista, bar and hospitality supervisor roles — strong for
+      people who like pace, teams and customer service.
+    steps:
+      - Target waiter / waitress / barista / FOH apprenticeships
+      - Build examples of teamwork under pressure
+      - Learn allergen awareness and upselling basics
+      - Progress to shift leader or hospitality supervisor standards
+    local_anchors:
+      - High-street restaurants, pubs and café groups in Gloucestershire
+    typical_entry: apprenticeship
+
+hospitality_retail:
+  - id: retail_customer
+    title: Retail & customer experience
+    summary: >
+      Store, head-office and visual-merchandising pathways — useful if you like
+      brands, selling and organising customer journeys.
+    steps:
+      - Apply for retail / customer-service apprenticeships or school-leaver schemes
+      - Collect examples of helping customers and hitting simple targets
+      - Explore visual merchandising or e-commerce support if creative
+      - Progress to supervisor, buying support or commercial roles
+    local_anchors:
+      - Cheltenham retail HQs and high-street employers
+    typical_entry: school_leaver
+
+construction_green:
+  - id: electrician
+    title: Electrician (installation / maintenance)
+    summary: >
+      Electrotechnical apprenticeships leading toward qualified electrician status
+      — domestic, commercial or maintenance routes.
+    steps:
+      - Apply for installation / maintenance electrician apprenticeships (Electrotechnical)
+      - Get GCSEs in Maths and English where possible; show practical problem-solving
+      - Expect workshop college days plus on-site mentoring
+      - Progress toward AM2 / qualified status and later inspector or self-employed work
+    local_anchors:
+      - Local electrical contractors and building-services employers (GL postcodes)
+      - Find an Apprenticeship electrotechnical vacancies
+    typical_entry: apprenticeship
+
+  - id: plumber_heating
+    title: Plumbing & domestic heating
+    summary: >
+      Plumbing and heating technician apprenticeships — installing and maintaining
+      water, heating and increasingly low-carbon systems.
+    steps:
+      - Search Plumbing and Domestic Heating Technician apprenticeships
+      - Practise measuring, hand tools and basic DIY evidence for interview
+      - Complete gas / water regulations training as your employer schedules it
+      - Progress to qualified plumber, heating engineer or renewable install add-ons
+    local_anchors:
+      - Independent plumbing & heating firms across Gloucestershire
+    typical_entry: apprenticeship
+
+  - id: site_trades
+    title: Site trades (brick, joinery, scaffold, groundworks)
+    summary: >
+      Hands-on construction apprenticeships with housebuilders and contractors —
+      bricklaying, carpentry/joinery, scaffolding and groundworks.
+    steps:
+      - Pick a trade and apply for the matching apprenticeship standard
+      - Show outdoor practical experience (DIY, landscaping, workshop, D&T)
+      - Be ready for early starts, site PPE and CSCS-related training
+      - Progress to skilled craftsperson, chargehand or site supervisor routes
+    local_anchors:
+      - Barratt and other housebuilders; local construction SMEs
+      - Scaffolding and civils contractors in the county
+    typical_entry: apprenticeship
+
+  - id: building_services
+    title: Building services & maintenance
+    summary: >
+      Keep buildings running — multi-skilled maintenance, HVAC-adjacent and
+      facilities engineering pathways alongside green-energy employers.
+    steps:
+      - Target Building Services Engineer / Maintenance Engineer apprenticeships
+      - Combine electrical, mechanical and problem-solving examples
+      - Look at Ecotricity and utilities for energy-linked routes
+      - Progress to multi-skilled engineer or project technician roles
+    local_anchors:
+      - Building services contractors; Ecotricity; water/utilities employers
+    typical_entry: apprenticeship
+
+aerospace_manufacturing:
+  - id: aero_apprentice
+    title: Aerospace engineering apprenticeship
+    summary: >
+      Design, manufacture and maintain aircraft systems with major Glos employers —
+      a strong school/college-leaver route into advanced engineering.
+    steps:
+      - Apply for engineering / manufacturing apprenticeships at aerospace employers
+      - Build Maths, physics and practical project evidence (D&T, CAD, makerspace)
+      - Expect assessment centres with problem-solving and teamwork tasks
+      - Progress to technician, design support or degree-apprenticeship pathways
+    local_anchors:
+      - GE Aerospace Gloucester
+      - Local advanced manufacturing SMEs in the GL postcode area
+    typical_entry: apprenticeship
+
+  - id: aero_graduate
+    title: Aerospace graduate / higher apprenticeship
+    summary: >
+      Engineering, supply-chain and digital roles for degree holders or higher
+      apprentices — often with structured rotations.
+    steps:
+      - Target graduate schemes or Level 6/7 apprenticeships in aerospace
+      - Show projects with CAD, materials, quality or data analysis
+      - Prepare STAR examples of teamwork on technical problems
+      - Progress toward chartered status with employer support where offered
+    local_anchors:
+      - GE Aerospace and regional manufacturing partners
+    typical_entry: graduate
+
+agri_tech_food:
+  - id: agri_tech
+    title: Agri-tech & controlled environment
+    summary: >
+      Technology for farming and food production — sensors, data, glasshouse
+      systems and innovation sites around Cirencester / Hartpury.
+    steps:
+      - Explore agri-tech apprenticeships and technician roles at innovation centres
+      - Combine biology / geography interest with digital or mechanical skills
+      - Visit open days at Farm491 / Hartpury / Cirencester agri hubs
+      - Progress into grower tech, R&D support or agronomy pathways
+    local_anchors:
+      - Farm491 (Cirencester)
+      - Hartpury and Royal Agricultural University networks
+    typical_entry: apprenticeship
+
+  - id: food_science
+    title: Food science & product development
+    summary: >
+      Lab, quality and product roles that keep food safe and innovative —
+      strong if you like science with a practical industry link.
+    steps:
+      - Look for food technician / lab / quality apprenticeships
+      - Study food science, biology or chemistry at college or uni where you can
+      - Build lab-safety and methodical testing examples
+      - Progress to product development, QA or technical sales
+    local_anchors:
+      - Campden BRI and food manufacturers in the county
+    typical_entry: apprenticeship
+
+cyber_digital:
+  - id: cyber_defence
+    title: Cybersecurity & digital defence
+    summary: >
+      Protect networks and data — apprenticeships and graduate routes into SOC,
+      security analysis and cyber operations in Gloucestershire.
+    steps:
+      - Apply for cyber / digital apprenticeships (including public-sector schemes)
+      - Build a home lab, Capture-the-Flag or coding portfolio
+      - Work toward CompTIA Security+ / equivalent where helpful
+      - Progress into SOC analyst, vulnerability or GRC pathways
+    local_anchors:
+      - GCHQ / National Cyber Awards ecosystem
+      - CyNam Network and local cyber SMEs
+    typical_entry: apprenticeship
+
+  - id: software_digital
+    title: Software & digital product
+    summary: >
+      Build apps, web services and data tools — school-leaver and graduate
+      routes into product engineering teams.
+    steps:
+      - Ship a small portfolio (GitHub, websites, automations)
+      - Apply for software developer / digital apprenticeships
+      - Practise pair-programming style interview tasks
+      - Progress to junior developer, QA automation or data roles
+    local_anchors:
+      - CGI and digital employers across Cheltenham / Gloucester
+    typical_entry: apprenticeship
+
+health_care:
+  - id: health_care_support
+    title: Health & care support roles
+    summary: >
+      Hands-on patient and community support — a common first step into nursing,
+      allied health or social care careers.
+    steps:
+      - Apply for healthcare support worker / care apprenticeships
+      - Get care-certificate readiness and DBS-aware volunteering if you can
+      - Practise calm communication under pressure
+      - Progress to nursing associate, therapy support or registered routes
+    local_anchors:
+      - NHS Gloucestershire and local care providers
+    typical_entry: apprenticeship
+
+business_professional:
+  - id: business_admin
+    title: Business administration & professional services
+    summary: >
+      Office, finance support, HR admin and commercial pathways — useful if you
+      like organising people, numbers and processes.
+    steps:
+      - Target business admin / accounts assistant apprenticeships
+      - Show spreadsheet, communication and reliability examples
+      - Learn basic workplace tools (Teams, Excel, CRM)
+      - Progress to coordinator, analyst or specialist professional routes
+    local_anchors:
+      - Local professional-services firms and public-sector admin schemes
+    typical_entry: apprenticeship
+
+public_sector:
+  - id: public_service
+    title: Public service & community roles
+    summary: >
+      Local government, emergency services support and community programmes —
+      structured entry routes with clear values around public benefit.
+    steps:
+      - Search council, police support and civil-service apprenticeship schemes
+      - Gather volunteering or customer-facing experience
+      - Prepare for values-based interviews and scenario questions
+      - Progress into specialist policy, ops or frontline professional roles
+    local_anchors:
+      - Gloucestershire County Council and Constabulary entry schemes
+    typical_entry: apprenticeship
+
+creative_events:
+  - id: creative_events_path
+    title: Creative, design & events
+    summary: >
+      Design, content, festivals and visitor experiences — project-based routes
+      if you like making things people see and feel.
+    steps:
+      - Build a small portfolio (design, photo, video, event plans)
+      - Apply for creative / digital marketing / events apprenticeships
+      - Practise briefing clients and hitting deadlines
+      - Progress to junior designer, producer or venue/operations roles
+    local_anchors:
+      - Cheltenham festivals, venues and creative agencies
+    typical_entry: apprenticeship

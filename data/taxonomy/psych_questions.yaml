@@ -1,0 +1,136 @@
+# Psychology-informed preference questions (NOT clinical assessment).
+# Based on RIASEC (Holland), work-value theory, and self-determination theory.
+# Used only to infer role-environment fit for careers guidance.
+
+disclaimer: >
+  These questions explore work preferences to suggest suitable local employers.
+  They are not a psychological diagnosis or ability test.
+
+questions:
+  - id: Q1_problem_style
+    riasec_primary: Investigative
+    prompt: When you face a tricky problem, what do you enjoy most?
+    type: single_choice
+    options:
+      - id: analyse
+        label: Digging into data, evidence, or logic until it makes sense
+        weights: {Investigative: 2, Conventional: 1}
+      - id: build
+        label: Building, prototyping, or fixing something with my hands / tools
+        weights: {Realistic: 2, Investigative: 1}
+      - id: people
+        label: Talking it through with people and finding a shared solution
+        weights: {Social: 2, Enterprising: 1}
+      - id: create
+        label: Coming up with a creative or unusual approach
+        weights: {Artistic: 2, Investigative: 1}
+
+  - id: Q2_energy_source
+    riasec_primary: Social
+    prompt: You feel most energised at the end of a day when you have…
+    type: single_choice
+    options:
+      - id: helped
+        label: Helped someone learn, feel better, or get support
+        weights: {Social: 2}
+      - id: shipped
+        label: Finished a tangible product, build, or measurable output
+        weights: {Realistic: 1, Conventional: 1, Enterprising: 1}
+      - id: discovered
+        label: Figured out something new or improved a system/process
+        weights: {Investigative: 2, Conventional: 1}
+      - id: influenced
+        label: Persuaded, organised, or led people toward a goal
+        weights: {Enterprising: 2, Social: 1}
+
+  - id: Q3_work_setting
+    riasec_primary: Realistic
+    prompt: Which setting sounds most like you (pick the closest)?
+    type: single_choice
+    options:
+      - id: workshop_lab
+        label: Workshop, lab, farm, or technical site
+        weights: {Realistic: 2}
+      - id: office_hybrid
+        label: Office / hybrid with screens, meetings, and documents
+        weights: {Conventional: 2, Enterprising: 1}
+      - id: community
+        label: Schools, clinics, care settings, or community spaces
+        weights: {Social: 2}
+      - id: studio_events
+        label: Studio, events, media, or creative spaces
+        weights: {Artistic: 2, Enterprising: 1}
+
+  - id: Q4_structure_vs_autonomy
+    work_value: autonomy_vs_structure
+    prompt: How do you prefer work to be organised?
+    type: single_choice
+    options:
+      - id: clear_structure
+        label: Clear tasks, checklists, and known processes
+        weights: {Conventional: 2}
+        structure_score: 2
+      - id: mix
+        label: Some structure, but room to decide how I work
+        weights: {Conventional: 1, Enterprising: 1}
+        structure_score: 1
+      - id: open_ended
+        label: Open-ended goals where I invent the path
+        weights: {Artistic: 1, Enterprising: 1, Investigative: 1}
+        structure_score: 0
+
+  - id: Q5_risk_novelty
+    work_value: novelty
+    prompt: Around new technology or change, you usually…
+    type: single_choice
+    options:
+      - id: pioneer
+        label: Want to try it first and experiment
+        weights: {Investigative: 1, Enterprising: 1, Artistic: 1}
+        novelty_score: 2
+      - id: careful
+        label: Learn carefully once others have proven it
+        weights: {Conventional: 2}
+        novelty_score: 0
+      - id: apply
+        label: Apply it practically to solve a real problem
+        weights: {Realistic: 1, Investigative: 1}
+        novelty_score: 1
+
+  - id: Q6_team_role
+    prompt: In a group project, you naturally tend to…
+    type: single_choice
+    options:
+      - id: specialist
+        label: Own a specialist technical piece
+        weights: {Investigative: 1, Realistic: 1, Conventional: 1}
+        role_hint: specialist
+      - id: connector
+        label: Keep people talking and morale up
+        weights: {Social: 2}
+        role_hint: people
+      - id: organiser
+        label: Plan deadlines, quality, and delivery
+        weights: {Conventional: 2, Enterprising: 1}
+        role_hint: organiser
+      - id: ideas
+        label: Generate ideas and pitch the direction
+        weights: {Artistic: 1, Enterprising: 2}
+        role_hint: ideas
+
+# Maps dominant RIASEC → preferred company sectors / role families
+riasec_to_sectors:
+  Realistic: [aerospace_manufacturing, construction_green, agri_tech_food]
+  Investigative: [cyber_digital, aerospace_manufacturing, agri_tech_food, health_care]
+  Artistic: [creative_events, cyber_digital]
+  Social: [health_care, education_training, public_sector]
+  Enterprising: [business_professional, hospitality_tourism, hospitality_retail, public_sector, cyber_digital]
+  Conventional: [business_professional, public_sector, cyber_digital]
+
+riasec_to_role_families:
+  Realistic: [technician, engineer_ops, field_ops, manufacturing]
+  Investigative: [analyst, cyber, software, research_lab, data]
+  Artistic: [design, content, events, ux]
+  Social: [care, teaching_support, customer_success, hr]
+  Enterprising: [sales, project_coord, management_track, business_dev]
+  Conventional: [admin, finance, quality, compliance, project_support]

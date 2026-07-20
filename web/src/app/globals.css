@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Cooler base — less “leaflet cream” */
+  --paper: #eef2f1;
+  --surface: #f7faf9;
+  --ink: #0f1f1a;
+  --ink-muted: #3d524a;
+  --line: #c5d0cb;
+  /* Trust green (secondary / structure) */
+  --trust: #0d5c54;
+  --hero-deep: #0a2e28;
+  /* Gen-Z pop accent — lime on CTAs / chips only */
+  --accent: #b8f229;
+  --accent-ink: #0f1f1a;
+  --accent-hot: #ff5a36;
+  --hero-glow: #b8f229;
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(1100px 480px at 8% -8%, rgba(184, 242, 41, 0.18), transparent 55%),
+    radial-gradient(900px 420px at 92% 0%, rgba(13, 92, 84, 0.14), transparent 50%),
+    var(--paper);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+@layer components {
+  .field {
+    @apply w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2.5 text-[var(--ink)] outline-none focus:border-[var(--trust)] focus:ring-2;
+  }
+
+  .field:focus {
+    --tw-ring-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-bold text-[var(--accent-ink)] shadow-[0_4px_0_0_var(--trust)] transition hover:translate-y-px hover:shadow-[0_2px_0_0_var(--trust)] disabled:opacity-60 disabled:shadow-none;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-[var(--line)] bg-transparent px-4 py-2 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--trust)] hover:bg-[var(--surface)];
+  }
+
+  .stat {
+    @apply rounded-2xl bg-[var(--paper)] px-3 py-3 ring-1 ring-[var(--line)];
+  }
+
+  .stat-label {
+    @apply text-xs font-medium text-[var(--ink-muted)];
+  }
+
+  .stat-value {
+    @apply mt-1 text-xl font-semibold text-[var(--ink)];
+    font-family: var(--font-display), Georgia, serif;
+  }
+}
+
+.animate-in {
+  animation: rise 0.45s ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

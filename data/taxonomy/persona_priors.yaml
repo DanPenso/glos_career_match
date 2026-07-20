@@ -1,0 +1,64 @@
+# Curated peer-pathway priors for K-Means career personas.
+# Used when a live intake is assigned to the nearest cluster.
+# pathway_ids must match ids in pathways.yaml.
+
+personas:
+  Technical Specialist:
+    blurb: >
+      Others in this group often favour digital, cyber, and structured training routes
+      with clear skill ladders.
+    pathway_ids:
+      - cyber_defence
+      - software_digital
+      - business_admin
+    typical_sectors:
+      - cyber_digital
+      - business_professional
+
+  Hands-on Maker:
+    blurb: >
+      Others in this group often explore practical engineering, manufacturing, trades,
+      and agri-tech routes where you learn by doing.
+    pathway_ids:
+      - aero_apprentice
+      - aero_graduate
+      - electrician
+      - agri_tech
+      - site_trades
+    typical_sectors:
+      - aerospace_manufacturing
+      - construction_green
+      - agri_tech_food
+
+  People & Care:
+    blurb: >
+      Others in this group often look at health, education, and public-service pathways
+      with people-facing progression.
+    pathway_ids:
+      - health_care_support
+      - teaching_assistant
+      - public_service
+      - early_years
+    typical_sectors:
+      - health_care
+      - education_training
+      - public_sector
+
+  Creative / Commercial:
+    blurb: >
+      Others in this group often combine creative, events, hospitality, and commercial
+      or leadership-leaning routes with customer-facing experience.
+    pathway_ids:
+      - creative_events_path
+      - hotel_ops
+      - retail_customer
+      - business_admin
+    typical_sectors:
+      - creative_events
+      - hospitality_tourism
+      - hospitality_retail
+      - business_professional
+
+disclaimer: >
+  Based on similar profiles in our training model — options to compare, not live user
+  statistics or a verdict.

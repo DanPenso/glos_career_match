@@ -1,0 +1,105 @@
+occupation_key,title,onetsoc_code,sectors,r,i,a,s,e,c,notes
+software_dev,Software Developer,15-1252.00,cyber_digital,2.5,6.5,3.0,2.0,3.0,5.5,digital builder
+cyber_analyst,Information Security Analyst,15-1212.00,cyber_digital,2.0,6.8,1.5,2.0,2.5,6.0,defence / SOC lean
+web_dev,Web Developer,15-1254.00,cyber_digital,2.5,5.5,4.5,2.5,3.5,5.0,frontend creative lean
+data_analyst,Data Analyst,15-2051.00,cyber_digital|business_professional,1.5,6.5,2.0,2.0,3.0,6.5,numbers + systems
+it_support,Computer User Support Specialist,15-1232.00,cyber_digital,3.5,5.0,2.0,4.0,3.0,5.5,customer + tech
+network_tech,Network and Computer Systems Administrator,15-1244.00,cyber_digital,4.0,5.5,1.5,2.5,2.5,6.0,infra
+aerospace_tech,Aerospace Engineering Technologist,17-3021.00,aerospace_manufacturing,5.5,6.0,2.5,2.0,2.5,5.0,Glos aero
+mech_engineer,Mechanical Engineer,17-2141.00,aerospace_manufacturing|construction_green,5.0,6.2,2.5,2.0,3.0,5.0,maker + design
+elec_engineer,Electrical Engineer,17-2071.00,aerospace_manufacturing|construction_green,4.5,6.5,2.0,2.0,2.5,5.5,power systems
+avionics,Avionics Technician,49-2091.00,aerospace_manufacturing,6.0,5.0,2.0,2.0,2.0,5.5,hands-on aero
+cnc_machinist,CNC Machinist,51-4041.00,aerospace_manufacturing|construction_green,6.5,4.0,2.0,1.5,2.0,5.5,shop floor
+industrial_eng,Industrial Engineering Technologist,17-3026.00,aerospace_manufacturing|business_professional,4.5,5.5,2.0,2.5,4.0,5.5,process
+agri_tech,Agricultural Technician,19-4012.00,agri_tech_food,5.5,5.0,2.0,3.0,3.0,4.5,Glos agri
+food_sci,Food Scientist,19-1012.00,agri_tech_food,3.0,6.5,2.0,2.5,2.5,5.0,lab food
+farm_manager,Farm / Estate Manager,11-9013.00,agri_tech_food|business_professional,5.5,3.5,2.0,3.0,5.5,4.5,land + enterprise
+env_tech,Environmental Science Technician,19-4042.00,agri_tech_food|public_sector|construction_green,4.5,5.5,2.5,3.5,3.0,4.5,sustainability
+horticulture,Horticulturist,19-1013.00,agri_tech_food,5.5,4.0,3.0,3.0,3.0,4.0,land-based
+nurse,Registered Nurse,29-1141.00,health_care,3.0,4.5,2.0,6.5,3.0,5.0,care lead
+hca,Nursing Assistant / HCA,31-1131.00,health_care,4.0,3.0,1.5,6.5,2.5,4.5,entry care
+physio,Physiotherapist,29-1123.00,health_care,4.0,5.0,2.0,6.0,3.0,4.5,allied health
+pharmacy_tech,Pharmacy Technician,29-2052.00,health_care|business_professional,2.5,5.0,1.5,4.5,2.5,6.5,health conventional
+mental_health,Mental Health Support Worker,21-1014.00,health_care|public_sector,2.5,3.5,2.5,6.8,3.0,4.0,people first
+paramedic,Emergency Medical Technician,29-2042.00,health_care|public_sector,5.0,4.5,1.5,6.0,3.5,4.5,response
+teacher,Secondary School Teacher,25-2031.00,education_training,2.0,4.5,4.0,6.5,4.0,5.0,education
+ta,Teaching Assistant,25-9042.00,education_training,2.5,3.0,3.0,6.5,3.0,5.0,early support
+early_years,Preschool / Early Years Teacher,25-2011.00,education_training|health_care,3.0,3.0,4.0,6.8,3.5,4.5,EYFS
+training_officer,Training and Development Specialist,13-1151.00,education_training|business_professional,2.0,3.5,3.5,5.5,5.0,5.0,L&D
+civil_servant,Government Program Officer,11-9151.00,public_sector|business_professional,2.0,4.0,2.0,5.0,4.5,6.0,public admin
+police,Police Officer,33-3051.00,public_sector,5.0,3.5,1.5,5.5,4.5,5.0,uniformed
+social_worker,Social Worker,21-1021.00,public_sector|health_care,2.5,3.5,2.5,6.8,3.5,4.5,community
+local_gov,Local Authority Administrator,43-9061.00,public_sector|business_professional,1.5,3.0,2.0,4.5,3.5,6.5,council ops
+graphic_designer,Graphic Designer,27-1024.00,creative_events,2.0,3.5,6.8,2.5,4.0,4.0,creative
+events_manager,Meeting / Event Planner,13-1121.00,creative_events|hospitality_tourism,2.5,3.0,5.0,5.0,6.5,5.0,events
+video_editor,Film and Video Editor,27-4032.00,creative_events,2.5,3.5,6.5,2.0,3.5,4.0,media
+marketing,Marketing Specialist,13-1161.00,creative_events|business_professional|hospitality_retail,1.5,3.5,5.0,4.0,6.5,4.5,commercial creative
+photographer,Photographer,27-4021.00,creative_events,3.5,3.0,6.5,3.0,4.0,3.5,visual
+electrician,Electrician,47-2111.00,construction_green,6.5,4.0,2.0,2.5,3.0,5.0,trade
+plumber,Plumber,47-2152.00,construction_green,6.5,3.5,1.5,3.0,3.5,4.5,trade
+carpenter,Carpenter,47-2031.00,construction_green,6.8,3.0,3.5,2.0,3.0,4.0,trade
+site_supervisor,Construction Supervisor,47-1011.00,construction_green|business_professional,5.5,3.5,2.0,3.5,5.5,5.0,site lead
+green_energy,Solar Photovoltaic Installer,47-2231.00,construction_green,6.5,4.0,2.0,2.5,3.0,4.5,green skills
+surveyor,Surveyor,17-1022.00,construction_green|business_professional,4.0,5.0,2.5,2.5,4.0,5.5,built env
+hotel_manager,Lodging Manager,11-9081.00,hospitality_tourism|business_professional,2.5,2.5,3.0,5.0,6.5,5.0,hospitality lead
+chef,Chef / Head Cook,35-1011.00,hospitality_tourism,5.0,2.5,5.0,3.5,4.5,4.0,kitchen
+front_of_house,Hotel Front Desk Clerk,43-4081.00,hospitality_tourism|hospitality_retail,2.0,2.0,2.5,5.5,5.0,5.5,guest facing
+travel_agent,Travel Agent,41-3041.00,hospitality_tourism|hospitality_retail,1.5,2.5,3.5,5.0,6.0,5.0,tourism
+retail_manager,Retail Store Manager,41-1011.00,hospitality_retail|business_professional,2.5,2.5,2.5,4.5,6.5,5.5,retail lead
+sales_assoc,Retail Salesperson,41-2031.00,hospitality_retail,2.5,2.0,2.5,5.0,6.0,4.5,shop floor
+customer_service,Customer Service Representative,43-4051.00,hospitality_retail|business_professional,1.5,2.5,2.0,5.5,4.5,5.5,service
+accountant,Accountant,13-2011.00,business_professional,1.5,4.5,1.5,2.5,3.5,7.0,conventional
+hr,Human Resources Specialist,13-1071.00,business_professional|education_training,1.5,3.0,2.5,5.5,5.0,5.5,people ops
+project_manager,Project Management Specialist,13-1082.00,business_professional|aerospace_manufacturing,2.5,4.0,2.5,4.0,6.0,5.5,delivery
+business_admin,Administrative Assistant,43-6014.00,business_professional,1.5,2.5,2.0,4.0,3.5,6.8,admin
+financial_clerk,Bookkeeping Clerk,43-3031.00,business_professional,1.5,3.5,1.5,2.5,3.0,7.0,finance entry
+sales_rep,Sales Representative,41-4012.00,business_professional|hospitality_retail,2.0,3.0,3.0,4.5,7.0,4.0,enterprising
+entrepreneur,General and Operations Manager,11-1021.00,business_professional|hospitality_retail,3.0,3.5,3.0,4.0,7.0,5.0,enterprise
+lab_tech,Chemical Technician,19-4031.00,aerospace_manufacturing|agri_tech_food|health_care,4.0,6.0,2.0,2.5,2.0,5.5,lab
+biotech,Biological Technician,19-4021.00,health_care|agri_tech_food,3.5,6.5,2.0,3.0,2.0,5.0,life sciences
+ux_designer,Web and Digital Interface Designer,15-1255.00,cyber_digital|creative_events,2.0,4.5,6.0,3.5,4.0,4.5,digital creative
+content_creator,Public Relations Specialist,27-3031.00,creative_events|business_professional,1.5,3.0,5.5,5.0,6.0,4.0,comms
+sports_coach,Coaches and Scouts,27-2022.00,health_care|education_training,5.0,3.0,3.0,6.0,5.0,3.5,sport
+logistics,Logistics Coordinator,13-1081.00,business_professional|aerospace_manufacturing,3.5,4.0,1.5,3.0,4.5,6.0,ops
+quality_control,Quality Control Inspector,51-9061.00,aerospace_manufacturing|construction_green,5.0,4.5,1.5,2.0,2.5,6.5,QA
+welder,Welder,51-4121.00,aerospace_manufacturing|construction_green,7.0,3.0,2.0,1.5,2.0,4.5,heavy trade
+hvac,HVAC Technician,49-9021.00,construction_green,6.5,4.0,1.5,3.0,3.0,5.0,building services
+vet_nurse,Veterinary Technologist,29-2056.00,agri_tech_food|health_care,4.5,5.0,2.0,5.5,2.5,5.0,animal care
+dental_nurse,Dental Assistant,31-9091.00,health_care,3.5,3.5,2.0,5.5,3.0,5.5,clinical support
+librarian,Librarian,25-4021.00,education_training|public_sector|business_professional,1.5,4.0,3.5,5.0,2.5,6.0,info services
+journalist,News Analyst / Reporter,27-3023.00,creative_events|business_professional,2.0,4.5,6.0,4.5,5.0,4.0,media writing
+paralegal,Paralegal,23-2011.00,public_sector|business_professional,1.5,4.0,2.0,4.0,3.5,6.5,legal admin
+security_guard,Security Guard,33-9032.00,public_sector|hospitality_retail,4.5,2.5,1.5,4.0,3.5,5.0,protective
+bar_staff,Bartender,35-3011.00,hospitality_tourism|hospitality_retail,3.5,2.0,3.5,5.5,5.5,3.5,hospitality
+beauty,Skincare Specialist,39-5094.00,hospitality_retail|health_care,3.0,2.5,4.5,5.5,5.0,4.0,personal care
+estate_agent,Real Estate Sales Agent,41-9022.00,business_professional|construction_green,2.5,3.0,3.0,4.5,7.0,4.5,property
+architect,Architect,17-1011.00,construction_green|creative_events,3.5,5.5,6.5,3.0,4.5,5.0,design build
+civil_engineer,Civil Engineer,17-2051.00,construction_green|public_sector,4.5,6.0,3.0,2.5,3.5,5.5,infra
+drone_op,Electro-Mechanical Technician,17-3024.00,aerospace_manufacturing|cyber_digital,5.5,5.5,2.5,2.0,3.0,5.0,emerging tech
+game_dev,Video Game Designer,15-1255.01,cyber_digital|creative_events,2.5,5.0,6.5,2.5,4.0,4.5,games
+care_home,Home Health Aide,31-1121.00,health_care,3.5,2.5,2.0,6.8,2.5,4.0,adult care
+youth_worker,Social and Human Service Assistant,21-1093.00,public_sector|education_training,2.5,3.0,3.0,6.8,4.0,4.0,youth
+museum,Museum Technician,25-4013.00,creative_events|public_sector|education_training,3.0,4.0,5.5,4.5,3.0,5.0,heritage
+brewery,Food Batchmaker,51-3092.00,agri_tech_food|hospitality_tourism,5.0,3.5,3.0,2.5,3.5,5.0,food production
+warehouse,Stockers and Order Fillers,53-7065.00,hospitality_retail|business_professional|aerospace_manufacturing,5.5,2.0,1.5,2.5,3.0,5.0,logistics floor
+call_centre,Telemarketer / Contact Centre,41-9041.00,business_professional|hospitality_retail,1.5,2.0,2.0,4.5,6.0,5.0,phone sales
+research_asst,Social Science Research Assistant,19-4061.00,education_training|public_sector|business_professional,2.0,6.5,3.0,4.0,2.5,5.5,research
+mechatronics,Robotics Technician,17-3024.01,aerospace_manufacturing|cyber_digital,5.5,6.0,2.5,2.0,2.5,5.5,advanced mfg
+sustainability_officer,Sustainability Specialist,13-1199.05,public_sector|agri_tech_food|business_professional,3.0,5.0,3.0,4.5,4.5,5.0,ESG
+apprentice_chef,Cook / Restaurant Cook,35-2014.00,hospitality_tourism,5.0,2.0,4.0,3.5,3.5,4.0,entry hospitality
+digital_marketer,Search Marketing Strategist,13-1161.01,cyber_digital|business_professional|creative_events,1.5,4.0,4.5,3.5,6.0,5.0,growth
+cloud_eng,Cloud Engineer,15-1241.00,cyber_digital,3.0,6.5,2.0,2.0,3.0,6.0,infra cloud
+biomed_eng,Biomedical Engineer,17-2031.00,health_care|aerospace_manufacturing,4.0,6.8,2.5,3.0,2.5,5.0,medtech
+forest_worker,Forest and Conservation Worker,45-4011.00,agri_tech_food|public_sector,6.5,3.5,2.0,3.0,2.5,3.5,land outdoor
+builder,Construction Labourer,47-2061.00,construction_green,7.0,2.5,1.5,2.5,3.0,3.5,site entry
+florist,Floral Designer,27-1023.00,creative_events|hospitality_retail,3.5,2.5,6.5,4.0,4.0,3.5,creative retail
+baker,Baker,51-3011.00,hospitality_tourism|agri_tech_food,5.5,2.5,4.0,3.0,3.5,5.0,food craft
+insurance,Insurance Sales Agent,41-3021.00,business_professional,1.5,3.0,2.0,4.5,6.5,5.5,financial sales
+occupational_therapist,Occupational Therapist,29-1122.00,health_care|education_training,3.5,5.0,3.5,6.5,3.0,4.5,rehab
+fire_fighter,Firefighter,33-2011.00,public_sector,6.0,3.5,1.5,5.5,3.5,4.5,emergency
+sound_tech,Audio and Video Technician,27-4011.00,creative_events,4.0,4.0,5.5,3.0,3.5,4.5,AV events
+cad_tech,Drafter / CAD Technician,17-3011.00,aerospace_manufacturing|construction_green|creative_events,3.5,5.5,5.0,2.0,2.5,5.5,design tech
+procurement,Purchasing Agent,13-1023.00,business_professional|aerospace_manufacturing,2.0,3.5,1.5,3.0,5.0,6.5,supply chain
+receptionist,Receptionist,43-4171.00,business_professional|hospitality_tourism|health_care,1.5,2.0,2.5,5.5,4.0,6.0,front desk
+kitchen_porter,Dishwasher / KP,35-9021.00,hospitality_tourism,5.0,1.5,1.5,3.0,2.5,4.0,entry hospitality
+careers_adviser,Educational Guidance Counselor,21-1012.00,education_training|public_sector,1.5,4.0,3.0,6.8,4.0,5.0,IAG

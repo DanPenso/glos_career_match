@@ -1,0 +1,42 @@
+# Environment / secrets
+.env
+.env.local
+web/.env.local
+.venv/
+web/node_modules/
+web/.next/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Large local model weights (configs may be committed separately)
+models/local_minilm_model/*.safetensors
+models/local_minilm_model/*.bin
+
+# Future large raw downloads (keep seed/taxonomy/corpus/schema tracked)
+data/raw/
+data/processed/
+data/external/jobcannon/*
+!data/external/jobcannon/README.md
+data/external/onet/*
+!data/external/onet/.gitkeep
+*.zip
+# Keep curated bridge + built leavers tracked; parquet optional local
+data/curated/*.parquet
+# Anonymous live match events (retrain inputs)
+data/live/*
+!data/live/README.md

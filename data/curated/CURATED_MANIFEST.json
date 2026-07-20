@@ -1,0 +1,35 @@
+{
+  "version": "v1",
+  "created_utc": "2026-07-18T17:08:11.819851+00:00",
+  "n_train": 1410,
+  "n_holdout": 310,
+  "sources": {
+    "jobcannon": 982,
+    "onet_bridge": 398,
+    "glos_priors": 30
+  },
+  "sectors": [
+    "cyber_digital",
+    "aerospace_manufacturing",
+    "agri_tech_food",
+    "health_care",
+    "public_sector",
+    "creative_events",
+    "construction_green",
+    "hospitality_tourism",
+    "hospitality_retail",
+    "business_professional",
+    "education_training"
+  ],
+  "riasec": [
+    "Realistic",
+    "Investigative",
+    "Artistic",
+    "Social",
+    "Enterprising",
+    "Conventional"
+  ],
+  "bridge_path": "data\\curated\\occupation_to_sector.csv",
+  "jobcannon_present": true,
+  "notes": "Mixed Glos priors + occupation bridge (+ JobCannon if fetched). Not a Gloucestershire population sample."
+}

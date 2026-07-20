@@ -1,0 +1,22 @@
+# Data
+pandas
+numpy
+pyyaml
+
+# Matching / personas
+scikit-learn
+joblib
+
+# RAG briefings (optional quality path)
+torch
+sentence-transformers
+faiss-cpu
+
+# LLM briefings
+openai
+python-dotenv
+
+# Web API (Next.js front-end)
+fastapi
+uvicorn[standard]
+pydantic
