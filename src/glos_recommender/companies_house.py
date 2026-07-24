@@ -161,7 +161,10 @@ def _title_name(name: str) -> str:
 
 
 def load_gl_companies_from_zip(zip_path: Path | None = None) -> pd.DataFrame:
-    """Stream BasicCompanyData CSV from zip; keep Active companies with GL* postcodes."""
+    """Stream BasicCompanyData CSV; keep Active companies with GL* or BS* postcodes.
+
+    Name kept for backward compatibility with fetch scripts.
+    """
     zip_path = zip_path or CH_ZIP
     if not zip_path.exists():
         download_basic_company_data(zip_path)
@@ -197,7 +200,9 @@ def load_gl_companies_from_zip(zip_path: Path | None = None) -> pd.DataFrame:
                 chunk.columns = [c.strip() for c in chunk.columns]
                 status = chunk["CompanyStatus"].fillna("")
                 pc = chunk["RegAddress.PostCode"].fillna("").str.upper().str.strip()
-                mask = status.str.lower().eq("active") & pc.str.match(r"^GL\d", na=False)
+                mask = status.str.lower().eq("active") & pc.str.match(
+                    r"^(?:GL|BS)\d", na=False
+                )
                 part = chunk.loc[mask].copy()
                 if len(part):
                     frames.append(part)
@@ -207,8 +212,17 @@ def load_gl_companies_from_zip(zip_path: Path | None = None) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
-def rank_gl_employers(gl_df: pd.DataFrame, top_n: int = 100) -> pd.DataFrame:
-    """Rank GL-registered active companies by accounts-category size proxy."""
+def rank_gl_employers(
+    gl_df: pd.DataFrame,
+    top_n: int = 100,
+    *,
+    balance_regions: bool = True,
+) -> pd.DataFrame:
+    """Rank GL/BS-registered active companies by accounts-category size proxy.
+
+    When balance_regions is True, take roughly half from GL* and half from BS*
+    so Bristol density does not crowd out Gloucestershire employers.
+    """
     if gl_df.empty:
         return gl_df
 
@@ -249,26 +263,50 @@ def rank_gl_employers(gl_df: pd.DataFrame, top_n: int = 100) -> pd.DataFrame:
     df["size_band"] = df["size_score"].map(_size_band)
     df["town"] = (
         df["RegAddress.PostTown"]
-        .fillna("Gloucestershire")
+        .fillna("")
         .astype(str)
         .str.strip()
         .str.title()
-        .replace({"": "Gloucestershire", "Nan": "Gloucestershire"})
+        .replace({"": "", "Nan": ""})
     )
     df["postcode"] = (
         df["RegAddress.PostCode"]
         .astype(str)
         .str.upper()
-        .str.extract(r"^(GL\d{1,2})", expand=False)
+        .str.extract(r"^((?:GL|BS)\d{1,2})", expand=False)
         .fillna("GL")
     )
+    df["region"] = df["postcode"].map(
+        lambda p: "bristol" if str(p).upper().startswith("BS") else "gloucestershire"
+    )
+    df["town"] = [
+        t
+        if t
+        else ("Bristol" if r == "bristol" else "Gloucestershire")
+        for t, r in zip(df["town"], df["region"])
+    ]
     df["company_number"] = df["CompanyNumber"].astype(str).str.strip()
     df["website"] = df["company_number"].map(
         lambda n: f"https://find-and-update.company-information.service.gov.uk/company/{n}"
     )
     df["sic_text"] = df.get("SICCode.SicText_1", pd.Series("", index=df.index)).fillna("")
 
-    return df.head(top_n).reset_index(drop=True)
+    if balance_regions and top_n > 1:
+        per = max(1, top_n // 2)
+        gl_part = df[df["region"] == "gloucestershire"].head(per)
+        bs_part = df[df["region"] == "bristol"].head(top_n - len(gl_part))
+        # If one region is short, backfill from the other
+        combined = pd.concat([gl_part, bs_part], ignore_index=True)
+        if len(combined) < top_n:
+            rest = df[~df["employer_key"].isin(set(combined["employer_key"]))].head(
+                top_n - len(combined)
+            )
+            combined = pd.concat([combined, rest], ignore_index=True)
+        df = combined.sort_values(["size_score", "CompanyName"], ascending=[False, True])
+    else:
+        df = df.head(top_n)
+
+    return df.reset_index(drop=True)
 
 
 def ranked_to_seed_rows(ranked: pd.DataFrame, id_start: int = 100) -> pd.DataFrame:
@@ -293,6 +331,7 @@ def ranked_to_seed_rows(ranked: pd.DataFrame, id_start: int = 100) -> pd.DataFra
         role_families = roles.get(primary, "ops|admin")
         sic = str(r.get("sic_text") or "")[:120]
         activity = sic_activity(sic)
+        region_label = "Bristol" if str(r.get("postcode", "")).upper().startswith("BS") else "Gloucestershire"
         if activity:
             summary = (
                 f"{r['town']}-based employer working in {activity.lower()}. "
@@ -300,11 +339,11 @@ def ranked_to_seed_rows(ranked: pd.DataFrame, id_start: int = 100) -> pd.DataFra
             )
         else:
             summary = (
-                f"{r['town']}-based Gloucestershire employer. "
+                f"{r['town']}-based {region_label} employer. "
                 "Routes vary — check careers pages and Find an Apprenticeship."
             )
         profile = (
-            f"{r['name']} {r['town']} Gloucestershire {sectors.replace('|', ' ')} "
+            f"{r['name']} {r['town']} {region_label} {sectors.replace('|', ' ')} "
             f"apprenticeship graduate school leaver {activity or sic}"
         )
         rows.append(

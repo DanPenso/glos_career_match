@@ -1,4 +1,4 @@
-"""Ingest DfE Find an Apprenticeship vacancy underlying data for Gloucestershire.
+"""Ingest DfE Find an Apprenticeship vacancy underlying data for Glos + Bristol.
 
 Source: Explore Education Statistics — Apprenticeships 2025/26
 underlying vacancies file (RAAv2 / Find an Apprenticeship).
@@ -225,14 +225,14 @@ def load_vacancy_frame(zip_path: Path | None = None) -> pd.DataFrame:
 
 
 def filter_gloucestershire(df: pd.DataFrame) -> pd.DataFrame:
-    """Keep vacancies with GL* postcodes (Gloucestershire outward codes)."""
+    """Keep vacancies with GL* or BS* postcodes (Glos + Bristol outward codes)."""
     out = df.copy()
     pc = out["vacancy_postcode"].astype(str).str.upper().str.strip()
-    mask = pc.str.match(r"^GL\d", na=False)
+    mask = pc.str.match(r"^(?:GL|BS)\d", na=False)
     out = out.loc[mask].copy()
     out["vacancy_postcode"] = pc.loc[mask]
     out["postcode_district"] = out["vacancy_postcode"].str.extract(
-        r"^(GL\d{1,2})", expand=False
+        r"^((?:GL|BS)\d{1,2})", expand=False
     )
     return out
 
@@ -444,10 +444,11 @@ def aggregate_employers(gl_df: pd.DataFrame) -> pd.DataFrame:
         town_mode = g["vacancy_town"].dropna()
         town_mode = town_mode[town_mode.astype(str).str.strip().ne("")]
         town = _title_case_town(
-            town_mode.mode().iloc[0] if len(town_mode) else "Gloucestershire"
+            town_mode.mode().iloc[0] if len(town_mode) else "Local area"
         )
         pc_mode = g["postcode_district"].dropna()
         postcode = str(pc_mode.mode().iloc[0]) if len(pc_mode) else "GL"
+        area = "Bristol" if str(postcode).upper().startswith("BS") else "Gloucestershire"
 
         sectors = _majority_tags(g["_sectors"], max_tags=2)
         routes: list[str] = []
@@ -474,7 +475,7 @@ def aggregate_employers(gl_df: pd.DataFrame) -> pd.DataFrame:
             if str(t).strip()
         ]
         summary_bits = [
-            f"Gloucestershire employer ({town}) with apprenticeship vacancies on Find an Apprenticeship.",
+            f"{area} employer ({town}) with apprenticeship vacancies on Find an Apprenticeship.",
         ]
         if titles:
             summary_bits.append("Recent roles include: " + "; ".join(titles[:3]) + ".")
@@ -485,7 +486,7 @@ def aggregate_employers(gl_df: pd.DataFrame) -> pd.DataFrame:
         profile_parts = [
             display_name,
             town,
-            "Gloucestershire",
+            area,
             " ".join(sectors),
             " ".join(routes),
             " ".join(roles),
@@ -572,7 +573,7 @@ def aggregate_opportunities(
                     "entry_route": routes[0] if routes else "apprenticeship",
                     "level": level[:80],
                     "role_family": roles[0] if roles else "ops",
-                    "description": desc or "Apprenticeship vacancy in Gloucestershire.",
+                    "description": desc or f"Apprenticeship vacancy in {area}.",
                     "typical_quals": skills[:200] if skills else "See vacancy listing",
                     "useful_projects": "Portfolio or course work linked to the standard; local work experience",
                     "application_tips": "Apply via Find an Apprenticeship; tailor CV to the standard and local employer",

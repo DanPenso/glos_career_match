@@ -4,7 +4,7 @@ This project is a **non-commercial live demo** for careers guidance exploration 
 
 ## 1. DfE Find an Apprenticeship / Explore Education Statistics
 
-**What we use:** Underlying apprenticeship **vacancies** supporting files published with DfE Apprenticeships statistics on [Explore Education Statistics](https://explore-education-statistics.service.gov.uk/) (Find an Apprenticeship / RAAv2 content). We filter vacancies with `GL*` postcodes, aggregate by employer, and merge into company/opportunity masters.
+**What we use:** Underlying apprenticeship **vacancies** supporting files published with DfE Apprenticeships statistics on [Explore Education Statistics](https://explore-education-statistics.service.gov.uk/) (Find an Apprenticeship / RAAv2 content). We filter vacancies with `GL*` or `BS*` postcodes, aggregate by employer, and merge into company/opportunity masters.
 
 **Licence:** Released under the [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/) (OGL), as stated in the EES underlying-data guidance for Apprenticeships releases.
 
@@ -19,7 +19,7 @@ This project is a **non-commercial live demo** for careers guidance exploration 
 
 ## 2. Companies House (free company data product)
 
-**What we use:** Monthly [BasicCompanyData](http://download.companieshouse.gov.uk/en_output.html) snapshot. We keep **Active** companies whose registered-office postcode starts with `GL`, rank a top list by **accounts category** as a size proxy (GROUP/FULL/MEDIUM ahead of SMALL/MICRO — exact headcount is not in the free file), and upsert missing names into `data/seed/companies_seed.csv`.
+**What we use:** Monthly [BasicCompanyData](http://download.companieshouse.gov.uk/en_output.html) snapshot. We keep **Active** companies whose registered-office postcode starts with `GL` (Gloucestershire) or `BS` (Bristol), rank a balanced top list by **accounts category** as a size proxy (GROUP/FULL/MEDIUM ahead of SMALL/MICRO — exact headcount is not in the free file), and upsert missing names into `data/seed/companies_seed.csv`.
 
 **Script:** `scripts/fetch_companies_house_employers.py`  
 **Audit output:** `data/seed/companies_house_top100.csv`  

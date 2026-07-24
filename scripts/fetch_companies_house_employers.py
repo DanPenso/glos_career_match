@@ -1,4 +1,4 @@
-"""Download Companies House BasicCompanyData, rank top GL employers, upsert seed.
+"""Download Companies House BasicCompanyData, rank top GL/BS employers, upsert seed.
 
 Usage:
   .venv\\Scripts\\python scripts/fetch_companies_house_employers.py
@@ -7,6 +7,7 @@ Usage:
 Notes:
   - Free monthly snapshot (no API key). Large download ~400MB+ to data/raw/.
   - Ranking uses accounts category as a size proxy (not exact headcount).
+  - Includes Gloucestershire (GL*) and Bristol (BS*) registered offices.
   - Public-sector anchors (GCHQ, CGI, …) are merged from
     data/seed/public_sector_anchors.csv because they rarely appear as local CH rows.
 """
@@ -66,13 +67,15 @@ def main() -> None:
     elif not CH_ZIP.exists():
         raise SystemExit(f"Missing {CH_ZIP}; run without --skip-download")
 
-    print("Filtering Active companies with GL* registered-office postcodes…")
+    print("Filtering Active companies with GL* / BS* registered-office postcodes…")
     gl = load_gl_companies_from_zip(CH_ZIP)
-    print(f"  GL active rows: {len(gl)}")
+    print(f"  GL/BS active rows: {len(gl)}")
 
-    print(f"Ranking top {args.top} by accounts-category size proxy…")
+    print(f"Ranking top {args.top} by accounts-category size proxy (balanced GL/BS)…")
     ranked = rank_gl_employers(gl, top_n=args.top)
     print(f"  Ranked unique employers: {len(ranked)}")
+    if "region" in ranked.columns:
+        print(ranked["region"].value_counts().to_string())
 
     seed_shaped = ranked_to_seed_rows(ranked)
     args.candidates_out.parent.mkdir(parents=True, exist_ok=True)
@@ -91,7 +94,7 @@ def main() -> None:
         ]
     ].copy()
     audit.to_csv(args.candidates_out, index=False)
-    print(f"  Wrote candidates → {args.candidates_out}")
+    print(f"  Wrote candidates -> {args.candidates_out}")
 
     seed_path = ROOT / "data" / "seed" / "companies_seed.csv"
     if args.reset_seed_to_curated > 0:
@@ -117,7 +120,7 @@ def main() -> None:
     if args.rebuild:
         import subprocess
 
-        print("Rebuilding company/opportunity masters…")
+        print("Rebuilding company/opportunity masters...")
         subprocess.check_call(
             [sys.executable, str(ROOT / "scripts" / "build_company_masters.py")],
             cwd=str(ROOT),
