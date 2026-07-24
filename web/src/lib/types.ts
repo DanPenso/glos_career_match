@@ -1,3 +1,5 @@
+export type MatchMode = "work" | "education" | "military";
+
 export type IntakeForm = {
   leaver_type: string;
   location: string;
@@ -10,6 +12,7 @@ export type IntakeForm = {
   psych_answers: Record<string, string>;
   use_openai_briefing: boolean;
   allow_anonymous_logging: boolean;
+  mode: MatchMode;
 };
 
 export type Pathway = {
@@ -45,11 +48,18 @@ export type PersonaMap2D = {
 };
 
 export type MatchCompany = {
+  kind?: "employer" | "course" | "military";
   company_id: string;
   name: string;
   town: string;
   summary: string;
   website: string;
+  provider?: string;
+  service?: string;
+  level?: string;
+  course_type?: string;
+  study_mode?: string;
+  region?: string;
   sector_score?: number;
   entry_score?: number;
   hiring_score?: number;
@@ -64,7 +74,22 @@ export type MatchCompany = {
   briefing_source?: "openai" | null;
 };
 
+export type Microcredential = {
+  cred_id: string;
+  title: string;
+  provider: string;
+  town: string;
+  region?: string;
+  level?: string;
+  sectors?: string;
+  summary?: string;
+  website?: string;
+  elcas_status?: string;
+  final_score?: number;
+};
+
 export type MatchResponse = {
+  mode?: MatchMode;
   leaver: {
     profile_text?: string;
     target_sectors?: string[];
@@ -84,6 +109,8 @@ export type MatchResponse = {
   learning_event_id?: string | null;
   briefings_enabled?: boolean;
   matches: MatchCompany[];
+  microcredentials?: Microcredential[];
+  data_note?: string;
 };
 
 export type TaxonomyResponse = {

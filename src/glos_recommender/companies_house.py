@@ -17,6 +17,7 @@ from urllib.request import Request, urlopen
 import pandas as pd
 
 from .vacancies import normalise_employer_name
+from .labels import sic_activity
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -290,17 +291,21 @@ def ranked_to_seed_rows(ranked: pd.DataFrame, id_start: int = 100) -> pd.DataFra
         }
         primary = sectors.split("|")[0] if sectors else "business_professional"
         role_families = roles.get(primary, "ops|admin")
-        cat = str(r.get("account_category") or "unknown")
         sic = str(r.get("sic_text") or "")[:120]
-        summary = (
-            f"Companies House–listed employer with registered office in {r['town']} "
-            f"(accounts category: {cat}). "
-            f"Nature of business (SIC): {sic or 'see Companies House record'}. "
-            f"Leaver routes vary — check careers pages and Find an Apprenticeship."
-        )
+        activity = sic_activity(sic)
+        if activity:
+            summary = (
+                f"{r['town']}-based employer working in {activity.lower()}. "
+                "Routes vary — check careers pages and Find an Apprenticeship."
+            )
+        else:
+            summary = (
+                f"{r['town']}-based Gloucestershire employer. "
+                "Routes vary — check careers pages and Find an Apprenticeship."
+            )
         profile = (
             f"{r['name']} {r['town']} Gloucestershire {sectors.replace('|', ' ')} "
-            f"apprenticeship graduate school leaver {sic}"
+            f"apprenticeship graduate school leaver {activity or sic}"
         )
         rows.append(
             {

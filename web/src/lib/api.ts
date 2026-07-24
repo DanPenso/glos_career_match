@@ -15,7 +15,7 @@ export async function fetchMatch(form: IntakeForm): Promise<MatchResponse> {
   const res = await fetch(`${API_BASE}/match`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...form, top_n: 3 }),
+    body: JSON.stringify({ ...form, mode: form.mode || "work", top_n: 3 }),
   });
   if (!res.ok) {
     let detail = `Match failed (${res.status})`;

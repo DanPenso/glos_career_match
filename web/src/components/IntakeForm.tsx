@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { IntakeForm, TaxonomyResponse } from "@/lib/types";
+import type { IntakeForm, MatchMode, TaxonomyResponse } from "@/lib/types";
 
 type Props = {
   taxonomy: TaxonomyResponse;
   onSubmit: (form: IntakeForm) => void;
   busy?: boolean;
+  busyMode?: MatchMode | null;
 };
 
 function Chip({
@@ -39,7 +40,7 @@ function toggle(list: string[], value: string, max?: number): string[] {
   return [...list, value];
 }
 
-export function IntakeFormView({ taxonomy, onSubmit, busy }: Props) {
+export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
   const intake = taxonomy.intake;
   const [leaverType, setLeaverType] = useState(intake.leaver_types[0] ?? "");
   const [location, setLocation] = useState(intake.locations[0] ?? "");
@@ -67,8 +68,7 @@ export function IntakeFormView({ taxonomy, onSubmit, busy }: Props) {
     return intake.course_areas.school_college;
   }, [intake, leaverType]);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function submitMode(mode: MatchMode) {
     if (!interests.length && !courses.length) {
       setError("Pick at least one interest or course.");
       return;
@@ -84,14 +84,20 @@ export function IntakeFormView({ taxonomy, onSubmit, busy }: Props) {
       qualification_level: qualification,
       availability,
       psych_answers: {},
-      use_openai_briefing: useOpenAIBriefing,
+      use_openai_briefing: mode === "work" ? useOpenAIBriefing : false,
       allow_anonymous_logging: allowAnonymousLogging,
+      mode,
     });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        submitMode("work");
+      }}
+      className="space-y-8"
+    >      <div className="grid gap-4 sm:grid-cols-2">
         <label className="block space-y-1.5 text-sm">
           <span className="font-medium text-[var(--ink-muted)]">I am a…</span>
           <select
@@ -220,8 +226,8 @@ export function IntakeFormView({ taxonomy, onSubmit, busy }: Props) {
             onChange={(e) => setUseOpenAIBriefing(e.target.checked)}
           />
           <span>
-            Generate AI match reports for each employer (OpenAI). If off, you
-            still get career groups, training routes, and top matches.
+            Generate AI match reports for employer matches only (OpenAI). Education
+            and military modes use structured guidance without AI briefings.
           </span>
         </label>
         <label className="flex items-start gap-3 text-sm text-[var(--ink)]">
@@ -240,13 +246,44 @@ export function IntakeFormView({ taxonomy, onSubmit, busy }: Props) {
 
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
 
-      <button type="submit" className="btn-primary" disabled={busy}>
-        {busy
-          ? useOpenAIBriefing
-            ? "Finding matches & writing reports…"
-            : "Finding matches…"
-          : "Find my matches"}
-      </button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={busy}
+        >
+          {busy && busyMode === "work"
+            ? useOpenAIBriefing
+              ? "Finding work matches & reports…"
+              : "Finding work matches…"
+            : "Find my work matches"}
+        </button>
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={busy}
+          onClick={() => submitMode("education")}
+        >
+          {busy && busyMode === "education"
+            ? "Finding education matches…"
+            : "Find my education matches"}
+        </button>
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={busy}
+          onClick={() => submitMode("military")}
+        >
+          {busy && busyMode === "military"
+            ? "Finding military pathways…"
+            : "Military pathways"}
+        </button>
+      </div>
+      <p className="text-xs text-[var(--ink-muted)]">
+        Non-commercial demo. Education courses use National Careers Service open
+        data (OGL). Military pathways are guidance only — not official recruitment
+        advice.
+      </p>
     </form>
   );
 }

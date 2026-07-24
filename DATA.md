@@ -78,11 +78,38 @@ Users can opt out of anonymous logging in the intake form.
 **OpenAI briefings:** optional and opt-in on intake. When enabled, leaver profile context
 and matched company context are sent to OpenAI to generate briefing text.
 
-## 7. What this demo is not
+## 7. National Careers Service course directory (education + micro-credentials)
+
+**What we use:** Monthly [National Careers Service: course directory](https://www.gov.uk/government/publications/national-careers-service-course-directory) CSVs (live courses + providers). We filter to Gloucestershire and Bristol locations and build:
+
+- `data/seed/courses_seed.csv` — FE/HE course matches  
+- `data/seed/military_microcreds_seed.csv` — Level 3+ / short courses for PD exploration  
+
+**Script:** `scripts/build_courses_seed_from_ncs.py`  
+**Raw downloads:** `data/raw/ncs_*.csv` (gitignored)
+
+**Licence:** [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
+
+**Attribution:**
+
+> Contains public sector information licensed under the Open Government Licence v3.0.  
+> Source: Department for Education — National Careers Service course directory.
+
+**Limits:** Course catalogues change monthly. Rows are **not** confirmed live enrolments. For Enhanced Learning Credits (ELC), eligibility must be checked on [ELCAS](https://www.enhancedlearningcredits.com/) and with Education Staff — this demo never asserts ELC approval.
+
+## 8. Military pathways (curated guidance)
+
+**What we use:** Hand-maintained `data/seed/military_pathways_seed.csv` with high-level role families and links to official Armed Forces / defence careers pages.
+
+**Licence:** Original pathway blurbs under the project MIT License. Official site content remains Crown copyright; we link out rather than republishing long recruitment copy.
+
+**Limits:** Guidance only — **not** official recruitment advice and not an offer of employment.
+
+## 9. What this demo is not
 
 - Not a live vacancy board  
-- Not official advice from DfE, employers, or local authorities  
-- Not a guarantee of interview, apprenticeship, or job outcomes  
-- Not a commercial product
+- Not official advice from DfE, MOD, employers, or local authorities  
+- Not a guarantee of interview, apprenticeship, course place, or job outcomes  
+- Not a commercial product (no referral tracking or monetised lead gen)
 
 For licence of the **software**, see [LICENSE](LICENSE).

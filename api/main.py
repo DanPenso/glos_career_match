@@ -22,17 +22,19 @@ sys.path.insert(0, str(ROOT / "src"))
 load_dotenv(ROOT / ".env")
 
 from glos_recommender.briefing import generate_briefing
+from glos_recommender.courses import load_courses, match_courses
 from glos_recommender.intake_config import (
     load_intake_options,
     load_psych_questions,
     pathways_for_sectors,
 )
-from glos_recommender.labels import fit_label, hiring_label, overall_label
+from glos_recommender.labels import clean_company_summary, fit_label, hiring_label, overall_label
 from glos_recommender.matching import (
     load_companies,
     match_companies,
 )
 from glos_recommender.live_learning import log_match_event, record_persona_feedback
+from glos_recommender.military import match_military
 from glos_recommender.personas import persona_bundle
 from glos_recommender.programmes import programmes_for_company
 
@@ -72,6 +74,7 @@ class MatchRequest(BaseModel):
     use_openai_briefing: bool = False
     allow_anonymous_logging: bool = True
     top_n: int = 3
+    mode: str = "work"  # work | education | military
 
 
 class PersonaFeedbackRequest(BaseModel):
@@ -129,7 +132,7 @@ def _company_payload(
         "postcode": data.get("postcode"),
         "sectors": data.get("sectors"),
         "entry_routes": data.get("entry_routes"),
-        "summary": data.get("summary"),
+        "summary": clean_company_summary(data.get("summary")),
         "website": data.get("website"),
         "hiring_signal": data.get("hiring_signal"),
         "priority_employer": int(data.get("priority_employer") or 0),
@@ -148,13 +151,101 @@ def _company_payload(
     }
 
 
+def _course_payload(row: pd.Series, rank: int) -> dict[str, Any]:
+    data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
+    return {
+        "kind": "course",
+        "course_id": data.get("course_id"),
+        "company_id": data.get("course_id"),  # UI tab key compatibility
+        "name": data.get("title"),
+        "provider": data.get("provider"),
+        "town": data.get("town"),
+        "postcode": data.get("postcode"),
+        "region": data.get("region"),
+        "level": data.get("level"),
+        "course_type": data.get("course_type"),
+        "study_mode": data.get("study_mode"),
+        "sectors": data.get("sectors"),
+        "entry_routes": data.get("entry_routes"),
+        "summary": data.get("summary"),
+        "website": data.get("website"),
+        "final_score": float(data.get("final_score") or 0),
+        "sector_score": float(data.get("sector_score") or 0),
+        "entry_score": float(data.get("entry_score") or 0),
+        "hiring_score": None,
+        "hybrid_score": float(data.get("hybrid_score") or data.get("final_score") or 0),
+        "cosine_sim": float(data.get("cosine_sim") or 0),
+        "sector_fit_label": fit_label(float(data.get("sector_score") or 0)),
+        "entry_fit_label": fit_label(float(data.get("entry_score") or 0)),
+        "hiring_label": str(data.get("level") or "See provider"),
+        "hiring_signal": None,
+        "overall_label": overall_label(rank),
+        "briefing_markdown": "",
+        "briefing_source": None,
+        "source": data.get("source"),
+    }
+
+
+def _military_payload(row: pd.Series, rank: int) -> dict[str, Any]:
+    data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
+    return {
+        "kind": "military",
+        "pathway_id": data.get("pathway_id"),
+        "company_id": data.get("pathway_id"),
+        "name": data.get("title"),
+        "service": data.get("service"),
+        "town": data.get("service") or "UK Armed Forces",
+        "provider": data.get("service"),
+        "sectors": data.get("sectors"),
+        "entry_routes": data.get("entry_routes"),
+        "summary": data.get("summary"),
+        "website": data.get("website"),
+        "final_score": float(data.get("final_score") or 0),
+        "sector_score": float(data.get("sector_score") or 0),
+        "entry_score": float(data.get("entry_score") or 0),
+        "hiring_score": None,
+        "hybrid_score": float(data.get("hybrid_score") or data.get("final_score") or 0),
+        "cosine_sim": 0.0,
+        "sector_fit_label": fit_label(float(data.get("sector_score") or 0)),
+        "entry_fit_label": fit_label(float(data.get("entry_score") or 0)),
+        "hiring_label": str(data.get("service") or "Armed Forces"),
+        "hiring_signal": None,
+        "overall_label": overall_label(rank),
+        "briefing_markdown": "",
+        "briefing_source": None,
+    }
+
+
+def _microcred_payload(row: pd.Series) -> dict[str, Any]:
+    data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
+    return {
+        "cred_id": data.get("cred_id"),
+        "title": data.get("title"),
+        "provider": data.get("provider"),
+        "town": data.get("town"),
+        "region": data.get("region"),
+        "level": data.get("level"),
+        "sectors": data.get("sectors"),
+        "summary": data.get("summary"),
+        "website": data.get("website"),
+        "elcas_status": data.get("elcas_status") or "check_on_elcas",
+        "final_score": float(data.get("final_score") or 0),
+    }
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
+    out: dict[str, Any] = {"ok": True}
     try:
-        n = len(load_companies())
+        out["companies"] = len(load_companies())
     except Exception as e:
-        return {"ok": False, "error": str(e)}
-    return {"ok": True, "companies": n}
+        out["ok"] = False
+        out["error"] = str(e)
+    try:
+        out["courses"] = len(load_courses())
+    except Exception as e:
+        out["courses_error"] = str(e)
+    return out
 
 
 @app.get("/taxonomy")
@@ -172,12 +263,43 @@ def match(req: MatchRequest) -> dict[str, Any]:
             status_code=400,
             detail="Please select at least one course or interest.",
         )
+    mode = (req.mode or "work").strip().lower()
+    if mode not in {"work", "education", "military"}:
+        raise HTTPException(
+            status_code=400,
+            detail="mode must be one of: work, education, military",
+        )
     form = req.model_dump()
     use_openai_briefing = bool(form.pop("use_openai_briefing", False))
     allow_anonymous_logging = bool(form.pop("allow_anonymous_logging", True))
     top_n = form.pop("top_n", 3)
+    form.pop("mode", None)
+    # AI briefings only for employer matches in this demo
+    if mode != "work":
+        use_openai_briefing = False
+
+    microcredentials: list[dict[str, Any]] = []
     try:
-        leaver, ranked = match_companies(form, load_companies(), top_n=top_n)
+        if mode == "education":
+            leaver, ranked = match_courses(form, load_courses(), top_n=top_n)
+            matches = [_course_payload(row, i) for i, (_, row) in enumerate(ranked.iterrows())]
+        elif mode == "military":
+            leaver, ranked, micro_df = match_military(form, top_n=top_n, micro_n=6)
+            matches = [
+                _military_payload(row, i) for i, (_, row) in enumerate(ranked.iterrows())
+            ]
+            if micro_df is not None and len(micro_df):
+                microcredentials = [
+                    _microcred_payload(row) for _, row in micro_df.iterrows()
+                ]
+        else:
+            leaver, ranked = match_companies(form, load_companies(), top_n=top_n)
+            matches = [
+                _company_payload(leaver, row, i, use_openai_briefing=use_openai_briefing)
+                for i, (_, row) in enumerate(ranked.iterrows())
+            ]
+            for m in matches:
+                m["kind"] = "employer"
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -185,22 +307,18 @@ def match(req: MatchRequest) -> dict[str, Any]:
     pathways = pathways_for_sectors(sectors)
     interest_ids = {str(p.get("id")) for p in pathways if p.get("id")}
     persona = persona_bundle(leaver, interest_pathway_ids=interest_ids, peer_limit=4)
-    # Attach persona before briefings so RAG can use the group label
     leaver["persona"] = persona.get("persona")
     live_event = None
     if allow_anonymous_logging:
         try:
-            live_event = log_match_event(leaver, persona, channel="web")
+            live_event = log_match_event(leaver, persona, channel=f"web:{mode}")
         except Exception:
             live_event = None
     leaver_out = _jsonable_leaver(leaver)
     leaver_out["persona"] = persona.get("persona")
     leaver_out["cluster_id"] = persona.get("cluster_id")
-    matches = [
-        _company_payload(leaver, row, i, use_openai_briefing=use_openai_briefing)
-        for i, (_, row) in enumerate(ranked.iterrows())
-    ]
     return {
+        "mode": mode,
         "leaver": leaver_out,
         "briefings_enabled": use_openai_briefing,
         "pathways": pathways,
@@ -213,6 +331,19 @@ def match(req: MatchRequest) -> dict[str, Any]:
         "persona_map_2d": persona.get("persona_map_2d"),
         "learning_event_id": (live_event or {}).get("event_id"),
         "matches": matches,
+        "microcredentials": microcredentials,
+        "data_note": {
+            "work": "Employer matches from curated + Companies House / DfE open data.",
+            "education": (
+                "Course matches from the National Careers Service course directory "
+                "(Open Government Licence v3.0), filtered to Gloucestershire and Bristol."
+            ),
+            "military": (
+                "Military pathways are guidance only (not official recruitment advice). "
+                "Micro-credentials use NCS open course data; ELC/PD eligibility must be "
+                "checked on ELCAS and with Education Staff."
+            ),
+        }.get(mode, ""),
     }
 
 

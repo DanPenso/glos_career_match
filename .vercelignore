@@ -1,0 +1,16 @@
+# Keep Vercel uploads small (project Root Directory is web/, but CLI still
+# scans from repo root when deploying from here).
+models/
+glos_career_match/
+data/raw/
+data/live/
+.venv/
+venv/
+**/__pycache__/
+**/*.npz
+**/*.pkl
+**/*.joblib
+**/*.npz
+app/app_data/
+*.zip
+.git/

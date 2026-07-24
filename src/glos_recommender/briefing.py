@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import os
-import re
 from typing import Any
 
 import pandas as pd
 
+from .labels import clean_company_summary
 from .intake_config import pathways_for_sectors
 from .matching import match_reasons
 from .programmes import (
@@ -45,22 +45,6 @@ For "Roles and programmes you could work towards", only mention programmes liste
 VERIFIED PROGRAMMES. Do not invent job titles or imply roles are open now.
 Do not repeat registry metadata like SIC codes, accounts category, or registered-office notes.
 """
-
-
-def _clean_company_summary(text: Any) -> str:
-    """Remove Companies House admin fragments from summary text."""
-    s = " ".join(str(text or "").split())
-    if not s:
-        return ""
-    s = re.sub(r"Nature of business\s*\(SIC\)\s*:[^.]*\.?\s*", "", s, flags=re.I)
-    s = re.sub(r"SIC\s*[:\-]\s*[^.]*\.?\s*", "", s, flags=re.I)
-    s = re.sub(r"\(accounts?\s+category:[^)]+\)", "", s, flags=re.I)
-    s = re.sub(r"accounts?\s+category\s*[:\-]\s*[^.]*\.?\s*", "", s, flags=re.I)
-    s = re.sub(r"registered office in [^.]*\.?\s*", "", s, flags=re.I)
-    s = re.sub(r"Companies House[–-]listed employer(?: with)?\.?\s*", "", s, flags=re.I)
-    s = re.sub(r"^\s*with\s+", "", s, flags=re.I)
-    s = re.sub(r"\s{2,}", " ", s).strip(" .")
-    return s
 
 
 def build_briefing_prompt(
@@ -101,7 +85,7 @@ Availability: {leaver.get('availability', '')}
 MATCHED COMPANY:
 Name: {company['name']}
 Town: {company.get('town', '')}
-Summary: {_clean_company_summary(company.get('summary', ''))}
+Summary: {clean_company_summary(company.get('summary', ''))}
 Sectors: {company.get('sectors', '')}
 Entry routes: {company.get('entry_routes', '')}
 Website: {company.get('website', '')}

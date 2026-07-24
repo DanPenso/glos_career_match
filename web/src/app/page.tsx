@@ -4,12 +4,18 @@ import { useEffect, useState } from "react";
 import { IntakeFormView } from "@/components/IntakeForm";
 import { MatchResults } from "@/components/MatchResults";
 import { fetchMatch, fetchTaxonomy } from "@/lib/api";
-import type { IntakeForm, MatchResponse, TaxonomyResponse } from "@/lib/types";
+import type {
+  IntakeForm,
+  MatchMode,
+  MatchResponse,
+  TaxonomyResponse,
+} from "@/lib/types";
 
 export default function HomePage() {
   const [taxonomy, setTaxonomy] = useState<TaxonomyResponse | null>(null);
   const [loadError, setLoadError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [busyMode, setBusyMode] = useState<MatchMode | null>(null);
   const [matchError, setMatchError] = useState("");
   const [results, setResults] = useState<MatchResponse | null>(null);
 
@@ -21,6 +27,7 @@ export default function HomePage() {
 
   async function onSubmit(form: IntakeForm) {
     setBusy(true);
+    setBusyMode(form.mode || "work");
     setMatchError("");
     try {
       const data = await fetchMatch(form);
@@ -30,6 +37,7 @@ export default function HomePage() {
       setMatchError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setBusy(false);
+      setBusyMode(null);
     }
   }
 
@@ -48,12 +56,12 @@ export default function HomePage() {
             Glos Career Match
           </h1>
           <p className="max-w-xl text-base text-[var(--paper)]/85 sm:text-lg">
-            Find your next step in Gloucestershire — local employers, training
-            routes, and one clear move you can make this month.
+            Find your next step in Gloucestershire — local employers, FE/HE
+            courses, training routes, or military pathways to explore.
           </p>
           {!results ? (
             <a href="#intake" className="btn-primary w-fit">
-              Find my matches
+              Choose how to match
             </a>
           ) : null}
         </div>
@@ -69,8 +77,10 @@ export default function HomePage() {
                 Tell us about you
               </h2>
               <p className="mt-2 text-sm text-[var(--ink-muted)]">
-                Live demo — guidance only. You control whether AI briefings are
-                enabled and whether anonymous learning signals are logged.
+                Live demo — guidance only. Pick work matches, education matches,
+                or military pathways after you complete the form. You control
+                whether AI employer briefings and anonymous learning signals are
+                enabled.
                 <a
                   href="/privacy"
                   className="ml-1 underline decoration-[var(--accent)]"
@@ -99,6 +109,7 @@ export default function HomePage() {
                 taxonomy={taxonomy}
                 onSubmit={onSubmit}
                 busy={busy}
+                busyMode={busyMode}
               />
             ) : !loadError ? (
               <p className="text-sm text-[var(--ink-muted)]">Loading options…</p>
@@ -112,7 +123,8 @@ export default function HomePage() {
       </div>
 
       <footer className="mx-auto max-w-3xl px-5 pb-12 text-xs text-[var(--ink-muted)] sm:px-8">
-        Non-commercial demo · MIT · DfE / Companies House data under OGL — see DATA.md ·
+        Non-commercial demo · MIT · DfE / Companies House / National Careers
+        Service data under OGL — see DATA.md ·
         <a href="/privacy" className="ml-1 underline decoration-[var(--accent)]">
           Privacy
         </a>

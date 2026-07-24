@@ -40,3 +40,4 @@ data/curated/*.parquet
 # Anonymous live match events (retrain inputs)
 data/live/*
 !data/live/README.md
+.vercel

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PersonaFitPanel } from "@/components/PersonaFit";
-import type { MatchResponse, Pathway } from "@/lib/types";
+import type { MatchMode, MatchResponse, Pathway } from "@/lib/types";
 
 /** Orange → green traffic shades from a 0–1 signal (no red). */
 function signalStyle(score: number): {
@@ -194,6 +194,53 @@ function SimpleMarkdown({ text }: { text: string }) {
   );
 }
 
+function modeCopy(mode: MatchMode | undefined) {
+  if (mode === "education") {
+    return {
+      title: "Your top course matches",
+      caption:
+        "FE/HE options across Gloucestershire and Bristol from National Careers Service open data — check the provider for current intake.",
+      thirdLabel: "What level / type is this?",
+      thirdHint: "Level and course type from the open course directory.",
+      advice: [
+        "Treat these as options, not a verdict.",
+        "Confirm entry requirements and start dates with the provider.",
+        "Use Find a course / the provider website for live availability.",
+        "Pick one small next step this month, then talk it through with an adviser.",
+      ],
+    };
+  }
+  if (mode === "military") {
+    return {
+      title: "Military pathways to explore",
+      caption:
+        "Guidance only — not official recruitment advice. Always verify roles and eligibility on official Armed Forces careers sites.",
+      thirdLabel: "Service",
+      thirdHint: "Which service this pathway sits in.",
+      advice: [
+        "These are exploration pathways, not offers of employment.",
+        "Check current roles on the official Army, Royal Navy or RAF careers sites.",
+        "For funded learning while serving, confirm ELC eligibility on ELCAS with Education Staff.",
+        "Speak to a careers adviser or recruiter before making decisions.",
+      ],
+    };
+  }
+  return {
+    title: "Your top employer matches",
+    caption:
+      "Options to explore — not a final decision. Check live vacancies before you apply.",
+    thirdLabel: "Are they hiring for entry roles?",
+    thirdHint:
+      "Green = stronger signal, orange = softer — compares your top matches, not your chances of getting a job.",
+    advice: [
+      "Treat these as options, not a verdict.",
+      "Follow a training route — not only a brand name.",
+      "Verify openings on Find an apprenticeship.",
+      "Pick one small step this month, then talk it through with an adviser.",
+    ],
+  };
+}
+
 export function MatchResults({
   data,
   onReset,
@@ -203,17 +250,23 @@ export function MatchResults({
 }) {
   const [active, setActive] = useState(0);
   const match = data.matches[active];
+  const mode = data.mode || "work";
+  const copy = modeCopy(mode);
+  const micros = data.microcredentials || [];
 
   return (
     <section className="space-y-8 animate-in">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-3xl text-[var(--ink)]">
-            Your top matches
+            {copy.title}
           </h2>
-          <p className="mt-1 text-sm text-[var(--ink-muted)]">
-            Options to explore — not a final decision. Check live vacancies before you apply.
-          </p>
+          <p className="mt-1 text-sm text-[var(--ink-muted)]">{copy.caption}</p>
+          {data.data_note ? (
+            <p className="mt-2 text-xs text-[var(--ink-muted)]">
+              {data.data_note}
+            </p>
+          ) : null}
         </div>
         <button type="button" className="btn-ghost" onClick={onReset}>
           Start again
@@ -235,21 +288,37 @@ export function MatchResults({
           How to use this advice
         </summary>
         <ul className="mt-3 space-y-2 text-sm text-[var(--ink-muted)]">
-          <li>Treat these as options, not a verdict.</li>
-          <li>Follow a training route — not only a brand name.</li>
-          <li>
-            Verify openings on{" "}
-            <a
-              className="underline decoration-[var(--accent)]"
-              href="https://www.findapprenticeship.service.gov.uk/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Find an apprenticeship
-            </a>
-            .
-          </li>
-          <li>Pick one small step this month, then talk it through with an adviser.</li>
+          {copy.advice.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+          {mode === "work" ? (
+            <li>
+              Verify openings on{" "}
+              <a
+                className="underline decoration-[var(--accent)]"
+                href="https://www.findapprenticeship.service.gov.uk/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Find an apprenticeship
+              </a>
+              .
+            </li>
+          ) : null}
+          {mode === "military" ? (
+            <li>
+              Check ELC courses via{" "}
+              <a
+                className="underline decoration-[var(--accent)]"
+                href="https://www.enhancedlearningcredits.com/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                ELCAS
+              </a>
+              .
+            </li>
+          ) : null}
         </ul>
       </details>
 
@@ -290,9 +359,13 @@ export function MatchResults({
               </span>
               {match.overall_label}
             </p>
-            <h3 className="font-display text-3xl text-[var(--ink)]">{match.name}</h3>
+            <h3 className="font-display text-3xl text-[var(--ink)]">
+              {match.name}
+            </h3>
             <p className="text-sm text-[var(--ink-muted)]">
-              {match.town}
+              {mode === "education" && match.provider
+                ? `${match.provider} · ${match.town}`
+                : match.town}
               {match.website ? (
                 <>
                   {" · "}
@@ -317,23 +390,27 @@ export function MatchResults({
               score={match.sector_score ?? 0}
             />
             <SignalStat
-              label="How well does their route fit yours?"
+              label={
+                mode === "education"
+                  ? "How well does this course route fit yours?"
+                  : mode === "military"
+                    ? "How well does this entry route fit yours?"
+                    : "How well does their route fit yours?"
+              }
               value={match.entry_fit_label || "Worth exploring"}
               score={match.entry_score ?? 0}
             />
             <SignalStat
-              label="Are they hiring for entry roles?"
-              value={match.hiring_label || "Check current openings"}
-              score={hiringSignalScore(
-                match.hiring_score,
-                match.hiring_signal,
-              )}
+              label={copy.thirdLabel}
+              value={match.hiring_label || "Check details"}
+              score={
+                mode === "work"
+                  ? hiringSignalScore(match.hiring_score, match.hiring_signal)
+                  : Math.min(1, (match.sector_score ?? 0) * 0.9 + 0.15)
+              }
             />
           </div>
-          <p className="text-xs text-[var(--ink-muted)]">
-            Green = stronger signal, orange = softer — compares your top matches,
-            not your chances of getting a job.
-          </p>
+          <p className="text-xs text-[var(--ink-muted)]">{copy.thirdHint}</p>
 
           {data.briefings_enabled && match.briefing_markdown ? (
             <div className="mt-2 space-y-2">
@@ -349,6 +426,67 @@ export function MatchResults({
             </p>
           ) : null}
         </article>
+      ) : null}
+
+      {mode === "military" && micros.length ? (
+        <div className="space-y-3">
+          <div>
+            <h3 className="font-display text-2xl text-[var(--ink)]">
+              Local micro-credentials to explore
+            </h3>
+            <p className="mt-1 text-sm text-[var(--ink-muted)]">
+              Short / Level 3+ courses near Gloucestershire and Bristol from
+              National Careers Service open data. This demo does{" "}
+              <strong>not</strong> confirm Enhanced Learning Credit (ELC)
+              approval — always check{" "}
+              <a
+                className="underline decoration-[var(--accent)]"
+                href="https://www.enhancedlearningcredits.com/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                ELCAS
+              </a>{" "}
+              and your Education Staff.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {micros.map((c) => (
+              <div
+                key={c.cred_id}
+                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm"
+              >
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--trust)]">
+                  <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
+                    Check ELCAS
+                  </span>
+                </p>
+                <h4 className="border-b border-[var(--line)] pb-2 font-semibold text-[var(--ink)]">
+                  {c.title}
+                </h4>
+                <p className="mt-2 text-xs text-[var(--ink-muted)]">
+                  {c.provider}
+                  {c.town ? ` · ${c.town}` : ""}
+                  {c.level ? ` · ${c.level}` : ""}
+                </p>
+                <p className="mt-2 text-sm text-[var(--ink-muted)]">
+                  {(c.summary || "").slice(0, 160)}
+                  {(c.summary || "").length > 160 ? "…" : ""}
+                </p>
+                {c.website ? (
+                  <a
+                    href={c.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-block text-sm underline decoration-[var(--accent)]"
+                  >
+                    Course / provider link
+                  </a>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
       ) : null}
     </section>
   );
