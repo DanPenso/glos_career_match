@@ -82,10 +82,10 @@ and matched company context are sent to OpenAI to generate briefing text.
 
 **What we use:** Monthly [National Careers Service: course directory](https://www.gov.uk/government/publications/national-careers-service-course-directory) CSVs (live courses + providers). We filter to Gloucestershire and Bristol locations and build:
 
-- `data/seed/courses_seed.csv` — FE/HE course matches  
+- `data/seed/courses_seed.csv` — FE/HE course matches (NVQ, Skills Bootcamp, T Level, BTEC, Access, etc.)  
 - `data/seed/military_microcreds_seed.csv` — Level 3+ / short courses for PD exploration  
 
-**Script:** `scripts/build_courses_seed_from_ncs.py`  
+**Script:** `scripts/build_courses_seed_from_ncs.py` (force-includes NVQ / Skills Bootcamp titles; labels `course_type_label`)  
 **Raw downloads:** `data/raw/ncs_*.csv` (gitignored)
 
 **Licence:** [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
