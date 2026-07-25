@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 load_dotenv(ROOT / ".env")
 
-from glos_recommender.briefing import generate_briefing
+from glos_recommender.briefing import clean_catalogue_summary, generate_briefing
 from glos_recommender.courses import load_courses, match_courses
 from glos_recommender.intake_config import (
     load_intake_options,
@@ -152,12 +152,67 @@ def _company_payload(
     }
 
 
-def _course_payload(row: pd.Series, rank: int) -> dict[str, Any]:
+def _attach_briefing(
+    payload: dict[str, Any],
+    leaver: dict[str, Any],
+    row: pd.Series,
+    *,
+    mode: str,
+    use_openai_briefing: bool,
+    related_microcreds: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    briefing = ""
+    briefing_source = None
+    if use_openai_briefing:
+        briefing, briefing_source = generate_briefing(
+            leaver,
+            row,
+            use_openai=True,
+            mode=mode,
+            related_microcreds=related_microcreds,
+        )
+        if briefing_source != "openai":
+            briefing = ""
+            briefing_source = None
+    payload["briefing_markdown"] = briefing
+    payload["briefing_source"] = briefing_source
+    return payload
+
+
+def _course_payload(
+    leaver: dict[str, Any],
+    row: pd.Series,
+    rank: int,
+    *,
+    use_openai_briefing: bool,
+) -> dict[str, Any]:
     data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
     type_label = str(data.get("course_type_label") or "").strip()
+    # Prefer qualification-style labels over funding programme tags in the live seed.
+    title = str(data.get("title") or "")
+    if type_label in {"Free Courses for Jobs", "Essential skills", "Multiply"}:
+        lower = title.lower()
+        if "access to" in lower:
+            type_label = "Access to HE"
+        elif "nvq" in lower:
+            type_label = "NVQ"
+        elif "bootcamp" in lower:
+            type_label = "Skills Bootcamp"
+        elif "t level" in lower or "t-level" in lower:
+            type_label = "T Level"
+        elif "btec" in lower:
+            type_label = "BTEC"
+        elif "a level" in lower or "a-level" in lower or " gce" in lower:
+            type_label = "A Level"
+        elif "diploma" in lower:
+            type_label = "Diploma"
+        elif "certificate" in lower:
+            type_label = "Certificate"
     level = str(data.get("level") or "").strip()
-    type_level = " · ".join(x for x in (type_label, level if level and level != "See provider" else "") if x)
-    return {
+    type_level = " · ".join(
+        x for x in (type_label, level if level and level != "See provider" else "") if x
+    )
+    payload = {
         "kind": "course",
         "course_id": data.get("course_id"),
         "company_id": data.get("course_id"),  # UI tab key compatibility
@@ -172,7 +227,7 @@ def _course_payload(row: pd.Series, rank: int) -> dict[str, Any]:
         "study_mode": data.get("study_mode"),
         "sectors": data.get("sectors"),
         "entry_routes": data.get("entry_routes"),
-        "summary": data.get("summary"),
+        "summary": clean_catalogue_summary(data.get("summary")),
         "website": data.get("website"),
         "final_score": float(data.get("final_score") or 0),
         "sector_score": float(data.get("sector_score") or 0),
@@ -185,15 +240,23 @@ def _course_payload(row: pd.Series, rank: int) -> dict[str, Any]:
         "hiring_label": type_level or type_label or level or "See provider",
         "hiring_signal": None,
         "overall_label": overall_label(rank),
-        "briefing_markdown": "",
-        "briefing_source": None,
         "source": data.get("source"),
     }
+    return _attach_briefing(
+        payload, leaver, row, mode="education", use_openai_briefing=use_openai_briefing
+    )
 
 
-def _military_payload(row: pd.Series, rank: int) -> dict[str, Any]:
+def _military_payload(
+    leaver: dict[str, Any],
+    row: pd.Series,
+    rank: int,
+    *,
+    use_openai_briefing: bool,
+    related_microcreds: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
-    return {
+    payload = {
         "kind": "military",
         "pathway_id": data.get("pathway_id"),
         "company_id": data.get("pathway_id"),
@@ -203,7 +266,7 @@ def _military_payload(row: pd.Series, rank: int) -> dict[str, Any]:
         "provider": data.get("service"),
         "sectors": data.get("sectors"),
         "entry_routes": data.get("entry_routes"),
-        "summary": data.get("summary"),
+        "summary": clean_catalogue_summary(data.get("summary")),
         "website": data.get("website"),
         "final_score": float(data.get("final_score") or 0),
         "sector_score": float(data.get("sector_score") or 0),
@@ -216,9 +279,15 @@ def _military_payload(row: pd.Series, rank: int) -> dict[str, Any]:
         "hiring_label": str(data.get("service") or "Armed Forces"),
         "hiring_signal": None,
         "overall_label": overall_label(rank),
-        "briefing_markdown": "",
-        "briefing_source": None,
     }
+    return _attach_briefing(
+        payload,
+        leaver,
+        row,
+        mode="military",
+        use_openai_briefing=use_openai_briefing,
+        related_microcreds=related_microcreds,
+    )
 
 
 def _microcred_payload(row: pd.Series) -> dict[str, Any]:
@@ -279,24 +348,33 @@ def match(req: MatchRequest) -> dict[str, Any]:
     allow_anonymous_logging = bool(form.pop("allow_anonymous_logging", True))
     top_n = form.pop("top_n", 3)
     form.pop("mode", None)
-    # AI briefings only for employer matches in this demo
-    if mode != "work":
-        use_openai_briefing = False
 
     microcredentials: list[dict[str, Any]] = []
     try:
         if mode == "education":
             leaver, ranked = match_courses(form, load_courses(), top_n=top_n)
-            matches = [_course_payload(row, i) for i, (_, row) in enumerate(ranked.iterrows())]
+            matches = [
+                _course_payload(
+                    leaver, row, i, use_openai_briefing=use_openai_briefing
+                )
+                for i, (_, row) in enumerate(ranked.iterrows())
+            ]
         elif mode == "military":
             leaver, ranked, micro_df = match_military(form, top_n=top_n, micro_n=6)
-            matches = [
-                _military_payload(row, i) for i, (_, row) in enumerate(ranked.iterrows())
-            ]
             if micro_df is not None and len(micro_df):
                 microcredentials = [
                     _microcred_payload(row) for _, row in micro_df.iterrows()
                 ]
+            matches = [
+                _military_payload(
+                    leaver,
+                    row,
+                    i,
+                    use_openai_briefing=use_openai_briefing,
+                    related_microcreds=microcredentials,
+                )
+                for i, (_, row) in enumerate(ranked.iterrows())
+            ]
         else:
             leaver, ranked = match_companies(form, load_companies(), top_n=top_n)
             matches = [

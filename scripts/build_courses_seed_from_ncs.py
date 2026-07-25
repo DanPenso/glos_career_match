@@ -100,15 +100,28 @@ CERTIFICATE_TITLE = re.compile(r"\bCertificate\b|\bAward\b", re.I)
 
 
 def _course_type_label(title: str, course_type_code: str) -> str:
-    """Human-readable type for UI (title heuristics + NCS codes)."""
+    """Human-readable type for UI (title heuristics first; funding codes last)."""
     t = title or ""
     code = str(course_type_code or "").strip().split(".")[0]
+    # Qualification-style labels beat funding programme codes (1/4/5).
     if NVQ_TITLE.search(t):
         return "NVQ"
     if BOOTCAMP_TITLE.search(t) or code == "6":
         return "Skills Bootcamp"
     if TLEVEL_TITLE.search(t) or code == "2":
         return "T Level"
+    if ACCESS_TITLE.search(t):
+        return "Access to HE"
+    if BTEC_TITLE.search(t):
+        return "BTEC"
+    if re.search(r"\bA[\s-]?Level\b|\bGCE\b", t, re.I):
+        return "A Level"
+    if DIPLOMA_TITLE.search(t):
+        return "Diploma"
+    if CERTIFICATE_TITLE.search(t):
+        return "Certificate"
+    if re.search(r"\bDegree\b|\bBSc\b|\bBA\b|\bHND\b|\bHNC\b", t, re.I):
+        return "Higher education"
     if code == "3":
         return "Higher Technical Qualification (HTQ)"
     if code == "4":
@@ -117,18 +130,6 @@ def _course_type_label(title: str, course_type_code: str) -> str:
         return "Essential skills"
     if code == "5":
         return "Multiply"
-    if BTEC_TITLE.search(t):
-        return "BTEC"
-    if ACCESS_TITLE.search(t):
-        return "Access to HE"
-    if DIPLOMA_TITLE.search(t):
-        return "Diploma"
-    if CERTIFICATE_TITLE.search(t):
-        return "Certificate"
-    if re.search(r"\bA[\s-]?Level\b|\bGCE\b", t, re.I):
-        return "A Level"
-    if re.search(r"\bDegree\b|\bBSc\b|\bBA\b|\bHND\b|\bHNC\b", t, re.I):
-        return "Higher education"
     return NCS_COURSE_TYPE_LABELS.get(code, "FE / HE course")
 
 

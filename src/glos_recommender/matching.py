@@ -320,7 +320,7 @@ def match_reasons(leaver: dict[str, Any], company_row: pd.Series) -> list[str]:
         company_row["entry_routes"]
     )
     shared_roles = leaver["psych"].get("role_prefs", set()) & _split_pipe(
-        company_row["role_families"]
+        company_row.get("role_families") if hasattr(company_row, "get") else None
     )
 
     if shared_sectors:

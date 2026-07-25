@@ -26,7 +26,8 @@ export default function PrivacyPage() {
         <h2 className="font-display text-2xl text-[var(--ink)]">AI briefing consent</h2>
         <p className="text-sm text-[var(--ink-muted)]">
           AI briefings are optional and off by default. If you opt in, intake context and
-          matched company context are sent to OpenAI to generate briefing text.
+          matched employer, course, or military pathway context are sent to OpenAI to
+          generate briefing text.
         </p>
       </section>
 

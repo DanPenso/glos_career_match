@@ -79,7 +79,7 @@ export default function HomePage() {
               <p className="mt-2 text-sm text-[var(--ink-muted)]">
                 Live demo — guidance only. Pick work matches, education matches,
                 or military pathways after you complete the form. You control
-                whether AI employer briefings and anonymous learning signals are
+                whether AI match reports and anonymous learning signals are
                 enabled.
                 <a
                   href="/privacy"

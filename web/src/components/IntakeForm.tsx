@@ -84,7 +84,7 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
       qualification_level: qualification,
       availability,
       psych_answers: {},
-      use_openai_briefing: mode === "work" ? useOpenAIBriefing : false,
+      use_openai_briefing: useOpenAIBriefing,
       allow_anonymous_logging: allowAnonymousLogging,
       mode,
     });
@@ -226,8 +226,8 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
             onChange={(e) => setUseOpenAIBriefing(e.target.checked)}
           />
           <span>
-            Generate AI match reports for employer matches only (OpenAI). Education
-            and military modes use structured guidance without AI briefings.
+            Generate AI match reports for your top matches (OpenAI). Works for work,
+            education, and military pathways — linked to your profile. Off by default.
           </span>
         </label>
         <label className="flex items-start gap-3 text-sm text-[var(--ink)]">

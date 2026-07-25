@@ -434,7 +434,10 @@ export function MatchResults({
                 </>
               ) : null}
             </p>
-            <p className="text-[var(--ink)]">{match.summary}</p>
+            {match.summary &&
+            !(data.briefings_enabled && match.briefing_markdown) ? (
+              <p className="text-[var(--ink)]">{match.summary}</p>
+            ) : null}
           </header>
 
           <div className="grid gap-3 sm:grid-cols-3">
