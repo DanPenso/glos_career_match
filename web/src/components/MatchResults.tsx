@@ -201,7 +201,8 @@ function modeCopy(mode: MatchMode | undefined) {
       caption:
         "FE/HE options across Gloucestershire and Bristol from National Careers Service open data — check the provider for current intake.",
       thirdLabel: "What level / type is this?",
-      thirdHint: "Level and course type from the open course directory.",
+      thirdHint:
+        "Shows course type where known (e.g. NVQ, Skills Bootcamp, T Level, BTEC) plus level from the open course directory.",
       advice: [
         "Treat these as options, not a verdict.",
         "Confirm entry requirements and start dates with the provider.",
@@ -411,6 +412,14 @@ export function MatchResults({
               {mode === "education" && match.provider
                 ? `${match.provider} · ${match.town}`
                 : match.town}
+              {mode === "education" && match.course_type_label ? (
+                <>
+                  {" · "}
+                  <span className="font-medium text-[var(--trust)]">
+                    {match.course_type_label}
+                  </span>
+                </>
+              ) : null}
               {match.website ? (
                 <>
                   {" · "}

@@ -80,23 +80,78 @@ PREFERRED_PROVIDER = re.compile(
 )
 SCHOOL_PROVIDER = re.compile(r"\b(school|academy|high)\b", re.I)
 
+# NCS course type codes (GOV.UK code tables)
+NCS_COURSE_TYPE_LABELS = {
+    "1": "Essential skills",
+    "2": "T Level",
+    "3": "Higher Technical Qualification (HTQ)",
+    "4": "Free Courses for Jobs",
+    "5": "Multiply",
+    "6": "Skills Bootcamp",
+}
 
-def _entry_routes(education_level: str, study_mode: str, course_type: str) -> str:
+NVQ_TITLE = re.compile(r"\bNVQ\b|National Vocational Qual", re.I)
+BOOTCAMP_TITLE = re.compile(r"\bSkills?\s*Bootcamp\b|\bBootcamp\b", re.I)
+TLEVEL_TITLE = re.compile(r"\bT[\s-]?Level\b", re.I)
+BTEC_TITLE = re.compile(r"\bBTEC\b", re.I)
+ACCESS_TITLE = re.compile(r"\bAccess to Higher Education\b|\bAccess to HE\b", re.I)
+DIPLOMA_TITLE = re.compile(r"\bDiploma\b", re.I)
+CERTIFICATE_TITLE = re.compile(r"\bCertificate\b|\bAward\b", re.I)
+
+
+def _course_type_label(title: str, course_type_code: str) -> str:
+    """Human-readable type for UI (title heuristics + NCS codes)."""
+    t = title or ""
+    code = str(course_type_code or "").strip().split(".")[0]
+    if NVQ_TITLE.search(t):
+        return "NVQ"
+    if BOOTCAMP_TITLE.search(t) or code == "6":
+        return "Skills Bootcamp"
+    if TLEVEL_TITLE.search(t) or code == "2":
+        return "T Level"
+    if code == "3":
+        return "Higher Technical Qualification (HTQ)"
+    if code == "4":
+        return "Free Courses for Jobs"
+    if code == "1":
+        return "Essential skills"
+    if code == "5":
+        return "Multiply"
+    if BTEC_TITLE.search(t):
+        return "BTEC"
+    if ACCESS_TITLE.search(t):
+        return "Access to HE"
+    if DIPLOMA_TITLE.search(t):
+        return "Diploma"
+    if CERTIFICATE_TITLE.search(t):
+        return "Certificate"
+    if re.search(r"\bA[\s-]?Level\b|\bGCE\b", t, re.I):
+        return "A Level"
+    if re.search(r"\bDegree\b|\bBSc\b|\bBA\b|\bHND\b|\bHNC\b", t, re.I):
+        return "Higher education"
+    return NCS_COURSE_TYPE_LABELS.get(code, "FE / HE course")
+
+
+def _entry_routes(education_level: str, study_mode: str, course_type: str, type_label: str) -> str:
     level = str(education_level or "").lower()
     mode = str(study_mode or "").lower()
     ctype = str(course_type or "").lower()
+    label = str(type_label or "").lower()
     routes: list[str] = []
-    if "apprentice" in ctype or "apprentice" in level:
+    if "apprentice" in ctype or "apprentice" in level or "nvq" in label:
         routes.append("apprenticeship")
+    if "bootcamp" in label:
+        routes.extend(["school_leaver", "apprenticeship", "internship"])
     if any(x in level for x in ("level 6", "level 7", "degree", "higher education", "he ")):
         routes.extend(["graduate", "higher_apprenticeship"])
     if any(x in level for x in ("level 3", "level 4", "level 5", "a level", "t level", "access")):
+        routes.extend(["school_leaver", "apprenticeship"])
+    if "t level" in label or "btec" in label or "access" in label:
         routes.extend(["school_leaver", "apprenticeship"])
     if "part" in mode or "flexible" in mode:
         routes.append("internship")
     if not routes:
         routes = ["school_leaver", "apprenticeship"]
-    # unique preserve order
     out: list[str] = []
     for r in routes:
         if r not in out:
@@ -200,7 +255,16 @@ def build_courses() -> pd.DataFrame:
             ).strip()
 
         sectors = _sectors_from_text(name, sector_raw, ctype)
-        summary_bits = [b for b in (who[:220] if who else "", f"Level: {level}" if level else "", f"Type: {ctype}" if ctype else "") if b]
+        type_label = _course_type_label(name, ctype)
+        summary_bits = [
+            b
+            for b in (
+                who[:200] if who else "",
+                f"Type: {type_label}",
+                f"Level: {level}" if level else "",
+            )
+            if b
+        ]
         summary = " ".join(summary_bits) or f"{name} delivered by {provider_name or 'a local provider'}."
         website = _clean_url(str(r.get("COURSE_URL") or ""), provider_web.get(ukprn, ""))
         profile = " | ".join(
@@ -209,8 +273,8 @@ def build_courses() -> pd.DataFrame:
                 provider_name,
                 town,
                 level,
+                type_label,
                 sector_raw,
-                ctype,
                 who[:160],
                 sectors.replace("|", " "),
             ]
@@ -223,6 +287,15 @@ def build_courses() -> pd.DataFrame:
         else:
             provider_rank = 1
 
+        # Boost vocational routes in seed selection
+        vocational_boost = 0
+        if type_label in {"NVQ", "Skills Bootcamp"}:
+            vocational_boost = 3
+        elif type_label in {"T Level", "BTEC", "Higher Technical Qualification (HTQ)", "Free Courses for Jobs"}:
+            vocational_boost = 2
+        elif type_label in {"Access to HE", "Diploma", "Certificate"}:
+            vocational_boost = 1
+
         rows.append(
             {
                 "course_id": f"NCS-{ukprn}-{course_id}"[:64],
@@ -234,53 +307,75 @@ def build_courses() -> pd.DataFrame:
                 "region": _region(postcode, town),
                 "level": level or "See provider",
                 "course_type": ctype,
+                "course_type_label": type_label,
                 "study_mode": study,
                 "sectors": sectors,
-                "entry_routes": _entry_routes(level, study, ctype),
+                "entry_routes": _entry_routes(level, study, ctype, type_label),
                 "summary": summary[:400],
                 "website": website,
                 "profile_text": profile[:800],
                 "provider_rank": provider_rank,
+                "vocational_boost": vocational_boost,
                 "source": "ncs_course_directory",
                 "source_date": "2026-06",
             }
         )
 
     out = pd.DataFrame(rows)
-    # Always keep strong title matches for key career themes (better demo relevance)
+    # Force-include NVQ + Skills Bootcamp rows (demo request)
+    vocational = out[
+        out["course_type_label"].isin(["NVQ", "Skills Bootcamp"])
+        | out["title"].str.contains(r"\bNVQ\b|Bootcamp", case=False, na=False)
+        | out["course_type"].astype(str).str.startswith("6")
+    ].copy()
+
     priority_pat = re.compile(
         r"\b(?:computer science|cyber|ICT|software|programming|network|CCNA|"
         r"nurs|health.?care|social care|engineer|construct|plumb|"
         r"business|AAT|education|early.?year|hospitality|tourism|"
-        r"agricultur|digital data|T Level)\b",
+        r"agricultur|digital data|T Level|NVQ|Bootcamp|BTEC|Access)\b",
         re.I,
     )
     priority = out[out["title"].str.contains(priority_pat, na=False)].copy()
-    # Prefer colleges/unis; take diverse sectors
-    out = out.sort_values(["provider_rank", "title"], ascending=[False, True])
-    capped: list[pd.DataFrame] = [priority.head(40)]
+    out = out.sort_values(
+        ["vocational_boost", "provider_rank", "title"],
+        ascending=[False, False, True],
+    )
+    capped: list[pd.DataFrame] = [
+        vocational.head(40),
+        priority.head(40),
+    ]
     for sector in sorted({s for row in rows for s in str(row["sectors"]).split("|") if s}):
         subset = out[out["sectors"].str.contains(sector, regex=False)]
         capped.append(subset.head(8))
-    # Prefer Gloucestershire rows for regional balance
     glos = out[out["region"] == "gloucestershire"].head(25)
     capped.append(glos)
-    capped.append(out.head(40))
-    final = pd.concat(capped, ignore_index=True).drop_duplicates(subset=["course_id"]).head(100)
-    final = final.drop(columns=["provider_rank"], errors="ignore")
+    capped.append(out.head(50))
+    final = (
+        pd.concat(capped, ignore_index=True)
+        .drop_duplicates(subset=["course_id"])
+        .head(130)
+    )
+    final = final.drop(columns=["provider_rank", "vocational_boost"], errors="ignore")
     final = final.sort_values(["region", "provider", "title"]).reset_index(drop=True)
     return final
 
 
 def build_microcreds(courses: pd.DataFrame) -> pd.DataFrame:
     """Short / Level 3+ local courses suitable as PD exploration (not ELCAS-verified)."""
-    level_ok = courses["level"].str.contains(
-        r"level\s*[3-7]|higher|degree|htq|access", case=False, na=False, regex=True
+    level_ok = courses["level"].astype(str).str.contains(
+        r"level\s*[3-7]|higher|degree|htq|access|3|4|5|6|7",
+        case=False,
+        na=False,
+        regex=True,
     )
-    shortish = courses["course_type"].str.contains(
-        r"Skills Bootcamp|Higher Technical|Free Courses|Essential", case=False, na=False, regex=True
+    shortish = courses["course_type_label"].astype(str).str.contains(
+        r"Bootcamp|HTQ|Free Courses|Essential|Certificate|NVQ|Diploma",
+        case=False,
+        na=False,
+        regex=True,
     ) | courses["title"].str.contains(
-        r"certificate|diploma|award|unit|module|short|bootcamp|HTQ|access",
+        r"certificate|diploma|award|unit|module|short|bootcamp|HTQ|access|NVQ",
         case=False,
         na=False,
         regex=True,
@@ -288,9 +383,19 @@ def build_microcreds(courses: pd.DataFrame) -> pd.DataFrame:
     pick = courses.loc[level_ok | shortish].copy()
     if pick.empty:
         pick = courses.head(20).copy()
-    pick = pick.head(24)
+    # Prefer vocational types in micro-cred list
+    if "course_type_label" in pick.columns:
+        pick["_rank"] = pick["course_type_label"].map(
+            lambda x: 0
+            if str(x) in {"NVQ", "Skills Bootcamp"}
+            else 1
+            if "HTQ" in str(x) or "Bootcamp" in str(x)
+            else 2
+        )
+        pick = pick.sort_values(["_rank", "title"]).drop(columns=["_rank"])
+    pick = pick.head(28)
     rows = []
-    for i, r in pick.iterrows():
+    for _, r in pick.iterrows():
         rows.append(
             {
                 "cred_id": f"MC-{r['course_id']}"[:64],
@@ -299,6 +404,7 @@ def build_microcreds(courses: pd.DataFrame) -> pd.DataFrame:
                 "town": r["town"],
                 "region": r["region"],
                 "level": r["level"],
+                "course_type_label": r.get("course_type_label", ""),
                 "sectors": r["sectors"],
                 "summary": (
                     f"{r['summary']} "
@@ -324,6 +430,8 @@ def main() -> None:
     print(f"Wrote {len(courses)} courses -> {OUT}")
     print(f"Wrote {len(micro)} micro-creds -> {MICRO}")
     print(courses["region"].value_counts().to_string())
+    if "course_type_label" in courses.columns:
+        print(courses["course_type_label"].value_counts().head(15).to_string())
 
 
 if __name__ == "__main__":

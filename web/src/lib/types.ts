@@ -58,6 +58,7 @@ export type MatchCompany = {
   service?: string;
   level?: string;
   course_type?: string;
+  course_type_label?: string;
   study_mode?: string;
   region?: string;
   sector_score?: number;

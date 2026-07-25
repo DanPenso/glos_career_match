@@ -95,6 +95,13 @@ def score_course(leaver: dict[str, Any], row: pd.Series) -> dict[str, float]:
     if "college" in provider or "university" in provider or provider.startswith("uwe"):
         final = min(1.0, final + 0.05)
 
+    # Prefer vocational routes when present in the catalogue
+    type_label = str(row.get("course_type_label") or "").lower()
+    if "nvq" in type_label or "nvq" in title:
+        final = min(1.0, final + 0.06)
+    if "bootcamp" in type_label or "bootcamp" in title:
+        final = min(1.0, final + 0.06)
+
     return {
         "final_score": round(final, 4),
         "sector_score": round(sector, 4),

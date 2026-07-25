@@ -154,6 +154,9 @@ def _company_payload(
 
 def _course_payload(row: pd.Series, rank: int) -> dict[str, Any]:
     data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
+    type_label = str(data.get("course_type_label") or "").strip()
+    level = str(data.get("level") or "").strip()
+    type_level = " · ".join(x for x in (type_label, level if level and level != "See provider" else "") if x)
     return {
         "kind": "course",
         "course_id": data.get("course_id"),
@@ -165,6 +168,7 @@ def _course_payload(row: pd.Series, rank: int) -> dict[str, Any]:
         "region": data.get("region"),
         "level": data.get("level"),
         "course_type": data.get("course_type"),
+        "course_type_label": type_label or None,
         "study_mode": data.get("study_mode"),
         "sectors": data.get("sectors"),
         "entry_routes": data.get("entry_routes"),
@@ -178,7 +182,7 @@ def _course_payload(row: pd.Series, rank: int) -> dict[str, Any]:
         "cosine_sim": float(data.get("cosine_sim") or 0),
         "sector_fit_label": fit_label(float(data.get("sector_score") or 0)),
         "entry_fit_label": fit_label(float(data.get("entry_score") or 0)),
-        "hiring_label": str(data.get("level") or "See provider"),
+        "hiring_label": type_level or type_label or level or "See provider",
         "hiring_signal": None,
         "overall_label": overall_label(rank),
         "briefing_markdown": "",
