@@ -253,6 +253,7 @@ export function MatchResults({
   const mode = data.mode || "work";
   const copy = modeCopy(mode);
   const micros = data.microcredentials || [];
+  const online = data.online_courses || [];
 
   return (
     <section className="space-y-8 animate-in">
@@ -331,6 +332,50 @@ export function MatchResults({
             : data.pathways
           ).slice(0, 4)}
         />
+      ) : null}
+
+      {online.length ? (
+        <div className="space-y-3">
+          <div>
+            <h3 className="font-display text-2xl text-[var(--ink)]">
+              Online courses to build skills
+            </h3>
+            <p className="mt-1 text-sm text-[var(--ink-muted)]">
+              {data.online_courses_disclaimer ||
+                "Curated suggestions with links to Coursera or Udemy search results. Check prices and availability on the platform."}
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-1">
+            {online.map((c, i) => (
+              <div
+                key={c.course_id || c.title}
+                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm"
+              >
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--trust)]">
+                  <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
+                    #{i + 1} {c.provider || "Online"}
+                  </span>
+                </p>
+                <h4 className="border-b border-[var(--line)] pb-2 font-semibold text-[var(--ink)]">
+                  {c.title}
+                </h4>
+                <p className="mt-2 text-sm text-[var(--ink-muted)]">
+                  {c.description}
+                </p>
+                {c.url ? (
+                  <a
+                    href={c.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-block text-sm font-medium underline decoration-[var(--accent)]"
+                  >
+                    View on {c.provider || "platform"}
+                  </a>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
       ) : null}
 
       <div className="flex gap-2 overflow-x-auto pb-1">

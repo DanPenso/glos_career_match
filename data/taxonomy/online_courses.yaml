@@ -1,0 +1,219 @@
+# Curated online skill-building courses for the non-commercial demo.
+# Links prefer stable search URLs (stay current) plus a few well-known deep links.
+# Titles/descriptions are original guidance text — not scraped platform copy.
+# Refresh quarterly: spot-check links still resolve.
+
+disclaimer: >
+  Suggested online courses to build skills. Platforms set their own prices and
+  availability — check the link. Not affiliated with Coursera or Udemy; not a
+  paid endorsement. Prefer local FE/HE or ELCAS-approved options when funding matters.
+
+courses:
+  - id: oc_python_intro
+    title: Intro to Python programming
+    description: >
+      Learn basic Python syntax, simple programs, and problem-solving — useful
+      for data, software, and many technical apprenticeships.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=python%20for%20everybody
+    sectors: [cyber_digital, business_professional, aerospace_manufacturing]
+
+  - id: oc_cyber_fundamentals
+    title: Cyber security fundamentals
+    description: >
+      Covers threats, basic defence, and safe online practice — a solid starter
+      before specialised cyber pathways or CompTIA-style learning.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=cybersecurity%20fundamentals
+    sectors: [cyber_digital, public_sector]
+
+  - id: oc_web_dev
+    title: Web development with HTML, CSS & JavaScript
+    description: >
+      Build simple websites and interactive pages — practical for junior digital
+      and software roles.
+    provider: Udemy
+    url: https://www.udemy.com/courses/search/?q=web%20development%20html%20css%20javascript%20beginner
+    sectors: [cyber_digital, creative_events]
+
+  - id: oc_data_excel
+    title: Data analysis with Excel / spreadsheets
+    description: >
+      Sorting, formulas, charts, and clean tables — high-value for admin, finance,
+      and entry analyst roles.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=excel%20data%20analysis%20beginner
+    sectors: [business_professional, public_sector, cyber_digital]
+
+  - id: oc_sql_beginner
+    title: SQL for beginners
+    description: >
+      Query databases with SELECT, filters, and joins — useful for data, ops, and
+      tech-support pathways.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=sql%20for%20data%20science
+    sectors: [cyber_digital, business_professional]
+
+  - id: oc_project_management
+    title: Project management basics
+    description: >
+      Planning, stakeholders, and delivery habits — transferable across business,
+      public sector, and engineering teams.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=project%20management%20fundamentals
+    sectors: [business_professional, public_sector, aerospace_manufacturing, construction_green]
+
+  - id: oc_digital_marketing
+    title: Digital marketing essentials
+    description: >
+      Channels, content, and measuring campaigns — fits retail, events, and
+      SME marketing pathways.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=digital%20marketing%20specialization
+    sectors: [business_professional, hospitality_retail, creative_events]
+
+  - id: oc_graphic_design
+    title: Graphic design foundations
+    description: >
+      Visual layout, typography, and simple brand work — useful for creative and
+      marketing portfolios.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=graphic%20design%20beginner
+    sectors: [creative_events]
+
+  - id: oc_cad_engineering
+    title: CAD / engineering design intro
+    description: >
+      Introductory CAD thinking for manufacturing and engineering routes —
+      pair with local college practical work.
+    provider: Udemy
+    url: https://www.udemy.com/courses/search/?q=CAD%20beginner%20engineering
+    sectors: [aerospace_manufacturing, construction_green]
+
+  - id: oc_electrical_basics
+    title: Electrical / electronics basics
+    description: >
+      Core circuit ideas and safety awareness — supports engineering and
+      technician pathways (not a substitute for regulated qualifications).
+    provider: Udemy
+    url: https://www.udemy.com/courses/search/?q=electronics%20basics%20beginner
+    sectors: [aerospace_manufacturing, construction_green]
+
+  - id: oc_construction_health_safety
+    title: Construction health & safety awareness
+    description: >
+      Site awareness and safety culture — often expected before trade and
+      built-environment roles (check local CSCS / employer requirements).
+    provider: Udemy
+    url: https://www.udemy.com/courses/search/?q=construction%20health%20safety%20awareness
+    sectors: [construction_green]
+
+  - id: oc_sustainability
+    title: Sustainability & climate basics
+    description: >
+      How organisations think about net zero and environment — useful for green
+      construction, agri-tech, and public sector roles.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=sustainability%20climate%20change%20introduction
+    sectors: [construction_green, agri_tech_food, public_sector]
+
+  - id: oc_food_safety
+    title: Food safety / hygiene awareness
+    description: >
+      Food hygiene principles for hospitality and food production pathways —
+      confirm local Level 2 requirements with employers.
+    provider: Udemy
+    url: https://www.udemy.com/courses/search/?q=food%20hygiene%20level%202
+    sectors: [hospitality_tourism, agri_tech_food, hospitality_retail]
+
+  - id: oc_hospitality_service
+    title: Customer service for hospitality
+    description: >
+      Guest experience, communication, and handling pressure — core skills for
+      hotels, restaurants, and tourism.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=customer%20service%20hospitality
+    sectors: [hospitality_tourism, hospitality_retail]
+
+  - id: oc_healthcare_comms
+    title: Communication skills for care & health
+    description: >
+      Empathy, clear handovers, and professional boundaries — valued across
+      care, NHS support, and wellbeing roles.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=communication%20skills%20healthcare
+    sectors: [health_care, education_training]
+
+  - id: oc_first_aid_awareness
+    title: First aid awareness (online intro)
+    description: >
+      Basic emergency response concepts — useful background; practical first-aid
+      certificates usually need in-person assessment.
+    provider: Udemy
+    url: https://www.udemy.com/courses/search/?q=first%20aid%20awareness
+    sectors: [health_care, education_training, public_sector]
+
+  - id: oc_teaching_assistant
+    title: Teaching assistant / classroom support skills
+    description: >
+      Behaviour support, literacy help, and school routines — pairs well with
+      local TA vacancies and education pathways.
+    provider: Udemy
+    url: https://www.udemy.com/courses/search/?q=teaching%20assistant%20course
+    sectors: [education_training]
+
+  - id: oc_safeguarding
+    title: Safeguarding awareness
+    description: >
+      Recognising risk and reporting concerns — often expected in education,
+      care, and youth settings (complete employer-required versions too).
+    provider: Udemy
+    url: https://www.udemy.com/courses/search/?q=safeguarding%20awareness%20UK
+    sectors: [education_training, health_care, public_sector]
+
+  - id: oc_agri_tech
+    title: Agriculture & food systems intro
+    description: >
+      How modern food and land-based industries work — orientation for agri-tech
+      and environmental routes.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=agriculture%20food%20systems
+    sectors: [agri_tech_food]
+
+  - id: oc_public_speaking
+    title: Presentation & public speaking
+    description: >
+      Structuring talks and speaking with confidence — helps interviews,
+      apprenticeships, and professional roles.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=public%20speaking
+    sectors: [business_professional, education_training, public_sector, creative_events]
+
+  - id: oc_cv_interview
+    title: CV writing & interview skills
+    description: >
+      Practical job-search habits — STAR examples, CVs, and interview practice
+      for any sector.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=job%20interview%20skills
+    sectors:
+      - cyber_digital
+      - aerospace_manufacturing
+      - agri_tech_food
+      - health_care
+      - public_sector
+      - creative_events
+      - construction_green
+      - hospitality_tourism
+      - hospitality_retail
+      - business_professional
+      - education_training
+
+  - id: oc_ai_literacy
+    title: AI literacy for work
+    description: >
+      What generative AI can and cannot do safely at work — useful across
+      digital, business, and creative pathways.
+    provider: Coursera
+    url: https://www.coursera.org/search?query=generative%20ai%20for%20everyone
+    sectors: [cyber_digital, business_professional, creative_events, education_training]

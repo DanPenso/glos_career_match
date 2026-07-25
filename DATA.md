@@ -105,11 +105,20 @@ and matched company context are sent to OpenAI to generate briefing text.
 
 **Limits:** Guidance only — **not** official recruitment advice and not an offer of employment.
 
-## 9. What this demo is not
+## 10. Curated online courses (Coursera / Udemy links)
+
+**What we use:** Hand-maintained `data/taxonomy/online_courses.yaml` — original titles and descriptions with links to Coursera or Udemy **search** pages (stable destinations). Not an official platform catalog dump.
+
+**Licence:** Original guidance text under the project MIT License. Coursera/Udemy remain third-party platforms; links are for discovery only (no affiliation claimed).
+
+**Refresh:** Spot-check links quarterly. Prefer search URLs so results stay current when individual courses change.
+
+## 11. What this demo is not
 
 - Not a live vacancy board  
 - Not official advice from DfE, MOD, employers, or local authorities  
 - Not a guarantee of interview, apprenticeship, course place, or job outcomes  
 - Not a commercial product (no referral tracking or monetised lead gen)
+- Not affiliated with Coursera or Udemy
 
 For licence of the **software**, see [LICENSE](LICENSE).

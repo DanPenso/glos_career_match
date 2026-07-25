@@ -35,6 +35,7 @@ from glos_recommender.matching import (
 )
 from glos_recommender.live_learning import log_match_event, record_persona_feedback
 from glos_recommender.military import match_military
+from glos_recommender.online_courses import match_online_courses
 from glos_recommender.personas import persona_bundle
 from glos_recommender.programmes import programmes_for_company
 
@@ -317,6 +318,7 @@ def match(req: MatchRequest) -> dict[str, Any]:
     leaver_out = _jsonable_leaver(leaver)
     leaver_out["persona"] = persona.get("persona")
     leaver_out["cluster_id"] = persona.get("cluster_id")
+    online_courses, online_disclaimer = match_online_courses(leaver=leaver, top_n=3)
     return {
         "mode": mode,
         "leaver": leaver_out,
@@ -332,6 +334,8 @@ def match(req: MatchRequest) -> dict[str, Any]:
         "learning_event_id": (live_event or {}).get("event_id"),
         "matches": matches,
         "microcredentials": microcredentials,
+        "online_courses": online_courses,
+        "online_courses_disclaimer": online_disclaimer,
         "data_note": {
             "work": "Employer matches from curated + Companies House / DfE open data.",
             "education": (

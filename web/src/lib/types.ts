@@ -88,6 +88,16 @@ export type Microcredential = {
   final_score?: number;
 };
 
+export type OnlineCourse = {
+  course_id: string;
+  title: string;
+  description: string;
+  provider: string;
+  url: string;
+  sectors?: string;
+  score?: number;
+};
+
 export type MatchResponse = {
   mode?: MatchMode;
   leaver: {
@@ -110,6 +120,8 @@ export type MatchResponse = {
   briefings_enabled?: boolean;
   matches: MatchCompany[];
   microcredentials?: Microcredential[];
+  online_courses?: OnlineCourse[];
+  online_courses_disclaimer?: string;
   data_note?: string;
 };
 
