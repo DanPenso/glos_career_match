@@ -21,6 +21,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 load_dotenv(ROOT / ".env")
 
+from glos_recommender.action_plan import (
+    breakdown_step,
+    chat_about_step,
+    gemini_configured,
+    generate_plan,
+)
 from glos_recommender.briefing import clean_catalogue_summary, generate_briefing
 from glos_recommender.courses import load_courses, match_courses
 from glos_recommender.intake_config import (
@@ -71,8 +77,16 @@ class MatchRequest(BaseModel):
     work_experience: list[str] = Field(default_factory=list)
     qualification_level: str = ""
     availability: str = ""
+    # Optional richer profile (all optional)
+    proud_example: str = ""
+    goal_sentence: str = ""
+    barriers: list[str] = Field(default_factory=list)
+    must_haves: list[str] = Field(default_factory=list)
+    support_available: list[str] = Field(default_factory=list)
+    apply_readiness: str = ""
     psych_answers: dict[str, str] = Field(default_factory=dict)
     use_openai_briefing: bool = False
+    use_gemini_plan: bool = False
     allow_anonymous_logging: bool = True
     top_n: int = 3
     mode: str = "work"  # work | education | military
@@ -81,6 +95,34 @@ class MatchRequest(BaseModel):
 class PersonaFeedbackRequest(BaseModel):
     event_id: str
     helpful: bool
+
+
+class PlanGenerateRequest(BaseModel):
+    mode: str = "work"
+    leaver: dict[str, Any] = Field(default_factory=dict)
+    match: dict[str, Any] = Field(default_factory=dict)
+    use_gemini_plan: bool = True
+
+
+class PlanBreakdownRequest(BaseModel):
+    mode: str = "work"
+    leaver: dict[str, Any] = Field(default_factory=dict)
+    match: dict[str, Any] = Field(default_factory=dict)
+    step: dict[str, Any] = Field(default_factory=dict)
+    sibling_steps: list[dict[str, Any]] = Field(default_factory=list)
+    step_families: dict[str, str] = Field(default_factory=dict)
+    use_gemini_plan: bool = True
+
+
+class PlanChatRequest(BaseModel):
+    mode: str = "work"
+    leaver: dict[str, Any] = Field(default_factory=dict)
+    match: dict[str, Any] = Field(default_factory=dict)
+    step: dict[str, Any] = Field(default_factory=dict)
+    breakdown: dict[str, Any] | None = None
+    history: list[dict[str, str]] = Field(default_factory=list)
+    message: str = ""
+    use_gemini_plan: bool = True
 
 
 def _jsonable_leaver(leaver: dict[str, Any]) -> dict[str, Any]:
@@ -345,6 +387,7 @@ def match(req: MatchRequest) -> dict[str, Any]:
         )
     form = req.model_dump()
     use_openai_briefing = bool(form.pop("use_openai_briefing", False))
+    use_gemini_plan = bool(form.pop("use_gemini_plan", False))
     allow_anonymous_logging = bool(form.pop("allow_anonymous_logging", True))
     top_n = form.pop("top_n", 3)
     form.pop("mode", None)
@@ -405,6 +448,8 @@ def match(req: MatchRequest) -> dict[str, Any]:
         "mode": mode,
         "leaver": leaver_out,
         "briefings_enabled": use_openai_briefing,
+        "plans_enabled": use_gemini_plan,
+        "gemini_configured": gemini_configured(),
         "pathways": pathways,
         "training_routes": (persona.get("training_routes") or pathways)[:4],
         "persona": persona.get("persona"),
@@ -440,3 +485,61 @@ def persona_feedback(req: PersonaFeedbackRequest) -> dict[str, Any]:
     if not ok:
         raise HTTPException(status_code=404, detail="Unknown learning event_id.")
     return {"ok": True, "event_id": req.event_id, "helpful": req.helpful}
+
+
+def _require_plan_consent(use_gemini_plan: bool) -> None:
+    if not use_gemini_plan:
+        raise HTTPException(
+            status_code=400,
+            detail="Enable AI action plans (Gemini) in privacy controls to use this feature.",
+        )
+
+
+@app.post("/plan/generate")
+def plan_generate(req: PlanGenerateRequest) -> dict[str, Any]:
+    _require_plan_consent(req.use_gemini_plan)
+    if not req.match:
+        raise HTTPException(status_code=400, detail="match is required")
+    try:
+        return generate_plan(mode=req.mode, leaver=req.leaver or {}, match=req.match)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@app.post("/plan/breakdown")
+def plan_breakdown(req: PlanBreakdownRequest) -> dict[str, Any]:
+    _require_plan_consent(req.use_gemini_plan)
+    if not req.match or not req.step:
+        raise HTTPException(status_code=400, detail="match and step are required")
+    try:
+        return breakdown_step(
+            mode=req.mode,
+            leaver=req.leaver or {},
+            match=req.match,
+            step=req.step,
+            sibling_steps=req.sibling_steps or [],
+            step_families=req.step_families or {},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@app.post("/plan/chat")
+def plan_chat(req: PlanChatRequest) -> dict[str, Any]:
+    _require_plan_consent(req.use_gemini_plan)
+    if not req.match or not req.step:
+        raise HTTPException(status_code=400, detail="match and step are required")
+    if len(req.history or []) > 12:
+        raise HTTPException(status_code=400, detail="chat history too long")
+    try:
+        return chat_about_step(
+            mode=req.mode,
+            leaver=req.leaver or {},
+            match=req.match,
+            step=req.step,
+            breakdown=req.breakdown,
+            history=req.history or [],
+            message=req.message,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e

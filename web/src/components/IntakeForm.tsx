@@ -52,7 +52,15 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
   const [interests, setInterests] = useState<string[]>([]);
   const [passions, setPassions] = useState<string[]>([]);
   const [experience, setExperience] = useState<string[]>([]);
+  const [showMoreAboutYou, setShowMoreAboutYou] = useState(false);
+  const [proudExample, setProudExample] = useState("");
+  const [goalSentence, setGoalSentence] = useState("");
+  const [barriers, setBarriers] = useState<string[]>([]);
+  const [mustHaves, setMustHaves] = useState<string[]>([]);
+  const [supportAvailable, setSupportAvailable] = useState<string[]>([]);
+  const [applyReadiness, setApplyReadiness] = useState("");
   const [useOpenAIBriefing, setUseOpenAIBriefing] = useState(false);
+  const [useGeminiPlan, setUseGeminiPlan] = useState(false);
   const [allowAnonymousLogging, setAllowAnonymousLogging] = useState(true);
   const [error, setError] = useState("");
 
@@ -83,8 +91,15 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
       work_experience: experience,
       qualification_level: qualification,
       availability,
+      proud_example: proudExample.trim().slice(0, 500),
+      goal_sentence: goalSentence.trim().slice(0, 160),
+      barriers,
+      must_haves: mustHaves,
+      support_available: supportAvailable,
+      apply_readiness: applyReadiness,
       psych_answers: {},
       use_openai_briefing: useOpenAIBriefing,
+      use_gemini_plan: useGeminiPlan,
       allow_anonymous_logging: allowAnonymousLogging,
       mode,
     });
@@ -214,9 +229,142 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
         </div>
       </fieldset>
 
+      <div className="space-y-3 rounded-2xl border border-dashed border-[var(--line)] bg-[var(--surface)] p-4">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between gap-3 text-left"
+          onClick={() => setShowMoreAboutYou((v) => !v)}
+          aria-expanded={showMoreAboutYou}
+        >
+          <span>
+            <span className="block text-sm font-medium text-[var(--ink)]">
+              Add a bit more about you (optional)
+            </span>
+            <span className="mt-0.5 block text-xs text-[var(--ink-muted)]">
+              Helps AI advice and plans feel more personal — skip if you prefer.
+            </span>
+          </span>
+          <span className="text-sm font-medium text-[var(--trust)]">
+            {showMoreAboutYou ? "Hide" : "Show"}
+          </span>
+        </button>
+
+        {showMoreAboutYou ? (
+          <div className="space-y-5 border-t border-[var(--line)] pt-4">
+            <label className="block space-y-1.5 text-sm">
+              <span className="font-medium text-[var(--ink-muted)]">
+                In one sentence, what are you looking for?
+              </span>
+              <input
+                className="field"
+                value={goalSentence}
+                maxLength={160}
+                placeholder="e.g. A local cyber apprenticeship with clear training"
+                onChange={(e) => setGoalSentence(e.target.value)}
+              />
+              <span className="text-xs text-[var(--ink-muted)]">
+                {goalSentence.trim().length}/160
+              </span>
+            </label>
+
+            <label className="block space-y-1.5 text-sm">
+              <span className="font-medium text-[var(--ink-muted)]">
+                One thing you’re proud of
+              </span>
+              <textarea
+                className="field min-h-[88px]"
+                value={proudExample}
+                maxLength={500}
+                placeholder="School, job, volunteering, home, or a project — what you did and what happened"
+                onChange={(e) => setProudExample(e.target.value)}
+              />
+              <span className="text-xs text-[var(--ink-muted)]">
+                {proudExample.trim().length}/500 · Used for CV / STAR-style tips
+              </span>
+            </label>
+
+            {(intake.barriers?.length ?? 0) > 0 ? (
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-medium text-[var(--ink-muted)]">
+                  What might get in the way? (optional)
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {intake.barriers!.map((item) => (
+                    <Chip
+                      key={item}
+                      label={item}
+                      selected={barriers.includes(item)}
+                      onClick={() => setBarriers(toggle(barriers, item, 6))}
+                    />
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
+
+            {(intake.must_haves?.length ?? 0) > 0 ? (
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-medium text-[var(--ink-muted)]">
+                  Must-haves for your next step (optional)
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {intake.must_haves!.map((item) => (
+                    <Chip
+                      key={item}
+                      label={item}
+                      selected={mustHaves.includes(item)}
+                      onClick={() => setMustHaves(toggle(mustHaves, item, 6))}
+                    />
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
+
+            {(intake.support_available?.length ?? 0) > 0 ? (
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-medium text-[var(--ink-muted)]">
+                  Who can support you? (optional)
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {intake.support_available!.map((item) => (
+                    <Chip
+                      key={item}
+                      label={item}
+                      selected={supportAvailable.includes(item)}
+                      onClick={() =>
+                        setSupportAvailable(toggle(supportAvailable, item, 4))
+                      }
+                    />
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
+
+            {(intake.apply_readiness?.length ?? 0) > 0 ? (
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-medium text-[var(--ink-muted)]">
+                  How ready do you feel to apply?
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {intake.apply_readiness!.map((item) => (
+                    <Chip
+                      key={item}
+                      label={item}
+                      selected={applyReadiness === item}
+                      onClick={() =>
+                        setApplyReadiness(applyReadiness === item ? "" : item)
+                      }
+                    />
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
       <fieldset className="space-y-3 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-4">
         <legend className="text-sm font-medium text-[var(--ink-muted)]">
-          Privacy controls
+          Must be checked for AI responses!
         </legend>
         <label className="flex items-start gap-3 text-sm text-[var(--ink)]">
           <input
@@ -228,6 +376,18 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
           <span>
             Generate AI match reports for your top matches (OpenAI). Works for work,
             education, and military pathways — linked to your profile. Off by default.
+          </span>
+        </label>
+        <label className="flex items-start gap-3 text-sm text-[var(--ink)]">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={useGeminiPlan}
+            onChange={(e) => setUseGeminiPlan(e.target.checked)}
+          />
+          <span>
+            Enable AI 5-step action plans (Google Gemini) on each match — including
+            “break it down” and follow-up questions. Off by default.
           </span>
         </label>
         <label className="flex items-start gap-3 text-sm text-[var(--ink)]">

@@ -9,7 +9,10 @@ Briefings pull short **strategy cards** paraphrased from public careers / youth-
 | `data/corpus/evidence/strategies.yaml` | Source of truth (40 cards) |
 | `data/corpus/evidence/SOURCES.md` | Citations / links |
 | `data/corpus/evidence_strategies.txt` | Flat export for indexing |
-| `src/glos_recommender/rag.py` | FAISS retrieve + keyword fallback |
+| `data/corpus/howto/howto.yaml` | Practical how-to cards for plan breakdowns |
+| `data/corpus/howto/SOURCES.md` | How-to citations / links |
+| `data/corpus/howto_cards.txt` | Flat export for indexing |
+| `src/glos_recommender/rag.py` | FAISS retrieve + keyword fallback (+ howto) |
 | `scripts/build_faiss_corpus.py` | Rebuild index |
 
 ## Rebuild after editing cards

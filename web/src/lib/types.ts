@@ -9,10 +9,44 @@ export type IntakeForm = {
   work_experience: string[];
   qualification_level: string;
   availability: string;
+  proud_example?: string;
+  goal_sentence?: string;
+  barriers?: string[];
+  must_haves?: string[];
+  support_available?: string[];
+  apply_readiness?: string;
   psych_answers: Record<string, string>;
   use_openai_briefing: boolean;
+  use_gemini_plan: boolean;
   allow_anonymous_logging: boolean;
   mode: MatchMode;
+};
+
+export type PlanStep = {
+  id: string;
+  title: string;
+  summary: string;
+  timeframe?: string;
+};
+
+export type ActionPlan = {
+  plan_id: string;
+  source?: string;
+  match_name?: string;
+  match_kind?: string;
+  steps: PlanStep[];
+  step_families?: Record<string, string>;
+  disclaimer?: string;
+};
+
+export type PlanBreakdown = {
+  step_id: string;
+  source?: string;
+  detail_markdown: string;
+  checklist?: string[];
+  profile_hooks?: string[];
+  why_this_step?: string;
+  sources_used?: string[];
 };
 
 export type Pathway = {
@@ -119,6 +153,8 @@ export type MatchResponse = {
   persona_map_2d?: PersonaMap2D | null;
   learning_event_id?: string | null;
   briefings_enabled?: boolean;
+  plans_enabled?: boolean;
+  gemini_configured?: boolean;
   matches: MatchCompany[];
   microcredentials?: Microcredential[];
   online_courses?: OnlineCourse[];
@@ -135,6 +171,10 @@ export type TaxonomyResponse = {
     work_experience_types: string[];
     qualification_levels: string[];
     availability: string[];
+    barriers?: string[];
+    must_haves?: string[];
+    support_available?: string[];
+    apply_readiness?: string[];
     course_areas: {
       school_college: string[];
       university: string[];

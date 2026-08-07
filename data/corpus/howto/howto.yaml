@@ -1,0 +1,188 @@
+# Practical how-to cards for MatchKite step breakdowns.
+# Paraphrased public guidance — cite source_label; never invent deadlines or guarantees.
+
+cards:
+  - id: ncs_cv_structure
+    topic: cv_structure
+    source_id: ncs_cv
+    source_label: National Careers Service — CV sections
+    tags: [cv, application, prepare]
+    tip: >
+      Keep a CV to one page if you can. Use clear headings: contact details, personal
+      profile (2–3 lines), education, experience, skills. Put the most relevant section
+      near the top for this employer or course.
+    do: >
+      Write one short profile line that names the kind of role or course you want and
+      one strength you can prove. Then list education and two experience bullets that
+      match this match card.
+    do_not_claim: Do not claim a perfect CV guarantees an interview.
+
+  - id: ncs_cv_experience
+    topic: cv_experience
+    source_id: ncs_cv
+    source_label: National Careers Service — CV sections
+    tags: [cv, experience, skills]
+    tip: >
+      Experience can be paid work, volunteering, caring, school projects, clubs, or
+      helping at home. Focus on what you did and what changed because of you.
+    do: >
+      For each experience line use: what you did + who for + one result or skill
+      (for example served customers, kept a till accurate, or led a group task).
+    do_not_claim: Do not invent job titles or results you cannot explain if asked.
+
+  - id: prospects_star
+    topic: star_method
+    source_id: prospects_star
+    source_label: Prospects — STAR technique
+    tags: [cv, interview, application, star]
+    tip: >
+      STAR means Situation, Task, Action, Result. It helps you turn a real example into
+      a clear story for applications and interviews.
+    do: >
+      Pick one real challenge. Write four short lines: where you were, what you needed
+      to do, what YOU did, and what happened next. Practise saying it in under two minutes.
+    do_not_claim: Do not claim STAR answers guarantee a job offer.
+
+  - id: prospects_tailor
+    topic: tailor_application
+    source_id: prospects_cv
+    source_label: Prospects — CVs and cover letters
+    tags: [cv, application, tailor]
+    tip: >
+      Strong applications mirror the skills the employer or course asks for. Generic
+      CVs are easier to ignore.
+    do: >
+      From this match summary, list three skills or themes. Add one proof line from your
+      profile for each (course, hobby, or experience).
+    do_not_claim: Do not invent skills you do not have.
+
+  - id: ncs_apply_check
+    topic: check_before_apply
+    source_id: ncs_cv
+    source_label: National Careers Service — applications
+    tags: [apply, research, website]
+    tip: >
+      Before you apply, check the official page for how to apply, what they ask for, and
+      whether applications are open. Do not guess closing dates.
+    do: >
+      Open the official website on your match card. Note the apply route and two things
+      they care about. Save the page or email the link to yourself.
+    do_not_claim: Do not invent vacancies, fees, or deadlines.
+
+  - id: find_apprenticeship_search
+    topic: find_openings
+    source_id: find_apprenticeship
+    source_label: GOV.UK — Find an apprenticeship
+    tags: [apprenticeship, vacancies, search]
+    tip: >
+      Live apprenticeship adverts sit on Find an apprenticeship and sometimes on the
+      employer site. A match is not the same as an open vacancy.
+    do: >
+      Search the employer name and your town or postcode on Find an apprenticeship.
+      Also check the employer careers page. Write down any live roles or “no vacancies”.
+    do_not_claim: Do not assume a role is open because the employer is a good match.
+
+  - id: ncs_enquiry
+    topic: send_enquiry
+    source_id: ncs_cv
+    source_label: National Careers Service — contacting employers
+    tags: [enquiry, email, apply]
+    tip: >
+      A short enquiry works when you cannot apply yet. Keep it polite, specific, and
+      under a few short paragraphs.
+    do: >
+      Draft: who you are, why this employer or course fits your interests, one question
+      (how to apply / next open day / work experience policy), and thanks. Send only via
+      an official contact route.
+    do_not_claim: Do not promise they will reply or offer you a place.
+
+  - id: gatsby_talk_to_someone
+    topic: local_support
+    source_id: gatsby_guidance
+    source_label: Gatsby Good Career Guidance (applied)
+    tags: [adviser, support, plan]
+    tip: >
+      Talking your plan through with a careers person, teacher, tutor, or youth worker
+      helps turn information into a next step.
+    do: >
+      Book or ask for a short chat. Take this match name, one interest from your profile,
+      and two questions you still need answered.
+    do_not_claim: An app plan is not a replacement for personal guidance.
+
+  - id: ucas_course_check
+    topic: course_check
+    source_id: ucas_personal
+    source_label: UCAS / provider course pages (applied)
+    tags: [education, course, entry]
+    tip: >
+      Course pages list what you need, how to apply, and what the course covers. Always
+      check the provider’s own page for current details.
+    do: >
+      On the official course page, note entry needs, start timing if shown, and the apply
+      or enquiry button. Write two questions if anything is unclear.
+    do_not_claim: Do not invent grades, fees, or start dates.
+
+  - id: ucas_personal_prep
+    topic: personal_statement_prep
+    source_id: ucas_personal
+    source_label: UCAS — personal statement advice
+    tags: [education, personal_statement, prepare]
+    tip: >
+      Personal statements work best when they link your interests and experience to the
+      course, with real examples rather than buzzwords.
+    do: >
+      Write three bullets: why this subject, one experience that shows interest, and what
+      you want to learn. Keep language plain and honest.
+    do_not_claim: Do not copy statements from the internet.
+
+  - id: ncs_interview_prep
+    topic: interview_prep
+    source_id: ncs_interview
+    source_label: National Careers Service — interview advice
+    tags: [interview, prepare, star]
+    tip: >
+      Interviews go better when you know the organisation, can give one clear example,
+      and have a question ready to ask them.
+    do: >
+      Read the match summary. Prepare one STAR example linked to your experience. Prepare
+      one question about training or the first weeks in the role or course.
+    do_not_claim: Do not invent interview dates or formats.
+
+  - id: af_official_only
+    topic: military_official
+    source_id: af_explore
+    source_label: Official Armed Forces careers (explore)
+    tags: [military, eligibility, official]
+    tip: >
+      Armed Forces entry rules, fitness, and medical standards must come from official
+      sources. MatchKite is guidance only, not recruitment advice.
+    do: >
+      Read the official pathway page. Write questions about fitness, quals, and daily life.
+      Take those questions to an official information contact or event.
+    do_not_claim: Do not invent medical, fitness, pay, or posting facts.
+
+  - id: ncs_follow_up
+    topic: follow_up
+    source_id: ncs_cv
+    source_label: National Careers Service — applications
+    tags: [follow_up, plan, backup]
+    tip: >
+      After you apply or enquire, note the date and keep one backup option warm so you
+      are not waiting on a single reply.
+    do: >
+      Set a calendar reminder to check for a reply. Keep one other employer or course from
+      your matches as a backup step.
+    do_not_claim: Do not assume silence means rejection or acceptance.
+
+  - id: prospects_skills_proof
+    topic: skills_proof
+    source_id: prospects_cv
+    source_label: Prospects — CVs and cover letters
+    tags: [skills, portfolio, evidence]
+    tip: >
+      Employers and tutors respond better when you can show skills with a short proof
+      piece, not only a list of words.
+    do: >
+      Pick one proof that fits this match: a project photo, short write-up, GitHub link,
+      club role, or care example. Add it to your CV or application notes.
+    do_not_claim: Do not fake portfolio work.

@@ -2,6 +2,9 @@
 
 Seed built by scripts/build_courses_seed_from_ncs.py from the National Careers
 Service course directory (Open Government Licence v3.0).
+
+When app/app_data/course_embeddings.npz exists, blends MiniLM cosine with
+rules hybrid (same pattern as employer matching).
 """
 
 from __future__ import annotations
@@ -11,7 +14,14 @@ from typing import Any
 
 import pandas as pd
 
+from .embeddings import (
+    COSINE_WEIGHT,
+    HYBRID_WEIGHT,
+    blend_hybrid_cosine,
+    load_course_embeddings,
+)
 from .matching import _jaccard, _split_pipe, _token_overlap, build_leaver_profile
+from .role_families import ensure_role_families_column
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SEED_DIR = PROJECT_ROOT / "data" / "seed"
@@ -19,10 +29,10 @@ APP_DATA_DIR = PROJECT_ROOT / "app" / "app_data"
 COURSES_PATH = SEED_DIR / "courses_seed.csv"
 
 WEIGHTS = {
-    "sector": 0.45,
-    "entry": 0.25,
-    "text": 0.20,
-    "psych": 0.10,
+    "sector": 0.40,
+    "entry": 0.20,
+    "text": 0.15,
+    "psych": 0.25,
 }
 
 
@@ -36,12 +46,13 @@ def load_courses(path: Path | None = None) -> pd.DataFrame:
             raise FileNotFoundError(
                 "No courses_seed.csv — run scripts/build_courses_seed_from_ncs.py"
             )
-    return pd.read_csv(chosen)
+    return ensure_role_families_column(pd.read_csv(chosen))
 
 
 def score_course(leaver: dict[str, Any], row: pd.Series) -> dict[str, float]:
     course_sectors = _split_pipe(row.get("sectors"))
     course_routes = _split_pipe(row.get("entry_routes"))
+    course_roles = _split_pipe(row.get("role_families"))
 
     interest_sectors = leaver.get("interest_sectors") or leaver["target_sectors"]
     psych_sectors = leaver.get("psych_sectors") or set()
@@ -53,8 +64,15 @@ def score_course(leaver: dict[str, Any], row: pd.Series) -> dict[str, float]:
         leaver["profile_text"], str(row.get("profile_text") or row.get("summary") or "")
     )
     psych_roles = leaver["psych"].get("role_prefs", set())
-    # Role families are employer-oriented; use sector overlap as soft psych proxy
-    psych = _jaccard(psych_sectors | psych_roles, course_sectors) if psych_roles or psych_sectors else 0.0
+    # Prefer role-family overlap (employer-aligned); soft-mix sector psych as fallback
+    if psych_roles and course_roles:
+        psych = 0.85 * _jaccard(psych_roles, course_roles) + 0.15 * _jaccard(
+            psych_sectors, course_sectors
+        )
+    elif psych_roles or psych_sectors:
+        psych = _jaccard(psych_sectors | set(psych_roles), course_sectors | course_roles)
+    else:
+        psych = 0.0
 
     final = (
         WEIGHTS["sector"] * sector
@@ -118,13 +136,23 @@ def match_courses(
 ) -> tuple[dict[str, Any], pd.DataFrame]:
     leaver = build_leaver_profile(form)
     df = courses if courses is not None else load_courses()
+    if "role_families" not in df.columns or df["role_families"].isna().all():
+        df = ensure_role_families_column(df)
+
     rows = []
     for _, row in df.iterrows():
         scores = score_course(leaver, row)
         rows.append({**row.to_dict(), **scores})
     ranked = pd.DataFrame(rows)
-    ranked["hybrid_score"] = ranked["final_score"]
-    ranked["cosine_sim"] = 0.0
+
+    ranked, mode = blend_hybrid_cosine(
+        ranked,
+        id_col="course_id",
+        leaver_profile_text=str(leaver.get("profile_text") or ""),
+        embeddings=load_course_embeddings(),
+        hybrid_weight=HYBRID_WEIGHT,
+        cosine_weight=COSINE_WEIGHT,
+    )
+    leaver["matching_mode"] = f"courses_{mode}"
     ranked = ranked.sort_values("final_score", ascending=False)
-    leaver["matching_mode"] = "courses_hybrid"
     return leaver, ranked.head(top_n).reset_index(drop=True)

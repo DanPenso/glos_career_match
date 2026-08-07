@@ -10,11 +10,13 @@ Usage (from project root):
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 RAW = ROOT / "data" / "raw"
 SEED = ROOT / "data" / "seed"
 OUT = SEED / "courses_seed.csv"
@@ -423,10 +425,12 @@ def build_microcreds(courses: pd.DataFrame) -> pd.DataFrame:
 
 
 def main() -> None:
+    from glos_recommender.role_families import ensure_role_families_column
+
     SEED.mkdir(parents=True, exist_ok=True)
-    courses = build_courses()
+    courses = ensure_role_families_column(build_courses())
     courses.to_csv(OUT, index=False)
-    micro = build_microcreds(courses)
+    micro = ensure_role_families_column(build_microcreds(courses))
     micro.to_csv(MICRO, index=False)
     print(f"Wrote {len(courses)} courses -> {OUT}")
     print(f"Wrote {len(micro)} micro-creds -> {MICRO}")

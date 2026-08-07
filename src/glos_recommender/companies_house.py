@@ -286,9 +286,9 @@ def rank_gl_employers(
         for t, r in zip(df["town"], df["region"])
     ]
     df["company_number"] = df["CompanyNumber"].astype(str).str.strip()
-    df["website"] = df["company_number"].map(
-        lambda n: f"https://find-and-update.company-information.service.gov.uk/company/{n}"
-    )
+    # Do not use Companies House profile pages as "website" — leave blank until a
+    # real employer homepage is verified (see scripts/audit_bristol_websites.py).
+    df["website"] = ""
     df["sic_text"] = df.get("SICCode.SicText_1", pd.Series("", index=df.index)).fillna("")
 
     if balance_regions and top_n > 1:

@@ -126,6 +126,32 @@ def score_psych_answers(answers: dict[str, str]) -> dict[str, Any]:
     }
 
 
+def _trim_text(value: Any, *, limit: int) -> str:
+    text = " ".join(str(value or "").split()).strip()
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1].rstrip() + "…"
+
+
+def _as_str_list(value: Any, *, limit: int = 12) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        text = value.strip()
+        return [text] if text else []
+    if isinstance(value, (list, tuple, set)):
+        out: list[str] = []
+        for item in value:
+            s = str(item).strip()
+            if s and s not in out:
+                out.append(s)
+            if len(out) >= limit:
+                break
+        return out
+    s = str(value).strip()
+    return [s] if s else []
+
+
 def build_leaver_profile(form: dict[str, Any]) -> dict[str, Any]:
     """Build a structured leaver profile from intake form answers."""
     options = load_intake_options()
@@ -133,6 +159,12 @@ def build_leaver_profile(form: dict[str, Any]) -> dict[str, Any]:
     courses = form.get("courses", []) or []
     passions = form.get("passions", []) or []
     experience = form.get("work_experience", []) or []
+    barriers = _as_str_list(form.get("barriers"), limit=8)
+    must_haves = _as_str_list(form.get("must_haves"), limit=8)
+    support_available = _as_str_list(form.get("support_available"), limit=6)
+    proud_example = _trim_text(form.get("proud_example"), limit=500)
+    goal_sentence = _trim_text(form.get("goal_sentence"), limit=160)
+    apply_readiness = _trim_text(form.get("apply_readiness"), limit=80)
 
     interest_map = options.get("interest_to_sector", {})
     course_map = options.get("course_to_sector", {})
@@ -150,18 +182,30 @@ def build_leaver_profile(form: dict[str, Any]) -> dict[str, Any]:
     interest_sectors = set(sectors)
     psych_sectors = set(psych["sector_prefs"])
 
-    profile_text = " | ".join(
-        [
-            f"Leaver: {leaver_type}",
-            f"Location: {form.get('location', '')}",
-            f"Courses: {', '.join(courses)}",
-            f"Interests: {', '.join(interests)}",
-            f"Passions: {', '.join(passions)}",
-            f"Experience: {', '.join(experience)}",
-            f"Qual level: {form.get('qualification_level', '')}",
-            f"RIASEC: {', '.join(psych['dominant_riasec'])}",
-        ]
-    )
+    profile_parts = [
+        f"Leaver: {leaver_type}",
+        f"Location: {form.get('location', '')}",
+        f"Courses: {', '.join(courses)}",
+        f"Interests: {', '.join(interests)}",
+        f"Passions: {', '.join(passions)}",
+        f"Experience: {', '.join(experience)}",
+        f"Qual level: {form.get('qualification_level', '')}",
+        f"RIASEC: {', '.join(psych['dominant_riasec'])}",
+    ]
+    if goal_sentence:
+        profile_parts.append(f"Goal: {goal_sentence}")
+    if proud_example:
+        profile_parts.append(f"Proud example: {proud_example}")
+    if barriers:
+        profile_parts.append(f"Barriers: {', '.join(barriers)}")
+    if must_haves:
+        profile_parts.append(f"Must-haves: {', '.join(must_haves)}")
+    if support_available:
+        profile_parts.append(f"Support: {', '.join(support_available)}")
+    if apply_readiness:
+        profile_parts.append(f"Apply readiness: {apply_readiness}")
+
+    profile_text = " | ".join(profile_parts)
 
     return {
         "leaver_type": leaver_type,
@@ -172,6 +216,12 @@ def build_leaver_profile(form: dict[str, Any]) -> dict[str, Any]:
         "work_experience": experience,
         "qualification_level": form.get("qualification_level", ""),
         "availability": form.get("availability", ""),
+        "proud_example": proud_example,
+        "goal_sentence": goal_sentence,
+        "barriers": barriers,
+        "must_haves": must_haves,
+        "support_available": support_available,
+        "apply_readiness": apply_readiness,
         "target_sectors": interest_sectors | psych_sectors,
         "interest_sectors": interest_sectors,
         "psych_sectors": psych_sectors,

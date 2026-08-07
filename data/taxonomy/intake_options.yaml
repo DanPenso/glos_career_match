@@ -108,6 +108,44 @@ availability:
   - Within 6–12 months
   - Exploring only
 
+# Optional richer-profile chips (research-backed; all optional in UI)
+barriers:
+  - Travel / getting around
+  - Money / needing paid work
+  - Confidence / nerves
+  - Caring responsibilities
+  - Health or disability support needs
+  - English confidence
+  - No quiet place or laptop
+  - Unsure where to start
+  - Prefer not to say
+
+must_haves:
+  - Paid role only
+  - Apprenticeship route
+  - Stay local
+  - Part-time / flexible hours
+  - Outdoor or active work
+  - People-facing work
+  - Screen / desk work
+  - Clear training on the job
+  - Avoid customer-facing
+  - Open to military info
+
+support_available:
+  - Teacher or tutor
+  - Careers adviser
+  - Youth worker
+  - Family or friend
+  - None right now
+  - Not sure
+
+apply_readiness:
+  - Not ready yet
+  - Need help with CV / basics
+  - Ready to enquire
+  - Ready to apply
+
 # Sector tags used in company matching (must align with companies_seed.csv)
 sectors:
   - cyber_digital

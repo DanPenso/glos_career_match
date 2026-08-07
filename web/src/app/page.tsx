@@ -51,19 +51,33 @@ export default function HomePage() {
               "radial-gradient(600px 280px at 80% 20%, var(--hero-glow), transparent 60%)",
           }}
         />
-        <div className="relative mx-auto flex max-w-3xl flex-col gap-4 px-5 pb-14 pt-10 sm:px-8 sm:pt-16">
-          <h1 className="font-display text-4xl leading-tight sm:text-5xl">
-            Glos Career Match
-          </h1>
-          <p className="max-w-xl text-base text-[var(--paper)]/85 sm:text-lg">
-            Find your next step in Gloucestershire — local employers, FE/HE
-            courses, training routes, or military pathways to explore.
+        <div className="relative mx-auto flex max-w-3xl flex-col gap-3 px-5 pb-8 pt-8 sm:gap-4 sm:px-8 sm:pb-10 sm:pt-10">
+          <div className="flex items-center gap-5 sm:gap-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/matchkite-badge.png?v=7"
+              alt="MatchKite"
+              width={140}
+              height={140}
+              className="h-[7.25rem] w-[7.25rem] shrink-0 rounded-full bg-[var(--paper)] ring-1 ring-[var(--paper)] ring-offset-1 ring-offset-[var(--hero-deep)] shadow-sm sm:h-[140px] sm:w-[140px]"
+            />
+            <div className="flex flex-col items-start">
+              <h1 className="font-display text-4xl leading-tight sm:text-5xl">
+                MatchKite
+              </h1>
+              <span className="mt-2 inline-flex rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/15 px-4 py-1.5 text-sm font-semibold tracking-wide text-[var(--accent)]">
+                Bristol and Glos
+              </span>
+            </div>
+          </div>
+          <p className="max-w-xl font-display text-2xl leading-snug text-[var(--paper)] sm:text-3xl">
+            Ready for your career to take flight?
           </p>
-          {!results ? (
-            <a href="#intake" className="btn-primary w-fit">
-              Choose how to match
-            </a>
-          ) : null}
+          <p className="max-w-xl text-base text-[var(--paper)]/85 sm:text-lg">
+            Tell us what you’re into, and we’ll match you to local jobs, courses,
+            training, or military pathways in Bristol and Gloucestershire —
+            helping your career take off from wherever you are.
+          </p>
         </div>
       </header>
 

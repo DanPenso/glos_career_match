@@ -18,12 +18,16 @@ from sentence_transformers import SentenceTransformer
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from glos_recommender.rag import evidence_chunks_for_index  # noqa: E402
+from glos_recommender.rag import (  # noqa: E402
+    evidence_chunks_for_index,
+    howto_chunks_for_index,
+)
 
 CORPUS_DIR = ROOT / "data" / "corpus"
 FAISS_DIR = ROOT / "app" / "app_data" / "faiss_index"
 MODEL_DIR = ROOT / "models" / "local_minilm_model"
 EVIDENCE_TXT = CORPUS_DIR / "evidence_strategies.txt"
+HOWTO_TXT = CORPUS_DIR / "howto_cards.txt"
 
 
 def chunk_text(text: str, chunk_size: int = 180, overlap: int = 30) -> list[str]:
@@ -42,11 +46,20 @@ def export_evidence_txt() -> list[tuple[str, str]]:
     return pairs
 
 
-def collect_chunks(evidence_pairs: list[tuple[str, str]]) -> tuple[list[str], list[str]]:
+def export_howto_txt() -> list[tuple[str, str]]:
+    pairs = howto_chunks_for_index()
+    HOWTO_TXT.write_text("\n\n".join(c for c, _ in pairs), encoding="utf-8")
+    return pairs
+
+
+def collect_chunks(
+    evidence_pairs: list[tuple[str, str]],
+    howto_pairs: list[tuple[str, str]],
+) -> tuple[list[str], list[str]]:
     all_chunks: list[str] = []
     sources: list[str] = []
 
-    skip_names = {"evidence_strategies.txt"}
+    skip_names = {"evidence_strategies.txt", "howto_cards.txt"}
 
     for fpath in sorted(CORPUS_DIR.rglob("*.txt")):
         if fpath.name in skip_names:
@@ -69,15 +82,21 @@ def collect_chunks(evidence_pairs: list[tuple[str, str]]) -> tuple[list[str], li
         all_chunks.append(chunk)
         sources.append(src)
 
+    for chunk, src in howto_pairs:
+        all_chunks.append(chunk)
+        sources.append(src)
+
     return all_chunks, sources
 
 
 def main() -> None:
     FAISS_DIR.mkdir(parents=True, exist_ok=True)
     evidence_pairs = export_evidence_txt()
-    print(f"Exported {len(evidence_pairs)} evidence cards → {EVIDENCE_TXT}")
+    print(f"Exported {len(evidence_pairs)} evidence cards -> {EVIDENCE_TXT}")
+    howto_pairs = export_howto_txt()
+    print(f"Exported {len(howto_pairs)} how-to cards -> {HOWTO_TXT}")
 
-    all_chunks, sources = collect_chunks(evidence_pairs)
+    all_chunks, sources = collect_chunks(evidence_pairs, howto_pairs)
     print(f"Total chunks: {len(all_chunks)}")
     print("By source (top):", Counter(sources).most_common(12))
 
@@ -100,7 +119,11 @@ def main() -> None:
         pickle.dump({"chunks": all_chunks, "sources": sources}, f)
 
     n_evidence = sum(1 for s in sources if str(s).startswith("evidence"))
-    print(f"FAISS index: {index.ntotal} vectors ({n_evidence} evidence) → {FAISS_DIR}")
+    n_howto = sum(1 for s in sources if str(s).startswith("howto"))
+    print(
+        f"FAISS index: {index.ntotal} vectors "
+        f"({n_evidence} evidence, {n_howto} howto) -> {FAISS_DIR}"
+    )
 
 
 if __name__ == "__main__":

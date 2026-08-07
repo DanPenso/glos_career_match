@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import { DM_Sans, Fraunces } from "next/font/google";
+import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 
-const body = DM_Sans({
+const body = Nunito({
   subsets: ["latin"],
   variable: "--font-body",
 });
 
-const display = Fraunces({
+const display = Fredoka({
   subsets: ["latin"],
   variable: "--font-display",
 });
 
 export const metadata: Metadata = {
-  title: "Glos Career Match",
+  title: "MatchKite",
   description:
-    "Find your next step in Gloucestershire — local employers, training routes, and one clear move you can make this month.",
+    "Ready for your career to take flight? MatchKite matches you to local jobs, courses, training, or military pathways in Bristol and Gloucestershire.",
+  icons: {
+    icon: "/matchkite-badge.png",
+    apple: "/matchkite-badge.png",
+  },
 };
 
 export default function RootLayout({

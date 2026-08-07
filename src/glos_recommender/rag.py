@@ -14,6 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FAISS_DIR = PROJECT_ROOT / "app" / "app_data" / "faiss_index"
 MODEL_DIR = PROJECT_ROOT / "models" / "local_minilm_model"
 EVIDENCE_YAML = PROJECT_ROOT / "data" / "corpus" / "evidence" / "strategies.yaml"
+HOWTO_YAML = PROJECT_ROOT / "data" / "corpus" / "howto" / "howto.yaml"
 
 _embedder = None
 _index = None
@@ -45,6 +46,122 @@ def evidence_chunks_for_index() -> list[tuple[str, str]]:
     for card in load_evidence_cards():
         out.append((card_to_chunk(card), f"evidence:{card.get('id', 'card')}"))
     return out
+
+
+def load_howto_cards(path: Path | None = None) -> list[dict[str, Any]]:
+    data = yaml.safe_load((path or HOWTO_YAML).read_text(encoding="utf-8")) or {}
+    return list(data.get("cards") or [])
+
+
+def howto_to_chunk(card: dict[str, Any]) -> str:
+    tags = ", ".join(card.get("tags") or [])
+    return (
+        f"HOWTO: {card.get('topic', '')} | "
+        f"Source: {card.get('source_label', card.get('source_id', ''))} | "
+        f"Tags: {tags}. "
+        f"Tip: {' '.join(str(card.get('tip', '')).split())} "
+        f"Do: {' '.join(str(card.get('do', '')).split())} "
+        f"Do not claim: {' '.join(str(card.get('do_not_claim', '')).split())}"
+    )
+
+
+def howto_chunks_for_index() -> list[tuple[str, str]]:
+    out: list[tuple[str, str]] = []
+    for card in load_howto_cards():
+        out.append((howto_to_chunk(card), f"howto:{card.get('id', 'card')}"))
+    return out
+
+
+def retrieve_howto_keyword(
+    query: str,
+    *,
+    top_k: int = 4,
+    cards: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Keyword retrieval over practical how-to cards (works without FAISS)."""
+    cards = cards if cards is not None else load_howto_cards()
+    q = _tokenize(query)
+    if not q:
+        q = {"cv", "application", "prepare", "check"}
+
+    scored: list[tuple[float, dict[str, Any]]] = []
+    for card in cards:
+        blob = " ".join(
+            [
+                str(card.get("topic", "")),
+                str(card.get("tip", "")),
+                str(card.get("do", "")),
+                " ".join(card.get("tags") or []),
+            ]
+        )
+        tokens = _tokenize(blob)
+        overlap = len(q & tokens)
+        if overlap > 0:
+            scored.append((float(overlap), card))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    results: list[dict[str, Any]] = []
+    for score, card in scored[:top_k]:
+        results.append(
+            {
+                "chunk": howto_to_chunk(card),
+                "source": f"howto:{card.get('id', 'card')}",
+                "source_label": card.get("source_label", ""),
+                "topic": card.get("topic", ""),
+                "score": score,
+                "card": card,
+            }
+        )
+    return results
+
+
+def retrieve_howto(query: str, *, top_k: int = 4) -> list[dict[str, Any]]:
+    """Retrieve how-to cards; prefer FAISS howto:* hits, else keyword."""
+    if not query.strip():
+        return retrieve_howto_keyword(query, top_k=top_k)
+
+    if not _load_faiss():
+        return retrieve_howto_keyword(query, top_k=top_k)
+
+    import faiss
+    import numpy as np
+
+    assert _embedder is not None and _index is not None and _store is not None
+    chunks: list[str] = _store["chunks"]
+    sources: list[str] = _store["sources"]
+
+    q = _embedder.encode([query])
+    q = np.asarray(q, dtype="float32")
+    faiss.normalize_L2(q)
+    fetch_k = min(max(top_k * 30, 120), len(chunks))
+    scores, idxs = _index.search(q, fetch_k)
+
+    howto_hits: list[dict[str, Any]] = []
+    for j, i in enumerate(idxs[0]):
+        if i < 0 or i >= len(chunks):
+            continue
+        src = str(sources[i])
+        if not src.startswith("howto"):
+            continue
+        howto_hits.append(
+            {
+                "chunk": chunks[i],
+                "source": src,
+                "score": float(scores[0][j]),
+            }
+        )
+        if len(howto_hits) >= top_k:
+            break
+
+    if len(howto_hits) < top_k:
+        for extra in retrieve_howto_keyword(query, top_k=top_k):
+            if any(extra["chunk"][:120] == h["chunk"][:120] for h in howto_hits):
+                continue
+            howto_hits.append(extra)
+            if len(howto_hits) >= top_k:
+                break
+
+    return howto_hits[:top_k]
 
 
 def _tokenize(text: str) -> set[str]:

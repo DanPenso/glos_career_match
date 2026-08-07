@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FiveStepPlan } from "@/components/FiveStepPlan";
 import { PersonaFitPanel } from "@/components/PersonaFit";
 import type { MatchMode, MatchResponse, Pathway } from "@/lib/types";
 
@@ -438,6 +439,14 @@ export function MatchResults({
               matches and training routes above.
             </p>
           ) : null}
+
+          <FiveStepPlan
+            key={String(match.company_id || match.name)}
+            mode={mode}
+            match={match}
+            leaver={(data.leaver || {}) as Record<string, unknown>}
+            enabled={Boolean(data.plans_enabled)}
+          />
         </article>
       ) : null}
 
