@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { FiveStepPlan } from "@/components/FiveStepPlan";
 import { PersonaFitPanel } from "@/components/PersonaFit";
+import {
+  MilitaryAgeNotice,
+  SafeguardingHelp,
+} from "@/components/SafeguardingHelp";
 import type { MatchMode, MatchResponse, Pathway } from "@/lib/types";
 
 /** Orange → green traffic shades from a 0–1 signal (no red). */
@@ -275,6 +279,9 @@ export function MatchResults({
           Start again
         </button>
       </div>
+
+      {data.safety_referral_suggested ? <SafeguardingHelp /> : null}
+      {data.military_age_notice ? <MilitaryAgeNotice /> : null}
 
       <PersonaFitPanel
         persona={data.persona}

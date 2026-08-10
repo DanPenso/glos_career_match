@@ -44,6 +44,16 @@ from glos_recommender.military import match_military
 from glos_recommender.online_courses import match_online_courses
 from glos_recommender.personas import persona_bundle
 from glos_recommender.programmes import programmes_for_company
+from glos_recommender.safeguarding import (
+    UNDER_16_DETAIL,
+    age_band_allowed_for_match,
+    age_band_allows_ai,
+    age_bands_for_taxonomy,
+    looks_like_safety_concern,
+    normalise_age_band,
+    safeguarding_chat_response,
+    show_military_age_notice,
+)
 
 
 def _cors_origins() -> list[str]:
@@ -71,6 +81,7 @@ app.add_middleware(
 class MatchRequest(BaseModel):
     leaver_type: str
     location: str = ""
+    age_band: str = ""
     courses: list[str] = Field(default_factory=list)
     interests: list[str] = Field(default_factory=list)
     passions: list[str] = Field(default_factory=list)
@@ -366,14 +377,31 @@ def health() -> dict[str, Any]:
 
 @app.get("/taxonomy")
 def taxonomy() -> dict[str, Any]:
+    intake = load_intake_options()
+    intake["age_bands"] = age_bands_for_taxonomy()
     return {
-        "intake": load_intake_options(),
+        "intake": intake,
         "psych": load_psych_questions(),
     }
 
 
+def _age_band_from_payload(payload: dict[str, Any] | None) -> str:
+    payload = payload or {}
+    return normalise_age_band(
+        payload.get("age_band") or (payload.get("leaver") or {}).get("age_band")
+    )
+
+
 @app.post("/match")
 def match(req: MatchRequest) -> dict[str, Any]:
+    age_band = normalise_age_band(req.age_band)
+    if not age_band:
+        raise HTTPException(
+            status_code=400,
+            detail="Please tell us your age band before matching.",
+        )
+    if not age_band_allowed_for_match(age_band):
+        raise HTTPException(status_code=403, detail=UNDER_16_DETAIL)
     if not req.interests and not req.courses:
         raise HTTPException(
             status_code=400,
@@ -386,11 +414,26 @@ def match(req: MatchRequest) -> dict[str, Any]:
             detail="mode must be one of: work, education, military",
         )
     form = req.model_dump()
+    form["age_band"] = age_band
     use_openai_briefing = bool(form.pop("use_openai_briefing", False))
     use_gemini_plan = bool(form.pop("use_gemini_plan", False))
     allow_anonymous_logging = bool(form.pop("allow_anonymous_logging", True))
     top_n = form.pop("top_n", 3)
     form.pop("mode", None)
+
+    safety_hit = looks_like_safety_concern(
+        form.get("proud_example", ""),
+        form.get("goal_sentence", ""),
+    )
+    if safety_hit:
+        # Do not send crisis free-text to third-party AI; keep matching offline-safe.
+        use_openai_briefing = False
+        use_gemini_plan = False
+        form["proud_example"] = ""
+        form["goal_sentence"] = ""
+    if not age_band_allows_ai(age_band):
+        use_openai_briefing = False
+        use_gemini_plan = False
 
     microcredentials: list[dict[str, Any]] = []
     try:
@@ -447,6 +490,11 @@ def match(req: MatchRequest) -> dict[str, Any]:
     return {
         "mode": mode,
         "leaver": leaver_out,
+        "age_band": age_band,
+        "military_age_notice": show_military_age_notice(age_band)
+        if mode == "military"
+        else False,
+        "safety_referral_suggested": safety_hit,
         "briefings_enabled": use_openai_briefing,
         "plans_enabled": use_gemini_plan,
         "gemini_configured": gemini_configured(),
@@ -487,34 +535,42 @@ def persona_feedback(req: PersonaFeedbackRequest) -> dict[str, Any]:
     return {"ok": True, "event_id": req.event_id, "helpful": req.helpful}
 
 
-def _require_plan_consent(use_gemini_plan: bool) -> None:
+def _require_plan_consent(use_gemini_plan: bool, *, leaver: dict[str, Any] | None) -> None:
     if not use_gemini_plan:
         raise HTTPException(
             status_code=400,
             detail="Enable AI action plans (Gemini) in privacy controls to use this feature.",
         )
+    age_band = _age_band_from_payload({"leaver": leaver or {}})
+    if not age_band_allows_ai(age_band):
+        raise HTTPException(
+            status_code=403,
+            detail="AI action plans need a confirmed age band of 16 or over.",
+        )
 
 
 @app.post("/plan/generate")
 def plan_generate(req: PlanGenerateRequest) -> dict[str, Any]:
-    _require_plan_consent(req.use_gemini_plan)
+    leaver = dict(req.leaver or {})
+    _require_plan_consent(req.use_gemini_plan, leaver=leaver)
     if not req.match:
         raise HTTPException(status_code=400, detail="match is required")
     try:
-        return generate_plan(mode=req.mode, leaver=req.leaver or {}, match=req.match)
+        return generate_plan(mode=req.mode, leaver=leaver, match=req.match)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/plan/breakdown")
 def plan_breakdown(req: PlanBreakdownRequest) -> dict[str, Any]:
-    _require_plan_consent(req.use_gemini_plan)
+    leaver = dict(req.leaver or {})
+    _require_plan_consent(req.use_gemini_plan, leaver=leaver)
     if not req.match or not req.step:
         raise HTTPException(status_code=400, detail="match and step are required")
     try:
         return breakdown_step(
             mode=req.mode,
-            leaver=req.leaver or {},
+            leaver=leaver,
             match=req.match,
             step=req.step,
             sibling_steps=req.sibling_steps or [],
@@ -526,15 +582,18 @@ def plan_breakdown(req: PlanBreakdownRequest) -> dict[str, Any]:
 
 @app.post("/plan/chat")
 def plan_chat(req: PlanChatRequest) -> dict[str, Any]:
-    _require_plan_consent(req.use_gemini_plan)
+    leaver = dict(req.leaver or {})
+    _require_plan_consent(req.use_gemini_plan, leaver=leaver)
     if not req.match or not req.step:
         raise HTTPException(status_code=400, detail="match and step are required")
     if len(req.history or []) > 12:
         raise HTTPException(status_code=400, detail="chat history too long")
+    if looks_like_safety_concern(req.message):
+        return safeguarding_chat_response()
     try:
         return chat_about_step(
             mode=req.mode,
-            leaver=req.leaver or {},
+            leaver=leaver,
             match=req.match,
             step=req.step,
             breakdown=req.breakdown,

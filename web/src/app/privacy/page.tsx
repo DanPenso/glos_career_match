@@ -8,11 +8,23 @@ export default function PrivacyPage() {
       </p>
 
       <section className="mt-6 space-y-2">
+        <h2 className="font-display text-2xl text-[var(--ink)]">Age eligibility</h2>
+        <p className="text-sm text-[var(--ink-muted)]">
+          MatchKite is aimed at people aged 16–24. We ask for a self-declared age
+          band before matching. We do not verify identity documents. People under 16
+          cannot use matching on this demo and are directed to a parent, carer,
+          teacher, or careers adviser. AI features need a declared age band of 16 or
+          over.
+        </p>
+      </section>
+
+      <section className="mt-6 space-y-2">
         <h2 className="font-display text-2xl text-[var(--ink)]">What we process</h2>
         <p className="text-sm text-[var(--ink-muted)]">
-          Intake choices such as interests, courses, work-experience signals, optional
-          notes (for example a short goal or proud example), barriers/must-haves you
-          choose to share, and model outputs used to rank local employers and pathways.
+          Intake choices such as age band, interests, courses, work-experience
+          signals, optional notes (for example a short goal or proud example),
+          barriers/must-haves you choose to share, and model outputs used to rank
+          local employers and pathways.
         </p>
       </section>
 
@@ -43,6 +55,20 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mt-6 space-y-2">
+        <h2 className="font-display text-2xl text-[var(--ink)]">Safeguarding</h2>
+        <p className="text-sm text-[var(--ink-muted)]">
+          MatchKite is not a crisis or counselling service. Free-text and chat messages
+          are screened with simple keyword checks. If something looks like a safety
+          concern, we show fixed help contacts (for example 999, Childline, Samaritans)
+          and do not send that message to AI as a normal careers reply. See{" "}
+          <a href="/help" className="underline decoration-[var(--accent)]">
+            Need help?
+          </a>
+          .
+        </p>
+      </section>
+
+      <section className="mt-6 space-y-2">
         <h2 className="font-display text-2xl text-[var(--ink)]">Anonymous learning data</h2>
         <p className="text-sm text-[var(--ink-muted)]">
           Anonymous interests and work-style signals can be used to improve clustering when
@@ -68,7 +94,7 @@ export default function PrivacyPage() {
       </section>
 
       <p className="mt-8 text-xs text-[var(--ink-muted)]">
-        Last updated: 2026-08-04
+        Last updated: 2026-08-10
       </p>
     </main>
   );

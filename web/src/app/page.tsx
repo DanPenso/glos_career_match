@@ -142,6 +142,10 @@ export default function HomePage() {
         <a href="/privacy" className="ml-1 underline decoration-[var(--accent)]">
           Privacy
         </a>
+        {" · "}
+        <a href="/help" className="underline decoration-[var(--accent)]">
+          Need help?
+        </a>
       </footer>
     </main>
   );

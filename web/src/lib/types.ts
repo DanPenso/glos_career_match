@@ -1,8 +1,17 @@
 export type MatchMode = "work" | "education" | "military";
 
+export type AgeBand =
+  | "under_16"
+  | "16_17"
+  | "18_24"
+  | "25_plus"
+  | "prefer_not"
+  | "";
+
 export type IntakeForm = {
   leaver_type: string;
   location: string;
+  age_band: AgeBand | string;
   courses: string[];
   interests: string[];
   passions: string[];
@@ -152,6 +161,9 @@ export type MatchResponse = {
   persona_fit?: PersonaFit[];
   persona_map_2d?: PersonaMap2D | null;
   learning_event_id?: string | null;
+  age_band?: string;
+  military_age_notice?: boolean;
+  safety_referral_suggested?: boolean;
   briefings_enabled?: boolean;
   plans_enabled?: boolean;
   gemini_configured?: boolean;
@@ -166,6 +178,7 @@ export type TaxonomyResponse = {
   intake: {
     leaver_types: string[];
     locations: string[];
+    age_bands?: { id: string; label: string }[];
     interests: string[];
     passions: string[];
     work_experience_types: string[];

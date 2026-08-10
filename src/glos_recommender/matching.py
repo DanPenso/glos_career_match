@@ -184,6 +184,7 @@ def build_leaver_profile(form: dict[str, Any]) -> dict[str, Any]:
 
     profile_parts = [
         f"Leaver: {leaver_type}",
+        f"Age band: {form.get('age_band', '')}",
         f"Location: {form.get('location', '')}",
         f"Courses: {', '.join(courses)}",
         f"Interests: {', '.join(interests)}",
@@ -209,6 +210,7 @@ def build_leaver_profile(form: dict[str, Any]) -> dict[str, Any]:
 
     return {
         "leaver_type": leaver_type,
+        "age_band": str(form.get("age_band") or "").strip(),
         "location": form.get("location", ""),
         "courses": courses,
         "interests": interests,

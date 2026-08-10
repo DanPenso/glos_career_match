@@ -12,6 +12,7 @@ import type {
   PlanBreakdown,
   PlanStep,
 } from "@/lib/types";
+import { SafeguardingHelp } from "@/components/SafeguardingHelp";
 
 const SOURCE_LINK_RULES: { pattern: RegExp; href: string }[] = [
   { pattern: /\bUCAS\b/i, href: "https://www.ucas.com/" },
@@ -238,7 +239,10 @@ export function FiveStepPlan({ mode, match, leaver, enabled }: Props) {
   );
   const [breakBusy, setBreakBusy] = useState<string | null>(null);
   const [chats, setChats] = useState<
-    Record<string, { role: "user" | "assistant"; content: string }[]>
+    Record<
+      string,
+      { role: "user" | "assistant"; content: string; source?: string }[]
+    >
   >({});
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [chatBusy, setChatBusy] = useState<string | null>(null);
@@ -325,7 +329,11 @@ export function FiveStepPlan({ mode, match, leaver, enabled }: Props) {
         ...prev,
         [step.id]: [
           ...(prev[step.id] || nextHistory),
-          { role: "assistant", content: data.reply_markdown },
+          {
+            role: "assistant",
+            content: data.reply_markdown,
+            source: data.source,
+          },
         ],
       }));
     } catch (e) {
@@ -457,7 +465,12 @@ export function FiveStepPlan({ mode, match, leaver, enabled }: Props) {
                                   : "bg-[var(--paper)] text-[var(--ink)] ring-1 ring-[var(--line)]"
                               }`}
                             >
-                              <SimpleMarkdown text={t.content} />
+                              {t.role === "assistant" &&
+                              t.source === "safeguarding" ? (
+                                <SafeguardingHelp compact />
+                              ) : (
+                                <SimpleMarkdown text={t.content} />
+                              )}
                             </div>
                           ))}
                         </div>

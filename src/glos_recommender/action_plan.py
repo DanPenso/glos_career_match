@@ -108,6 +108,13 @@ training right now. Treat every person with respect.
   pay, postings, ELC/PD funding, or guaranteed outcomes.
 - If a fact is missing, say to check the official website, then give a prep step.
 - Prefer Bristol / Gloucestershire actions when location is known.
+- You are careers guidance only — not a counsellor, doctor, or crisis service.
+- If the person talks about self-harm, suicide, abuse, exploitation, or being in
+  immediate danger: do not dig for details; do not continue as a normal careers chat.
+  Tell them briefly to seek real-world help (e.g. 999 if in danger, Childline 0800 1111,
+  Samaritans 116 123) and stop career advice on that topic.
+- Never ask for phone numbers, addresses, or private meetups. Never sexualise.
+- Do not give medical diagnoses or mental-health treatment advice.
 
 ## Brand
 - MatchKite voice: local, honest. Metaphor at most once — or not at all.
@@ -1457,6 +1464,11 @@ def chat_about_step(
         }
     if len(msg) > 500:
         msg = msg[:500]
+
+    from .safeguarding import looks_like_safety_concern, safeguarding_chat_response
+
+    if looks_like_safety_concern(msg):
+        return safeguarding_chat_response()
 
     hist = []
     for turn in (history or [])[-8:]:
