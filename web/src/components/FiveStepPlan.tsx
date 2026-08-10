@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import {
   fetchPlanBreakdown,
   fetchPlanChat,
@@ -13,6 +13,102 @@ import type {
   PlanStep,
 } from "@/lib/types";
 
+const SOURCE_LINK_RULES: { pattern: RegExp; href: string }[] = [
+  { pattern: /\bUCAS\b/i, href: "https://www.ucas.com/" },
+  {
+    pattern: /National Careers Service/i,
+    href: "https://nationalcareers.service.gov.uk/",
+  },
+  { pattern: /\bProspects\b/i, href: "https://www.prospects.ac.uk/" },
+  {
+    pattern: /Find an apprenticeship/i,
+    href: "https://www.findapprenticeship.service.gov.uk/",
+  },
+  {
+    pattern: /\bGatsby\b/i,
+    href: "https://www.gatsby.org.uk/education/focus-areas/good-career-guidance",
+  },
+  {
+    pattern: /Armed Forces careers/i,
+    href: "https://www.armedforcescareers.mod.uk/",
+  },
+];
+
+function cleanLinkLabel(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    return host || "Open page";
+  } catch {
+    return "Open page";
+  }
+}
+
+function ExternalLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="font-medium text-[var(--trust)] underline decoration-[var(--accent)] underline-offset-2"
+    >
+      {children}
+    </a>
+  );
+}
+
+/** Render inline markdown links, bare URLs (as hostname), and light bold. */
+function InlineRichText({ text }: { text: string }) {
+  const parts: ReactNode[] = [];
+  // [label](url) or bare http(s) URL; trailing sentence punctuation stays outside the link
+  const token =
+    /(\[([^\]]+)\]\((https?:\/\/[^)\s]+)\))|(https?:\/\/[^\s<>"'\)\]]+)/gi;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  while ((match = token.exec(text)) !== null) {
+    if (match.index > last) {
+      parts.push(
+        <Fragment key={`t-${key++}`}>
+          {text.slice(last, match.index)}
+        </Fragment>,
+      );
+    }
+    if (match[1]) {
+      parts.push(
+        <ExternalLink key={`a-${key++}`} href={match[3]}>
+          {match[2]}
+        </ExternalLink>,
+      );
+    } else {
+      let url = match[4];
+      let trailing = "";
+      while (/[.,;:!?)]$/.test(url)) {
+        trailing = url.slice(-1) + trailing;
+        url = url.slice(0, -1);
+      }
+      parts.push(
+        <ExternalLink key={`a-${key++}`} href={url}>
+          {cleanLinkLabel(url)}
+        </ExternalLink>,
+      );
+      if (trailing) {
+        parts.push(<Fragment key={`p-${key++}`}>{trailing}</Fragment>);
+      }
+    }
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) {
+    parts.push(<Fragment key={`t-${key++}`}>{text.slice(last)}</Fragment>);
+  }
+  return <>{parts.length ? parts : text}</>;
+}
+
 function SimpleMarkdown({ text }: { text: string }) {
   const blocks = text.split(/\n\n+/).filter(Boolean);
   return (
@@ -22,14 +118,14 @@ function SimpleMarkdown({ text }: { text: string }) {
         if (line.startsWith("### ")) {
           return (
             <h5 key={i} className="font-display text-lg text-[var(--ink)]">
-              {line.replace(/^###\s+/, "")}
+              <InlineRichText text={line.replace(/^###\s+/, "")} />
             </h5>
           );
         }
         if (line.startsWith("## ")) {
           return (
             <h4 key={i} className="font-display text-xl text-[var(--ink)]">
-              {line.replace(/^##\s+/, "")}
+              <InlineRichText text={line.replace(/^##\s+/, "")} />
             </h4>
           );
         }
@@ -38,18 +134,86 @@ function SimpleMarkdown({ text }: { text: string }) {
           return (
             <ul key={i} className="list-disc space-y-1 pl-5">
               {items.map((item, j) => (
-                <li key={j}>{item.replace(/^\d+\.\s*/, "").replace(/^-\s*/, "")}</li>
+                <li key={j}>
+                  <InlineRichText
+                    text={item.replace(/^\d+\.\s*/, "").replace(/^-\s*/, "")}
+                  />
+                </li>
               ))}
             </ul>
           );
         }
         return (
           <p key={i} className="leading-relaxed">
-            {line}
+            <InlineRichText text={line} />
           </p>
         );
       })}
     </div>
+  );
+}
+
+function SourcesUsed({
+  sources,
+  matchWebsite,
+}: {
+  sources: string[];
+  matchWebsite?: string;
+}) {
+  return (
+    <p className="text-xs text-[var(--ink-muted)]">
+      Based on:{" "}
+      {sources.map((src, i) => {
+        const nodes: ReactNode[] = [];
+        let cursor = 0;
+        const hits: { start: number; end: number; label: string; href: string }[] =
+          [];
+
+        for (const rule of SOURCE_LINK_RULES) {
+          const m = src.match(rule.pattern);
+          if (m?.index != null) {
+            hits.push({
+              start: m.index,
+              end: m.index + m[0].length,
+              label: m[0],
+              href: rule.href,
+            });
+          }
+        }
+        if (matchWebsite) {
+          const m = src.match(/provider course pages|Organisation website/i);
+          if (m?.index != null) {
+            hits.push({
+              start: m.index,
+              end: m.index + m[0].length,
+              label: m[0],
+              href: matchWebsite,
+            });
+          }
+        }
+        hits.sort((a, b) => a.start - b.start);
+
+        let key = 0;
+        for (const hit of hits) {
+          if (hit.start < cursor) continue;
+          if (hit.start > cursor) nodes.push(src.slice(cursor, hit.start));
+          nodes.push(
+            <ExternalLink key={`${i}-${key++}`} href={hit.href}>
+              {hit.label}
+            </ExternalLink>,
+          );
+          cursor = hit.end;
+        }
+        if (cursor < src.length) nodes.push(src.slice(cursor));
+
+        return (
+          <Fragment key={i}>
+            {i > 0 ? "; " : null}
+            {nodes.length ? nodes : src}
+          </Fragment>
+        );
+      })}
+    </p>
   );
 }
 
@@ -221,7 +385,7 @@ export function FiveStepPlan({ mode, match, leaver, enabled }: Props) {
                         {step.title}
                       </h5>
                       <p className="mt-1 text-sm text-[var(--ink-muted)]">
-                        {step.summary}
+                        <InlineRichText text={step.summary} />
                       </p>
                     </div>
                     <button
@@ -267,9 +431,10 @@ export function FiveStepPlan({ mode, match, leaver, enabled }: Props) {
                           ) : null}
                           <SimpleMarkdown text={bd.detail_markdown} />
                           {bd.sources_used?.length ? (
-                            <p className="text-xs text-[var(--ink-muted)]">
-                              Based on: {bd.sources_used.join("; ")}
-                            </p>
+                            <SourcesUsed
+                              sources={bd.sources_used}
+                              matchWebsite={match.website}
+                            />
                           ) : null}
                         </>
                       ) : (

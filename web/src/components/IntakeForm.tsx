@@ -139,7 +139,7 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
         </label>
         <label className="block space-y-1.5 text-sm">
           <span className="font-medium text-[var(--ink-muted)]">
-            Qualification level
+            Qualifications so far
           </span>
           <select
             className="field"

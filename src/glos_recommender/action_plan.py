@@ -146,6 +146,8 @@ _BREAKDOWN_RULES = """
 - Each action = verb + object + where/how.
 - Ban: "one small thing", "ask someone you trust", "None yet".
 - Ground tips in HOW_TO_CONTEXT when present.
+- When pointing to a website, use markdown [short label](url) — e.g. [course page](https://…).
+  Never paste a long raw URL into the sentence.
 """
 
 _SIMPLE_ENGLISH_REMINDER = """
@@ -165,6 +167,21 @@ def _system_for_breakdown(mode: str) -> str:
     if m not in _MODE_ADDENDA:
         m = "work"
     return (_VOICE_CORE + _MODE_ADDENDA[m] + _BREAKDOWN_RULES).strip()
+
+
+def _site_md_link(website: str, label: str = "official page") -> str:
+    """Markdown link for a match website; never paste a raw long URL in prose."""
+    url = (website or "").strip()
+    if url.startswith("http"):
+        return f"[{label}]({url})"
+    return label
+
+
+def _site_phrase(website: str, *, label: str = "official page") -> str:
+    url = (website or "").strip()
+    if url.startswith("http"):
+        return _site_md_link(url, label)
+    return "their official website"
 
 
 def _gemini_client():
@@ -385,7 +402,16 @@ def _offline_plan(
     match_kind = _classify_match_kind(mode, match)
     name = _match_label(match)
     website = str(match.get("website") or "").strip()
-    site_hint = f" Start at {website}." if website else " Start on their official website."
+    course_link = _site_phrase(website, label="course page")
+    site_hint = (
+        f" Start on the {course_link}."
+        if match_kind == "course" and website
+        else (
+            f" Start on the {_site_phrase(website)}."
+            if website
+            else " Start on their official website."
+        )
+    )
     interest = profile["interest_label"]
     proof = profile["proof_label"]
     loc = profile["location"] or "your area"
@@ -395,7 +421,7 @@ def _offline_plan(
             _step(
                 "s1",
                 "Check the course page",
-                f"On the official page for {name}, note what they ask for and how to apply.{site_hint}",
+                f"On the {course_link} for {name}, note what they ask for and how to apply.",
                 "This week",
                 family="course_check",
             ),
@@ -654,7 +680,8 @@ def _offline_breakdown(
     step_id = str(step.get("id") or "s1")
     name = _match_label(match)
     website = str(match.get("website") or "").strip()
-    site = website or "their official website"
+    site = _site_phrase(website)
+    course_site = _site_phrase(website, label="course page")
     interest = profile["interest_label"]
     proof = profile["proof_label"]
     loc = profile["location"] or "your area"
@@ -791,7 +818,7 @@ def _offline_breakdown(
             profile, name, angle="this step checks the real course details"
         )
         detail = (
-            f"1. Open the official page for {name} ({site}).\n"
+            f"1. Open the {course_site} for {name}.\n"
             f"2. Note what they ask for and how to apply — do not guess grades or fees.\n"
             f"3. Link two points from {proof} to the course themes around {interest}.\n"
             f"4. Write two questions if anything is unclear.\n\n"
@@ -1190,6 +1217,8 @@ Rules:
 - Titles: max 6 simple words. Summaries: max 35 simple words.
 - Mention real interests/location/proof where natural.
 - No invented deadlines, fees, vacancies, or guarantees.
+- If a website URL is needed, write markdown [short label](url) such as [course page](https://…).
+  Do not paste long bare URLs into titles or summaries.
 {_SIMPLE_ENGLISH_REMINDER}
 """
     try:
@@ -1339,6 +1368,7 @@ Rules:
 - If MATCH_KIND is professional_body, do not treat it as a job vacancy board.
 - detail_markdown must not repeat why_this_step or the step title.
 - Keep detail_markdown under 180 words.
+- Link websites as markdown [short label](url) only — never dump a raw long URL.
 {_SIMPLE_ENGLISH_REMINDER}
 """
     try:
