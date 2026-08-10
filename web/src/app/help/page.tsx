@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HelpPage() {
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-5 py-10 sm:px-8">
@@ -55,13 +57,13 @@ export default function HelpPage() {
       </section>
 
       <p className="mt-10 text-sm">
-        <a href="/" className="underline decoration-[var(--accent)]">
+        <Link href="/" className="underline decoration-[var(--accent)]">
           Back to MatchKite
-        </a>
+        </Link>
         {" · "}
-        <a href="/privacy" className="underline decoration-[var(--accent)]">
+        <Link href="/privacy" className="underline decoration-[var(--accent)]">
           Privacy notice
-        </a>
+        </Link>
       </p>
     </main>
   );

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function PrivacyPage() {
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-5 py-10 sm:px-8">
@@ -61,9 +63,9 @@ export default function PrivacyPage() {
           are screened with simple keyword checks. If something looks like a safety
           concern, we show fixed help contacts (for example 999, Childline, Samaritans)
           and do not send that message to AI as a normal careers reply. See{" "}
-          <a href="/help" className="underline decoration-[var(--accent)]">
+          <Link href="/help" className="underline decoration-[var(--accent)]">
             Need help?
-          </a>
+          </Link>
           .
         </p>
       </section>
