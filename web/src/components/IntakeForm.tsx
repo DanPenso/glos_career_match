@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import type { AgeBand, IntakeForm, MatchMode, TaxonomyResponse } from "@/lib/types";
-import { SafeguardingHelp } from "@/components/SafeguardingHelp";
 
 type Props = {
   taxonomy: TaxonomyResponse;
@@ -185,14 +184,11 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
           ))}
         </div>
         {under16 ? (
-          <div className="space-y-3">
-            <p className="text-sm text-[var(--ink)]">
-              Thanks for saying. MatchKite is for people aged{" "}
-              <strong>16 and over</strong>. Please ask a parent, carer, teacher,
-              or careers adviser to help you explore options.
-            </p>
-            <SafeguardingHelp compact />
-          </div>
+          <p className="text-sm text-[var(--ink)]">
+            Thanks for saying. MatchKite is for people aged{" "}
+            <strong>16 and over</strong>. Please ask a parent, carer, teacher,
+            or careers adviser to help you explore options.
+          </p>
         ) : null}
         {ageBand === "prefer_not" ? (
           <p className="text-sm text-[var(--ink-muted)]">
