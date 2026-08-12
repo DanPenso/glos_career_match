@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <section className="mt-6 space-y-2">
         <h2 className="font-display text-2xl text-[var(--ink)]">Age eligibility</h2>
         <p className="text-sm text-[var(--ink-muted)]">
-          MatchKite is aimed at people aged 16–24. We ask for a self-declared age
+          MatchKite is aimed at people aged 16+. We ask for a self-declared age
           band before matching. We do not verify identity documents. People under 16
           cannot use matching on this demo and are directed to a parent, carer,
           teacher, or careers adviser. AI features need a declared age band of 16 or

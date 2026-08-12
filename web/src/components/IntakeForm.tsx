@@ -163,7 +163,7 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
         </legend>
         <p className="text-xs text-[var(--ink-muted)]">
           Self-declared only — we do not verify ID. MatchKite is built for ages
-          16–24.
+          16+.
         </p>
         <div className="flex flex-wrap gap-2">
           {ageBands.map((band) => (
