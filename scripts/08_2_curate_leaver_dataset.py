@@ -6,7 +6,7 @@ Sources (in priority mix):
   3. Occupation bridge rows (data/curated/occupation_to_sector.csv) as onet_bridge
 
 Run from project root:
-  .venv\\Scripts\\python scripts/curate_leaver_dataset.py
+  .venv\\Scripts\\python scripts/08_2_curate_leaver_dataset.py
 """
 
 from __future__ import annotations

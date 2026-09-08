@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Fredoka, Nunito } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const body = Nunito({
+const body = Inter({
   subsets: ["latin"],
   variable: "--font-body",
 });
 
-const display = Fredoka({
+const display = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-display",
+  weight: ["500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {

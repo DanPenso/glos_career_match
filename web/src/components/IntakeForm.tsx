@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { AgeBand, IntakeForm, MatchMode, TaxonomyResponse } from "@/lib/types";
 
 type Props = {
@@ -17,6 +17,43 @@ const FALLBACK_AGE_BANDS: { id: AgeBand; label: string }[] = [
   { id: "25_plus", label: "25+" },
   { id: "prefer_not", label: "Prefer not to say" },
 ];
+
+function InterestTile({
+  label,
+  icon,
+  selected,
+  onClick,
+}: {
+  label: string;
+  icon?: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition ${
+        selected
+          ? "border-[var(--accent-ink)] bg-[var(--accent)] text-[var(--accent-ink)] shadow-[0_3px_0_0_var(--trust)]"
+          : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--trust)]"
+      }`}
+    >
+      {icon ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={icon}
+          alt=""
+          width={96}
+          height={96}
+          className="h-16 w-16 rounded-xl object-contain sm:h-20 sm:w-20"
+        />
+      ) : null}
+      <span className="text-xs font-semibold leading-snug sm:text-sm">{label}</span>
+    </button>
+  );
+}
 
 function Chip({
   label,
@@ -65,7 +102,6 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
     intake.qualification_levels[0] ?? "",
   );
   const [availability, setAvailability] = useState(intake.availability[0] ?? "");
-  const [courses, setCourses] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
   const [passions, setPassions] = useState<string[]>([]);
   const [experience, setExperience] = useState<string[]>([]);
@@ -79,6 +115,7 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
   const [useOpenAIBriefing, setUseOpenAIBriefing] = useState(false);
   const [useGeminiPlan, setUseGeminiPlan] = useState(false);
   const [allowAnonymousLogging, setAllowAnonymousLogging] = useState(true);
+  const [liveOpportunitiesOnly, setLiveOpportunitiesOnly] = useState(false);
   const [error, setError] = useState("");
 
   const under16 = ageBand === "under_16";
@@ -86,18 +123,6 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
   const needsYouthTick = ageBand === "16_17";
   const showHealthNote = barriers.some((b) => /health|disability/i.test(b));
   const formReady = Boolean(ageBand) && !under16;
-
-  const courseChoices = useMemo(() => {
-    const t = leaverType.toLowerCase();
-    if (
-      t.includes("university") ||
-      t.includes("postgraduate") ||
-      t.includes("graduate")
-    ) {
-      return intake.course_areas.university;
-    }
-    return intake.course_areas.school_college;
-  }, [intake, leaverType]);
 
   function submitMode(mode: MatchMode) {
     if (!ageBand) {
@@ -110,8 +135,8 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
       );
       return;
     }
-    if (!interests.length && !courses.length) {
-      setError("Pick at least one interest or course.");
+    if (!interests.length) {
+      setError("Pick at least one thing you’re into.");
       return;
     }
     if (
@@ -129,7 +154,7 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
       leaver_type: leaverType,
       location,
       age_band: ageBand,
-      courses,
+      courses: [],
       interests,
       passions,
       work_experience: experience,
@@ -145,6 +170,7 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
       use_openai_briefing: aiAllowed && useOpenAIBriefing,
       use_gemini_plan: aiAllowed && useGeminiPlan,
       allow_anonymous_logging: allowAnonymousLogging,
+      live_opportunities_only: mode !== "military" && liveOpportunitiesOnly,
       mode,
     });
   }
@@ -264,36 +290,57 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
             </label>
           </div>
 
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium text-[var(--ink-muted)]">
-              Interests (up to 5)
-            </legend>
-            <div className="flex flex-wrap gap-2">
-              {intake.interests.map((item) => (
-                <Chip
-                  key={item}
-                  label={item}
-                  selected={interests.includes(item)}
-                  onClick={() => setInterests(toggle(interests, item, 5))}
-                />
-              ))}
-            </div>
-          </fieldset>
+          <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-4 text-sm text-[var(--ink)]">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={liveOpportunitiesOnly}
+              onChange={(e) => setLiveOpportunitiesOnly(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium">
+                Only show options with live apprenticeship opportunities
+              </span>
+              <span className="mt-1 block text-xs text-[var(--ink-muted)]">
+                Work matches: open apprenticeships on Find an apprenticeship.
+                Education matches: courses listed as live in the National
+                Careers Service directory. Leave this unticked if you just want
+                local options. Does not apply to military pathways.
+              </span>
+            </span>
+          </label>
 
-          <fieldset className="space-y-3">
+          <fieldset className="space-y-5">
             <legend className="text-sm font-medium text-[var(--ink-muted)]">
-              Courses (optional)
+              What are you into? (up to 5)
             </legend>
-            <div className="flex flex-wrap gap-2">
-              {courseChoices.map((item) => (
-                <Chip
-                  key={item}
-                  label={item}
-                  selected={courses.includes(item)}
-                  onClick={() => setCourses(toggle(courses, item))}
-                />
-              ))}
-            </div>
+            <p className="text-xs text-[var(--ink-muted)]">
+              Mix things you do for fun with areas you might want to work in —
+              five picks in total.
+            </p>
+            {(intake.interest_groups?.length
+              ? intake.interest_groups
+              : [{ title: "", items: intake.interests }]
+            ).map((group) => (
+              <div key={group.title || "all"} className="space-y-3">
+                {group.title ? (
+                  <p className="text-sm font-medium text-[var(--ink)]">
+                    {group.title}
+                  </p>
+                ) : null}
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {group.items.map((item) => (
+                    <InterestTile
+                      key={item}
+                      label={item}
+                      icon={intake.interest_icons?.[item]}
+                      selected={interests.includes(item)}
+                      onClick={() => setInterests(toggle(interests, item, 5))}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
           </fieldset>
 
           <fieldset className="space-y-3">

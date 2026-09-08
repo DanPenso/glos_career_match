@@ -13,13 +13,15 @@ from typing import Any
 
 import yaml
 
-from .matching import _jaccard, _token_overlap, build_leaver_profile
+from .matching import build_leaver_profile
+from .scoring import jaccard, token_overlap
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TAXONOMY_DIR = PROJECT_ROOT / "data" / "taxonomy"
 COURSES_PATH = TAXONOMY_DIR / "online_courses.yaml"
 
 
+# Load curated online courses YAML.
 @lru_cache(maxsize=1)
 def load_online_catalogue(path: str | None = None) -> dict[str, Any]:
     p = Path(path) if path else COURSES_PATH
@@ -29,10 +31,12 @@ def load_online_catalogue(path: str | None = None) -> dict[str, Any]:
         return yaml.safe_load(f) or {"disclaimer": "", "courses": []}
 
 
+# Clear cached online course catalogue.
 def clear_online_courses_cache() -> None:
     load_online_catalogue.cache_clear()
 
 
+# Normalise sectors field into a set of tags.
 def _as_sector_set(value: Any) -> set[str]:
     if isinstance(value, set):
         return {str(x) for x in value}
@@ -43,15 +47,16 @@ def _as_sector_set(value: Any) -> set[str]:
     return {p.strip() for p in str(value).split("|") if p.strip()}
 
 
+# Score one online course suggestion.
 def score_online_course(leaver: dict[str, Any], course: dict[str, Any]) -> float:
     interest = set(leaver.get("interest_sectors") or set())
     target = set(leaver.get("target_sectors") or set())
     psych = set(leaver.get("psych_sectors") or set())
     course_sectors = _as_sector_set(course.get("sectors"))
 
-    sector = 0.7 * _jaccard(interest, course_sectors) + 0.2 * _jaccard(
+    sector = 0.7 * jaccard(interest, course_sectors) + 0.2 * jaccard(
         target, course_sectors
-    ) + 0.1 * _jaccard(psych, course_sectors)
+    ) + 0.1 * jaccard(psych, course_sectors)
 
     blob = " ".join(
         [
@@ -60,7 +65,7 @@ def score_online_course(leaver: dict[str, Any], course: dict[str, Any]) -> float
             " ".join(course_sectors),
         ]
     )
-    text = _token_overlap(str(leaver.get("profile_text") or ""), blob)
+    text = token_overlap(str(leaver.get("profile_text") or ""), blob)
     score = 0.75 * sector + 0.25 * text
 
     # Soft boost when title echoes stated interests / courses
@@ -92,6 +97,7 @@ def score_online_course(leaver: dict[str, Any], course: dict[str, Any]) -> float
     return round(score, 4)
 
 
+# Pick top online course suggestions for the leaver.
 def match_online_courses(
     form: dict[str, Any] | None = None,
     *,

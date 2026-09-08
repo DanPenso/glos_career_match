@@ -17,6 +17,10 @@
   --accent-ink: #0f1f1a;
   --accent-hot: #ff5a36;
   --hero-glow: #b8f229;
+  --bar-muted: #8fa39c;
+  /* Open opportunities flag — distinct from lime CTAs */
+  --open: #ec4899;
+  --open-ink: #ffffff;
 }
 
 body {
@@ -29,9 +33,9 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-display), "Nunito", system-ui, sans-serif;
-  letter-spacing: -0.01em;
-  font-weight: 550;
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  letter-spacing: -0.03em;
+  font-weight: 700;
 }
 
 @layer components {
@@ -61,7 +65,7 @@ body {
 
   .stat-value {
     @apply mt-1 text-xl font-semibold text-[var(--ink)];
-    font-family: var(--font-display), Georgia, serif;
+    font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
   }
 }
 

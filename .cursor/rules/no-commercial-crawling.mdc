@@ -1,0 +1,22 @@
+---
+description: No grey-area commercial website crawling or bulk HTTP probing
+alwaysApply: true
+---
+
+# No commercial website crawling
+
+Do **not** run, write, or suggest actions that automatically fetch, scrape, probe, or “verify” third-party commercial websites (including guessed domains, parallel HTTP workers, or bulk `requests`/`httpx` checks against employer sites).
+
+## Disallowed
+- Bulk website verification / promotion scripts that hit live company URLs
+- Guessing domains and checking if they respond
+- Scraping employer pages for content, titles, or contact details
+- Ignoring robots.txt / site ToS to collect data
+
+## Allowed
+- Using URLs already in our datasets, APIs we are authorised to use (e.g. Companies House API with a key), or partner-supplied lists
+- Manual spreadsheet / CSV fills by the user
+- Code that only **displays** a known website URL without fetching it
+- Fetching our own deployed app, localhost, or explicitly first-party endpoints
+
+If website discovery is needed, ask the user for URLs or an approved data source — never crawl commercial sites to find them.

@@ -105,3 +105,23 @@ export async function fetchPlanChat(input: {
 }): Promise<{ reply_markdown: string; source?: string }> {
   return postJson("/plan/chat", input);
 }
+
+/** Fetch OpenAI TTS mp3 for plain text. Throws if API unavailable. */
+export async function fetchTtsAudio(text: string): Promise<Blob> {
+  const res = await fetch(`${API_BASE}/tts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) {
+    let detail = `TTS failed (${res.status})`;
+    try {
+      const body = await res.json();
+      if (body?.detail) detail = String(body.detail);
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+  return res.blob();
+}

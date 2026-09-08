@@ -23,8 +23,13 @@ from .embeddings import (
     load_military_microcred_embeddings,
     load_military_pathway_embeddings,
 )
-from .matching import _jaccard, _split_pipe, _token_overlap, build_leaver_profile
+from .matching import build_leaver_profile
 from .role_families import ensure_role_families_column
+from .scoring import (
+    rounded_score_dict,
+    score_catalogue_components,
+    split_pipe,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SEED_DIR = PROJECT_ROOT / "data" / "seed"
@@ -39,6 +44,7 @@ WEIGHTS = {
 }
 
 
+# Load curated military pathway seed.
 def load_military_pathways(path: Path | None = None) -> pd.DataFrame:
     p = path or PATHWAYS_PATH
     if not p.exists():
@@ -46,6 +52,7 @@ def load_military_pathways(path: Path | None = None) -> pd.DataFrame:
     return ensure_role_families_column(pd.read_csv(p))
 
 
+# Load military-related micro-credential seed.
 def load_military_microcreds(path: Path | None = None) -> pd.DataFrame:
     p = path or MICRO_PATH
     if not p.exists():
@@ -53,41 +60,25 @@ def load_military_microcreds(path: Path | None = None) -> pd.DataFrame:
     return ensure_role_families_column(pd.read_csv(p))
 
 
+# Score one military pathway or micro-cred row.
 def _score_row(leaver: dict[str, Any], row: pd.Series) -> dict[str, float]:
-    sectors = _split_pipe(row.get("sectors"))
-    routes = _split_pipe(row.get("entry_routes")) if "entry_routes" in row.index else set()
-    roles = _split_pipe(row.get("role_families"))
-    interest_sectors = leaver.get("interest_sectors") or leaver["target_sectors"]
-    psych_sectors = leaver.get("psych_sectors") or set()
-    sector = 0.8 * _jaccard(interest_sectors, sectors) + 0.2 * _jaccard(
-        psych_sectors, sectors
+    has_routes = "entry_routes" in row.index
+    routes = split_pipe(row.get("entry_routes")) if has_routes else set()
+    scores = score_catalogue_components(
+        leaver,
+        item_sectors=split_pipe(row.get("sectors")),
+        item_routes=routes,
+        item_roles=split_pipe(row.get("role_families")),
+        profile_text_b=str(row.get("profile_text") or row.get("summary") or ""),
+        weights=WEIGHTS,
+        sector_interest_weight=0.8,
+        sector_psych_weight=0.2,
+        default_entry=0.35 if not routes else None,
     )
-    entry = _jaccard(leaver["entry_routes"], routes) if routes else 0.35
-    text = _token_overlap(
-        leaver["profile_text"], str(row.get("profile_text") or row.get("summary") or "")
-    )
-    psych_roles = leaver["psych"].get("role_prefs", set())
-    if psych_roles and roles:
-        psych = 0.85 * _jaccard(set(psych_roles), roles) + 0.15 * _jaccard(
-            psych_sectors, sectors
-        )
-    else:
-        psych = _jaccard(psych_sectors | set(psych_roles), sectors | roles)
-    final = (
-        WEIGHTS["sector"] * sector
-        + WEIGHTS["entry"] * entry
-        + WEIGHTS["text"] * text
-        + WEIGHTS["psych"] * psych
-    )
-    return {
-        "final_score": round(final, 4),
-        "sector_score": round(sector, 4),
-        "entry_score": round(entry, 4),
-        "text_score": round(text, 4),
-        "psych_score": round(psych, 4),
-    }
+    return rounded_score_dict(scores)
 
 
+# Rank military pathways plus related micro-creds.
 def match_military(
     form: dict[str, Any],
     pathways: pd.DataFrame | None = None,
@@ -123,12 +114,12 @@ def match_military(
         # Prefer micro-creds that share sectors with top pathway or leaver interests
         top_sectors: set[str] = set(leaver.get("interest_sectors") or set())
         if len(ranked_paths):
-            top_sectors |= _split_pipe(ranked_paths.iloc[0].get("sectors"))
+            top_sectors |= split_pipe(ranked_paths.iloc[0].get("sectors"))
         mrows = []
         for _, row in micro_df.iterrows():
             scores = _score_row(leaver, row)
             # Soft boost if overlaps top military pathway sectors
-            if top_sectors & _split_pipe(row.get("sectors")):
+            if top_sectors & split_pipe(row.get("sectors")):
                 scores["final_score"] = round(min(1.0, scores["final_score"] + 0.08), 4)
             mrows.append({**row.to_dict(), **scores})
         micro_ranked = pd.DataFrame(mrows)

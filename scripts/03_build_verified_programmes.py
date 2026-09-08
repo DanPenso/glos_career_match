@@ -1,7 +1,7 @@
 """Build data/seed/verified_programmes.csv from curated seed opportunities.
 
 Run after editing opportunities_seed.csv or companies_seed.csv:
-  .venv\\Scripts\\python scripts/build_verified_programmes.py
+  .venv\\Scripts\\python scripts/03_build_verified_programmes.py
 """
 
 from __future__ import annotations

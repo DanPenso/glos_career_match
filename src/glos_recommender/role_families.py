@@ -59,6 +59,7 @@ _MILITARY_ROLE_MAP: dict[str, list[str]] = {
 }
 
 
+# Split a pipe-separated cell into a list of tags.
 def _split_pipe(value: Any) -> list[str]:
     if value is None:
         return []
@@ -68,6 +69,7 @@ def _split_pipe(value: Any) -> list[str]:
     return [p.strip() for p in text.split("|") if p.strip()]
 
 
+# Infer role_family tags for a catalogue row.
 def infer_role_families(
     *,
     title: str = "",
@@ -80,6 +82,7 @@ def infer_role_families(
     """Return pipe-joined role_families aligned with employer psych prefs."""
     found: list[str] = []
 
+    # Add tags into the accumulating role-family set.
     def _add(tags: list[str]) -> None:
         for t in tags:
             if t and t not in found:
@@ -111,6 +114,7 @@ def infer_role_families(
     return "|".join(found[:max_tags])
 
 
+# Ensure a DataFrame has a role_families column.
 def ensure_role_families_column(df) -> Any:
     """Add/fill role_families on a catalogue DataFrame (copy)."""
     out = df.copy()

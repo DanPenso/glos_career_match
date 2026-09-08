@@ -1,8 +1,8 @@
 """Catalogue embeddings (MiniLM) for companies, courses, and military items.
 
 Build artefacts:
-  .venv\\Scripts\\python scripts/build_company_embeddings.py
-  .venv\\Scripts\\python scripts/build_catalogue_embeddings.py
+  .venv\\Scripts\\python scripts/05_build_company_embeddings.py
+  .venv\\Scripts\\python scripts/06_build_catalogue_embeddings.py
 
 → app/app_data/company_embeddings.npz
 → app/app_data/course_embeddings.npz
@@ -27,7 +27,7 @@ COURSE_EMBEDDINGS_PATH = APP_DATA_DIR / "course_embeddings.npz"
 MILITARY_PATHWAY_EMBEDDINGS_PATH = APP_DATA_DIR / "military_pathway_embeddings.npz"
 MILITARY_MICRO_EMBEDDINGS_PATH = APP_DATA_DIR / "military_microcred_embeddings.npz"
 
-# Back-compat alias used by build_company_embeddings.py / matching.py
+# Back-compat alias used by 05_build_company_embeddings.py / matching.py
 EMBEDDINGS_PATH = COMPANY_EMBEDDINGS_PATH
 
 HYBRID_WEIGHT = 0.7
@@ -37,6 +37,7 @@ _embedder = None
 _ID_KEYS = ("item_ids", "company_ids", "course_ids", "pathway_ids", "cred_ids")
 
 
+# Load the local SentenceTransformer MiniLM model once.
 def _get_embedder():
     global _embedder
     if _embedder is not None:
@@ -50,6 +51,7 @@ def _get_embedder():
     return _embedder
 
 
+# Embed a batch of strings into vectors.
 def embed_texts(texts: list[str], *, batch_size: int = 32) -> np.ndarray:
     """Return L2-normalised float32 matrix (n, d)."""
     model = _get_embedder()
@@ -64,10 +66,12 @@ def embed_texts(texts: list[str], *, batch_size: int = 32) -> np.ndarray:
     return np.asarray(vecs, dtype="float32")
 
 
+# Embed one string into a vector.
 def embed_text(text: str) -> np.ndarray:
     return embed_texts([text])[0]
 
 
+# Write id→vector NPZ for companies/courses/etc.
 def save_item_embeddings(
     path: Path,
     ids: list[str],
@@ -97,6 +101,7 @@ def save_item_embeddings(
     return path
 
 
+# Read item ids from an embeddings NPZ payload.
 def _extract_ids(data: Any) -> list[str]:
     for key in _ID_KEYS:
         if key in data.files:
@@ -104,6 +109,7 @@ def _extract_ids(data: Any) -> list[str]:
     raise KeyError(f"No id array in embeddings file (tried {_ID_KEYS})")
 
 
+# Load a cached embeddings NPZ from disk.
 @lru_cache(maxsize=8)
 def load_item_embeddings(path: str) -> dict[str, Any] | None:
     """Load precomputed item vectors. Returns None if missing."""
@@ -127,31 +133,37 @@ def load_item_embeddings(path: str) -> dict[str, Any] | None:
     }
 
 
+# Load employer MiniLM embeddings if present.
 def load_company_embeddings(path: str | None = None) -> dict[str, Any] | None:
     """Load company vectors (wrapper around load_item_embeddings)."""
     p = str(Path(path) if path else COMPANY_EMBEDDINGS_PATH)
     return load_item_embeddings(p)
 
 
+# Load course MiniLM embeddings if present.
 def load_course_embeddings(path: str | None = None) -> dict[str, Any] | None:
     p = str(Path(path) if path else COURSE_EMBEDDINGS_PATH)
     return load_item_embeddings(p)
 
 
+# Load military pathway embeddings if present.
 def load_military_pathway_embeddings(path: str | None = None) -> dict[str, Any] | None:
     p = str(Path(path) if path else MILITARY_PATHWAY_EMBEDDINGS_PATH)
     return load_item_embeddings(p)
 
 
+# Load military micro-cred embeddings if present.
 def load_military_microcred_embeddings(path: str | None = None) -> dict[str, Any] | None:
     p = str(Path(path) if path else MILITARY_MICRO_EMBEDDINGS_PATH)
     return load_item_embeddings(p)
 
 
+# Clear LRU cache for embedding loaders.
 def clear_embedding_cache() -> None:
     load_item_embeddings.cache_clear()
 
 
+# Map each item id to cosine similarity vs the leaver text.
 def cosine_map_for_leaver(
     leaver_profile_text: str,
     item_ids: list[str],
@@ -178,6 +190,7 @@ def cosine_map_for_leaver(
     return out
 
 
+# Blend rule score with embedding cosine on a ranked frame.
 def blend_hybrid_cosine(
     ranked,
     *,

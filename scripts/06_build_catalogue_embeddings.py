@@ -1,7 +1,7 @@
 """Build MiniLM embeddings for courses and military catalogue items.
 
 Run from project root:
-  .venv\\Scripts\\python scripts/build_catalogue_embeddings.py
+  .venv\\Scripts\\python scripts/06_build_catalogue_embeddings.py
 
 Writes:
   app/app_data/course_embeddings.npz

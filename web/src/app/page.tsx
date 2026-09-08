@@ -51,29 +51,29 @@ export default function HomePage() {
               "radial-gradient(600px 280px at 80% 20%, var(--hero-glow), transparent 60%)",
           }}
         />
-        <div className="relative mx-auto flex max-w-3xl flex-col gap-3 px-5 pb-8 pt-8 sm:gap-4 sm:px-8 sm:pb-10 sm:pt-10">
-          <div className="flex items-center gap-5 sm:gap-6">
+        <div className="relative mx-auto flex max-w-3xl flex-col gap-2 px-5 pb-6 pt-6 sm:gap-3 sm:px-8 sm:pb-7 sm:pt-7">
+          <div className="flex items-center gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/matchkite-badge.png?v=7"
+              src="/matchkite-badge.png?v=8"
               alt="MatchKite"
-              width={140}
-              height={140}
-              className="h-[7.25rem] w-[7.25rem] shrink-0 rounded-full bg-[var(--paper)] ring-1 ring-[var(--paper)] ring-offset-1 ring-offset-[var(--hero-deep)] shadow-sm sm:h-[140px] sm:w-[140px]"
+              width={96}
+              height={96}
+              className="h-24 w-24 shrink-0 rounded-full bg-[var(--paper)] ring-1 ring-[var(--paper)] ring-offset-1 ring-offset-[var(--hero-deep)] shadow-sm"
             />
             <div className="flex flex-col items-start">
-              <h1 className="font-display text-4xl leading-tight sm:text-5xl">
+              <h1 className="font-display text-3xl leading-tight tracking-tight sm:text-4xl">
                 MatchKite
               </h1>
-              <span className="mt-2 inline-flex rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/15 px-4 py-1.5 text-sm font-semibold tracking-wide text-[var(--accent)]">
+              <span className="mt-1.5 inline-flex rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/15 px-3 py-1 text-xs font-semibold tracking-wide text-[var(--accent)]">
                 Bristol and Glos
               </span>
             </div>
           </div>
-          <p className="max-w-xl font-display text-2xl leading-snug text-[var(--paper)] sm:text-3xl">
+          <p className="max-w-xl font-display text-xl leading-snug tracking-tight text-[var(--paper)] sm:text-2xl">
             Ready for your career to take flight?
           </p>
-          <p className="max-w-xl text-base text-[var(--paper)]/85 sm:text-lg">
+          <p className="max-w-xl text-sm text-[var(--paper)]/85 sm:text-base">
             Tell us what you’re into, and we’ll match you to local jobs, courses,
             training, or military pathways in Bristol and Gloucestershire —
             helping your career take off from wherever you are.
@@ -81,7 +81,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
+      <div className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
         {results ? (
           <MatchResults data={results} onReset={() => setResults(null)} />
         ) : (

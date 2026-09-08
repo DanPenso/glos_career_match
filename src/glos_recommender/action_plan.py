@@ -14,6 +14,8 @@ import re
 import uuid
 from typing import Any
 
+from .labels import public_employer_website
+
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 _GEMINI_MODEL_FALLBACKS = tuple(
     dict.fromkeys(
@@ -111,8 +113,7 @@ training right now. Treat every person with respect.
 - You are careers guidance only — not a counsellor, doctor, or crisis service.
 - If the person talks about self-harm, suicide, abuse, exploitation, or being in
   immediate danger: do not dig for details; do not continue as a normal careers chat.
-  Tell them briefly to seek real-world help (e.g. 999 if in danger, Childline 0800 1111,
-  Samaritans 116 123) and stop career advice on that topic.
+  Tell them briefly to seek real-world help from a trusted adult and stop career advice on that topic.
 - Never ask for phone numbers, addresses, or private meetups. Never sexualise.
 - Do not give medical diagnoses or mental-health treatment advice.
 
@@ -146,7 +147,7 @@ Never write the words "None yet" in advice sentences.
 _BREAKDOWN_RULES = """
 ## Breakdown rules (strict)
 - Use PROFILE_STATE. Never print empty placeholders like "None yet".
-- If has_experience is false, tell them to gather proof from courses/projects — do not
+- If has_experience is false, tell them to gather proof from courses/projects/voluntary work/examples from interests and clubs — do not
   ask how "none" experience matters.
 - Respect match_kind (professional_body ≠ employer vacancy hunt).
 - Stay on THIS step only. No repeated why line or step title in detail_markdown.
@@ -178,15 +179,15 @@ def _system_for_breakdown(mode: str) -> str:
 
 def _site_md_link(website: str, label: str = "official page") -> str:
     """Markdown link for a match website; never paste a raw long URL in prose."""
-    url = (website or "").strip()
-    if url.startswith("http"):
+    url = public_employer_website(website)
+    if url:
         return f"[{label}]({url})"
     return label
 
 
 def _site_phrase(website: str, *, label: str = "official page") -> str:
-    url = (website or "").strip()
-    if url.startswith("http"):
+    url = public_employer_website(website)
+    if url:
         return _site_md_link(url, label)
     return "their official website"
 

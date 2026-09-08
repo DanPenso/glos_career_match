@@ -7,7 +7,7 @@ Hybrid score =
 + 0.15 * psych_role_fit
 + 0.10 * hiring_signal
 
-When company MiniLM embeddings are present (scripts/build_company_embeddings.py):
+When company MiniLM embeddings are present (scripts/05_build_company_embeddings.py):
   final_score = 0.7 * hybrid + 0.3 * cosine_sim
 """
 
@@ -15,12 +15,21 @@ from __future__ import annotations
 
 from collections import Counter
 from pathlib import Path
+import re
 from typing import Any
 
 import pandas as pd
 
 from .embeddings import cosine_map_for_leaver, load_company_embeddings
 from .intake_config import load_intake_options, load_psych_questions
+from .labels import public_employer_website
+from .provenance import classify_employer_source
+from .scoring import jaccard, split_pipe, token_overlap
+
+# Back-compat for modules that imported private helpers from matching
+_split_pipe = split_pipe
+_jaccard = jaccard
+_token_overlap = token_overlap
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SEED_DIR = PROJECT_ROOT / "data" / "seed"
@@ -41,7 +50,42 @@ WEIGHTS = {
 
 HIRING_MAP = {"high": 1.0, "medium": 0.6, "low": 0.3}
 
+_LEGAL_SUFFIX = re.compile(
+    r"\b(plc|ltd|limited|llp|inc|incorporated|group|holdings|uk)\b",
+    re.I,
+)
 
+
+# Collapse employer names so seed + vacancy duplicates can be spotted.
+def _normalise_employer_name(name: Any) -> str:
+    text = str(name or "").lower()
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    text = _LEGAL_SUFFIX.sub(" ", text)
+    return " ".join(text.split())
+
+
+# Drop vacancy rows whose name already exists as a curated seed employer.
+def drop_vacancy_duplicates_of_seed(df: pd.DataFrame) -> pd.DataFrame:
+    """Prefer GLC seed profiles over Find-an-apprenticeship copies of the same name."""
+    if df is None or df.empty or "name" not in df.columns:
+        return df
+    work = df.copy()
+    keys = work["name"].map(_normalise_employer_name)
+    if "source" in work.columns:
+        src = work["source"].astype(str).str.strip().str.lower()
+    else:
+        src = pd.Series([""] * len(work), index=work.index)
+    seed_keys = set(keys[src.isin({"seed", "curated", "manual"})].tolist())
+    seed_keys.discard("")
+    if not seed_keys:
+        return work
+    drop = (src == "vacancies") & keys.isin(seed_keys)
+    if not bool(drop.any()):
+        return work
+    return work.loc[~drop].copy()
+
+
+# Return the first path that exists on disk.
 def _first_existing(*paths: Path) -> Path | None:
     for p in paths:
         if p.exists():
@@ -49,18 +93,15 @@ def _first_existing(*paths: Path) -> Path | None:
     return None
 
 
-def _split_pipe(value: Any) -> set[str]:
-    if pd.isna(value) or value is None:
-        return set()
-    return {p.strip() for p in str(value).split("|") if p.strip()}
-
-
+# Load companies master/seed table for matching.
 def load_companies(path: Path | None = None) -> pd.DataFrame:
     """Prefer expanded master (seed + vacancies); fall back to seed CSV."""
     if path is not None:
         if path.suffix == ".pkl":
-            return pd.read_pickle(path)
-        return pd.read_csv(path)
+            loaded = pd.read_pickle(path)
+        else:
+            loaded = pd.read_csv(path)
+        return drop_vacancy_duplicates_of_seed(loaded)
     chosen = _first_existing(
         APP_DATA_DIR / "companies_master.csv",
         PROCESSED_DIR / "companies_master.pkl",
@@ -69,10 +110,13 @@ def load_companies(path: Path | None = None) -> pd.DataFrame:
     if chosen is None:
         raise FileNotFoundError("No companies table found (seed or master).")
     if chosen.suffix == ".pkl":
-        return pd.read_pickle(chosen)
-    return pd.read_csv(chosen)
+        loaded = pd.read_pickle(chosen)
+    else:
+        loaded = pd.read_csv(chosen)
+    return drop_vacancy_duplicates_of_seed(loaded)
 
 
+# Load opportunities master table.
 def load_opportunities(path: Path | None = None) -> pd.DataFrame:
     if path is not None:
         if path.suffix == ".pkl":
@@ -90,6 +134,7 @@ def load_opportunities(path: Path | None = None) -> pd.DataFrame:
     return pd.read_csv(chosen)
 
 
+# Score RIASEC / sector prefs from psych form answers.
 def score_psych_answers(answers: dict[str, str]) -> dict[str, Any]:
     """answers: {question_id: option_id}"""
     psych = load_psych_questions()
@@ -126,6 +171,7 @@ def score_psych_answers(answers: dict[str, str]) -> dict[str, Any]:
     }
 
 
+# Trim a string to a max length.
 def _trim_text(value: Any, *, limit: int) -> str:
     text = " ".join(str(value or "").split()).strip()
     if len(text) <= limit:
@@ -133,6 +179,7 @@ def _trim_text(value: Any, *, limit: int) -> str:
     return text[: limit - 1].rstrip() + "…"
 
 
+# Normalise form multi-selects into a string list.
 def _as_str_list(value: Any, *, limit: int = 12) -> list[str]:
     if value is None:
         return []
@@ -152,6 +199,7 @@ def _as_str_list(value: Any, *, limit: int = 12) -> list[str]:
     return [s] if s else []
 
 
+# Build the internal leaver profile from the intake form.
 def build_leaver_profile(form: dict[str, Any]) -> dict[str, Any]:
     """Build a structured leaver profile from intake form answers."""
     options = load_intake_options()
@@ -233,35 +281,24 @@ def build_leaver_profile(form: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _jaccard(a: set[str], b: set[str]) -> float:
-    if not a or not b:
-        return 0.0
-    return len(a & b) / len(a | b)
-
-
-def _token_overlap(a: str, b: str) -> float:
-    ta = {t.lower() for t in a.replace("|", " ").replace(",", " ").split() if len(t) > 2}
-    tb = {t.lower() for t in b.replace("|", " ").replace(",", " ").split() if len(t) > 2}
-    return _jaccard(ta, tb)
-
-
+# Hybrid score for one employer vs the leaver.
 def score_company(leaver: dict[str, Any], row: pd.Series) -> dict[str, float]:
-    company_sectors = _split_pipe(row["sectors"])
-    company_routes = _split_pipe(row["entry_routes"])
-    company_roles = _split_pipe(row["role_families"])
+    company_sectors = split_pipe(row["sectors"])
+    company_routes = split_pipe(row["entry_routes"])
+    company_roles = split_pipe(row["role_families"])
 
     # Stated interests weigh more than psych-inferred sectors
     interest_sectors = leaver.get("interest_sectors") or leaver["target_sectors"]
     psych_sectors = leaver.get("psych_sectors") or set()
-    sector = 0.75 * _jaccard(interest_sectors, company_sectors) + 0.25 * _jaccard(
+    sector = 0.75 * jaccard(interest_sectors, company_sectors) + 0.25 * jaccard(
         psych_sectors, company_sectors
     )
-    entry = _jaccard(leaver["entry_routes"], company_routes)
+    entry = jaccard(leaver["entry_routes"], company_routes)
 
-    text = _token_overlap(leaver["profile_text"], str(row.get("profile_text", "")))
+    text = token_overlap(leaver["profile_text"], str(row.get("profile_text", "")))
 
     psych_roles = leaver["psych"].get("role_prefs", set())
-    psych = _jaccard(psych_roles, company_roles)
+    psych = jaccard(psych_roles, company_roles)
 
     hiring = HIRING_MAP.get(str(row.get("hiring_signal", "low")).lower(), 0.3)
     priority = int(row.get("priority_employer", 0)) == 1
@@ -317,6 +354,7 @@ def score_company(leaver: dict[str, Any], row: pd.Series) -> dict[str, float]:
     }
 
 
+# Rank top employer matches for the form.
 def match_companies(
     form: dict[str, Any],
     companies: pd.DataFrame | None = None,
@@ -329,11 +367,22 @@ def match_companies(
     """
     leaver = build_leaver_profile(form)
     df = companies if companies is not None else load_companies()
+    df = drop_vacancy_duplicates_of_seed(df)
+
+    # Only recommend employers with a real public website (never Companies House pages).
+    if "website" in df.columns and len(df):
+        with_site = df["website"].map(public_employer_website).astype(bool)
+        filtered = df.loc[with_site].copy()
+        if len(filtered):
+            df = filtered
 
     rows = []
     for _, row in df.iterrows():
         scores = score_company(leaver, row)
-        rows.append({**row.to_dict(), **scores})
+        # Ensure scored row carries the cleaned website for API/UI.
+        scored = {**row.to_dict(), **scores}
+        scored["website"] = public_employer_website(scored.get("website"))
+        rows.append(scored)
 
     ranked = pd.DataFrame(rows)
     ranked["hybrid_score"] = ranked["final_score"]
@@ -364,26 +413,33 @@ def match_companies(
     return leaver, ranked.head(top_n).reset_index(drop=True)
 
 
+# Human-readable reasons for a company match (briefings/UI).
 def match_reasons(leaver: dict[str, Any], company_row: pd.Series) -> list[str]:
     """Human-readable match reasons for UI / RAG prompt."""
     reasons = []
-    shared_sectors = leaver["target_sectors"] & _split_pipe(company_row["sectors"])
-    shared_routes = set(leaver.get("entry_routes") or set()) & _split_pipe(
-        company_row["entry_routes"]
+    row = company_row.to_dict() if isinstance(company_row, pd.Series) else dict(company_row)
+    psych = leaver.get("psych") or {}
+    shared_sectors = (leaver.get("target_sectors") or set()) & split_pipe(
+        company_row.get("sectors") if hasattr(company_row, "get") else row.get("sectors")
     )
-    shared_roles = leaver["psych"].get("role_prefs", set()) & _split_pipe(
+    shared_routes = set(leaver.get("entry_routes") or set()) & split_pipe(
+        company_row.get("entry_routes") if hasattr(company_row, "get") else row.get("entry_routes")
+    )
+    shared_roles = psych.get("role_prefs", set()) & split_pipe(
         company_row.get("role_families") if hasattr(company_row, "get") else None
     )
 
     if shared_sectors:
         reasons.append(f"Sector fit: {', '.join(sorted(shared_sectors))}")
-    if shared_routes:
-        reasons.append(f"Entry routes they offer that suit you: {', '.join(sorted(shared_routes))}")
+    if shared_routes and classify_employer_source(row) != "companies_house":
+        reasons.append(
+            f"Entry-route match tags (internal only): {', '.join(sorted(shared_routes))}"
+        )
     if shared_roles:
         reasons.append(f"Role families aligned with your work style: {', '.join(sorted(shared_roles))}")
-    if leaver["psych"].get("dominant_riasec"):
+    if psych.get("dominant_riasec"):
         reasons.append(
-            "Work-style signals: " + ", ".join(leaver["psych"]["dominant_riasec"])
+            "Work-style signals: " + ", ".join(psych["dominant_riasec"])
         )
     if leaver.get("interests"):
         reasons.append("Your interests: " + ", ".join(leaver["interests"][:4]))

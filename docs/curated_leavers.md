@@ -1,6 +1,6 @@
 # Curated leaver clustering dataset
 
-Training data for K-Means career personas (`scripts/build_persona_model.py`).
+Training data for K-Means career personas (`scripts/08_build_persona_model.py`).
 Feature space matches `glos_recommender.personas.leaver_feature_vector`
 (11 sector one-hots + 6 RIASEC one-hots).
 
@@ -44,7 +44,7 @@ data/
 3. People & Care  
 4. Creative / Commercial  
 
-`build_persona_model.py` sets `k` from the number of prior names when the train set is large enough.
+`08_build_persona_model.py` sets `k` from the number of prior names when the train set is large enough.
 
 ## Live feedback loop
 
@@ -53,24 +53,24 @@ anonymous event to `data/live/leavers_events.jsonl` (sectors + RIASEC + assigned
 persona). Optional UI feedback updates `persona_helpful`.
 
 ```bash
-# Merge live rows into curated train (high sample_weight), then refit
-.venv\Scripts\python scripts/merge_live_into_curated.py
-.venv\Scripts\python scripts/build_persona_model.py
+# 8.3 merge live rows into curated train (high sample_weight), then 08 refit
+.venv\Scripts\python scripts/08_3_merge_live_into_curated.py
+.venv\Scripts\python scripts/08_build_persona_model.py
 ```
 
-`curate_leaver_dataset.py` also pulls in live events when present.
+`08_2_curate_leaver_dataset.py` also pulls in live events when present.
 
 ## Rebuild
 
 ```bash
-# Optional: download JobCannon (and try O*NET)
-.venv\Scripts\python scripts/fetch_external_clustering_data.py
+# 8.1 optional: download JobCannon (and try O*NET)
+.venv\Scripts\python scripts/08_1_fetch_external_clustering_data.py
 
-# Build train/holdout (works offline with priors + occupation bridge + live)
-.venv\Scripts\python scripts/curate_leaver_dataset.py
+# 8.2 train/holdout (works offline with priors + occupation bridge + live)
+.venv\Scripts\python scripts/08_2_curate_leaver_dataset.py
 
-# Fit live persona model (prefers curated train set)
-.venv\Scripts\python scripts/build_persona_model.py
+# 08 fit live persona model (prefers curated train set)
+.venv\Scripts\python scripts/08_build_persona_model.py
 ```
 
 ## Licence notes

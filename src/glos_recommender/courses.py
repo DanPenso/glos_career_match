@@ -1,6 +1,6 @@
 """FE/HE course matching for Gloucestershire + Bristol (NCS open data).
 
-Seed built by scripts/build_courses_seed_from_ncs.py from the National Careers
+Seed built by scripts/06_1_build_courses_seed_from_ncs.py from the National Careers
 Service course directory (Open Government Licence v3.0).
 
 When app/app_data/course_embeddings.npz exists, blends MiniLM cosine with
@@ -20,8 +20,13 @@ from .embeddings import (
     blend_hybrid_cosine,
     load_course_embeddings,
 )
-from .matching import _jaccard, _split_pipe, _token_overlap, build_leaver_profile
+from .matching import build_leaver_profile
 from .role_families import ensure_role_families_column
+from .scoring import (
+    rounded_score_dict,
+    score_catalogue_components,
+    split_pipe,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SEED_DIR = PROJECT_ROOT / "data" / "seed"
@@ -36,6 +41,7 @@ WEIGHTS = {
 }
 
 
+# Load FE/HE courses seed CSV.
 def load_courses(path: Path | None = None) -> pd.DataFrame:
     chosen = path or COURSES_PATH
     if not chosen.exists():
@@ -44,43 +50,31 @@ def load_courses(path: Path | None = None) -> pd.DataFrame:
             chosen = alt
         else:
             raise FileNotFoundError(
-                "No courses_seed.csv — run scripts/build_courses_seed_from_ncs.py"
+                "No courses_seed.csv — run scripts/06_1_build_courses_seed_from_ncs.py"
             )
     return ensure_role_families_column(pd.read_csv(chosen))
 
 
+# Score one course row vs the leaver.
 def score_course(leaver: dict[str, Any], row: pd.Series) -> dict[str, float]:
-    course_sectors = _split_pipe(row.get("sectors"))
-    course_routes = _split_pipe(row.get("entry_routes"))
-    course_roles = _split_pipe(row.get("role_families"))
+    course_sectors = split_pipe(row.get("sectors"))
+    course_routes = split_pipe(row.get("entry_routes"))
+    course_roles = split_pipe(row.get("role_families"))
 
-    interest_sectors = leaver.get("interest_sectors") or leaver["target_sectors"]
-    psych_sectors = leaver.get("psych_sectors") or set()
-    sector = 0.75 * _jaccard(interest_sectors, course_sectors) + 0.25 * _jaccard(
-        psych_sectors, course_sectors
+    scores = score_catalogue_components(
+        leaver,
+        item_sectors=course_sectors,
+        item_routes=course_routes,
+        item_roles=course_roles,
+        profile_text_b=str(row.get("profile_text") or row.get("summary") or ""),
+        weights=WEIGHTS,
+        sector_interest_weight=0.75,
+        sector_psych_weight=0.25,
     )
-    entry = _jaccard(leaver["entry_routes"], course_routes)
-    text = _token_overlap(
-        leaver["profile_text"], str(row.get("profile_text") or row.get("summary") or "")
-    )
-    psych_roles = leaver["psych"].get("role_prefs", set())
-    # Prefer role-family overlap (employer-aligned); soft-mix sector psych as fallback
-    if psych_roles and course_roles:
-        psych = 0.85 * _jaccard(psych_roles, course_roles) + 0.15 * _jaccard(
-            psych_sectors, course_sectors
-        )
-    elif psych_roles or psych_sectors:
-        psych = _jaccard(psych_sectors | set(psych_roles), course_sectors | course_roles)
-    else:
-        psych = 0.0
-
-    final = (
-        WEIGHTS["sector"] * sector
-        + WEIGHTS["entry"] * entry
-        + WEIGHTS["text"] * text
-        + WEIGHTS["psych"] * psych
-    )
-    if leaver["entry_routes"] and course_routes and not (leaver["entry_routes"] & course_routes):
+    final = scores["final_score"]
+    if leaver["entry_routes"] and course_routes and not (
+        leaver["entry_routes"] & course_routes
+    ):
         final *= 0.45
 
     # Soft boost when course title clearly echoes stated interests
@@ -120,15 +114,11 @@ def score_course(leaver: dict[str, Any], row: pd.Series) -> dict[str, float]:
     if "bootcamp" in type_label or "bootcamp" in title:
         final = min(1.0, final + 0.06)
 
-    return {
-        "final_score": round(final, 4),
-        "sector_score": round(sector, 4),
-        "entry_score": round(entry, 4),
-        "text_score": round(text, 4),
-        "psych_score": round(psych, 4),
-    }
+    scores["final_score"] = final
+    return rounded_score_dict(scores)
 
 
+# Rank top course matches.
 def match_courses(
     form: dict[str, Any],
     courses: pd.DataFrame | None = None,

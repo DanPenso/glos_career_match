@@ -1,7 +1,7 @@
 """Build company MiniLM embeddings for live matching.
 
 Run from project root (after companies_master exists):
-  .venv\\Scripts\\python scripts/build_company_embeddings.py
+  .venv\\Scripts\\python scripts/05_build_company_embeddings.py
 
 Writes: app/app_data/company_embeddings.npz
 """

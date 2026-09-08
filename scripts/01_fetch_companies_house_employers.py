@@ -1,8 +1,8 @@
 """Download Companies House BasicCompanyData, rank top GL/BS employers, upsert seed.
 
 Usage:
-  .venv\\Scripts\\python scripts/fetch_companies_house_employers.py
-  .venv\\Scripts\\python scripts/fetch_companies_house_employers.py --top 100 --rebuild
+  .venv\\Scripts\\python scripts/01_fetch_companies_house_employers.py
+  .venv\\Scripts\\python scripts/01_fetch_companies_house_employers.py --top 100 --rebuild
 
 Notes:
   - Free monthly snapshot (no API key). Large download ~400MB+ to data/raw/.
@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from glos_recommender.companies_house import (
+from glos_recommender.etl.companies_house import (
     CH_ZIP,
     download_basic_company_data,
     load_gl_companies_from_zip,

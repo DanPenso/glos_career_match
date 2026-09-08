@@ -2,8 +2,8 @@
 
 Run after you have some matches in data/live/leavers_events.jsonl:
 
-  .venv\\Scripts\\python scripts/merge_live_into_curated.py
-  .venv\\Scripts\\python scripts/build_persona_model.py
+  .venv\\Scripts\\python scripts/08_3_merge_live_into_curated.py
+  .venv\\Scripts\\python scripts/08_build_persona_model.py
 
 Live rows get high sample_weight so they influence K-Means more than JobCannon.
 """
@@ -145,7 +145,7 @@ def main() -> None:
     print(f"Merged {len(live_df)} live rows into {TRAIN_PATH}")
     print(f"Train n={len(train)}  Holdout n={len(hold)}")
     print(train["source"].value_counts().to_string())
-    print("Next: .venv\\Scripts\\python scripts/build_persona_model.py")
+    print("Next: .venv\\Scripts\\python scripts/08_build_persona_model.py")
 
 
 if __name__ == "__main__":

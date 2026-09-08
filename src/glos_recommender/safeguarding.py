@@ -88,6 +88,7 @@ _SAFETY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 )
 
 
+# Canonical age_band id from form values.
 def normalise_age_band(value: Any) -> str:
     raw = str(value or "").strip().lower().replace("–", "-").replace(" ", "_")
     aliases = {
@@ -109,11 +110,13 @@ def normalise_age_band(value: Any) -> str:
     return aliases.get(raw, "")
 
 
+# False for under_16 (blocks matching).
 def age_band_allowed_for_match(age_band: str) -> bool:
     band = normalise_age_band(age_band)
     return bool(band) and band != AGE_BAND_UNDER_16
 
 
+# True when declared age band may use OpenAI/Gemini.
 def age_band_allows_ai(age_band: str) -> bool:
     """AI opt-in only when the user has declared they are 16+."""
     band = normalise_age_band(age_band)
@@ -124,16 +127,19 @@ def age_band_allows_ai(age_band: str) -> bool:
     }
 
 
+# True when UI should show military under-18 notice.
 def show_military_age_notice(age_band: str) -> bool:
     band = normalise_age_band(age_band)
     return band in {AGE_BAND_16_17, AGE_BAND_PREFER_NOT, AGE_BAND_UNDER_16, ""}
 
 
+# True for 16–17 or prefer-not age bands.
 def is_youth_band(age_band: str) -> bool:
     band = normalise_age_band(age_band)
     return band in {AGE_BAND_16_17, AGE_BAND_PREFER_NOT}
 
 
+# Keyword screen for crisis / safeguarding text.
 def looks_like_safety_concern(*texts: str) -> bool:
     blob = " ".join(str(t or "") for t in texts).strip()
     if not blob:
@@ -141,6 +147,7 @@ def looks_like_safety_concern(*texts: str) -> bool:
     return any(p.search(blob) for p in _SAFETY_PATTERNS)
 
 
+# Fixed help-contacts reply (not model-generated).
 def safeguarding_chat_response() -> dict[str, Any]:
     return {
         "reply_markdown": SAFEGUARDING_REPLY_MARKDOWN.strip(),
@@ -148,5 +155,6 @@ def safeguarding_chat_response() -> dict[str, Any]:
     }
 
 
+# Age band options for the /taxonomy endpoint.
 def age_bands_for_taxonomy() -> list[dict[str, str]]:
     return [{"id": k, "label": AGE_BAND_LABELS[k]} for k in AGE_BANDS]

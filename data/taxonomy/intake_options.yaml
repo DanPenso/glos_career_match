@@ -50,21 +50,77 @@ course_areas:
     - Other
 
 interests:
-  - Cybersecurity & digital defence
+  - Gaming
+  - Team sports / fitness
+  - Social media / content / marketing
+  - Making things
+  - Campaigning
+  - Building apps
   - Software / apps / web
+  - Cybersecurity & digital defence
   - Data & AI
-  - Aerospace & advanced manufacturing
-  - Mechanical / electrical engineering
-  - Agri-tech & food systems
-  - Environment & sustainability
-  - Healthcare & wellbeing
-  - Education & training
   - Creative / design / events
   - Business / sales / entrepreneurship
-  - Public service & community
+  - Healthcare & wellbeing
+  - Education & training
+  - Mechanical / electrical engineering
+  - Aerospace & advanced manufacturing
   - Construction & built environment
   - Hospitality / tourism / retail
+  - Agri-tech & food systems
+  - Environment & sustainability
+  - Public service & community
   - Finance / accounting
+
+interest_groups:
+  - title: Things you do a lot
+    items:
+      - Gaming
+      - Team sports / fitness
+      - Social media / content / marketing
+      - Making things
+      - Campaigning
+      - Building apps
+      - Creative / design / events
+      - Environment & sustainability
+  - title: Work or study areas
+    items:
+      - Software / apps / web
+      - Cybersecurity & digital defence
+      - Data & AI
+      - Business / sales / entrepreneurship
+      - Healthcare & wellbeing
+      - Education & training
+      - Mechanical / electrical engineering
+      - Aerospace & advanced manufacturing
+      - Construction & built environment
+      - Hospitality / tourism / retail
+      - Agri-tech & food systems
+      - Public service & community
+      - Finance / accounting
+
+interest_icons:
+  Gaming: /intake/gaming.png
+  Team sports / fitness: /intake/team-sports.png
+  Social media / content / marketing: /intake/social-media.png
+  Making things: /intake/making-things.png
+  Campaigning: /intake/campaigning.png
+  Building apps: /intake/building-apps.png
+  Software / apps / web: /intake/software.png
+  Cybersecurity & digital defence: /intake/cybersecurity.png
+  Data & AI: /intake/data-ai.png
+  Creative / design / events: /intake/creative.png
+  Business / sales / entrepreneurship: /intake/business.png
+  Healthcare & wellbeing: /intake/healthcare.png
+  Education & training: /intake/education.png
+  Mechanical / electrical engineering: /intake/engineering.png
+  Aerospace & advanced manufacturing: /intake/aerospace.png
+  Construction & built environment: /intake/construction.png
+  Hospitality / tourism / retail: /intake/hospitality.png
+  Agri-tech & food systems: /intake/agri-food.png
+  Environment & sustainability: /intake/environment.png
+  Public service & community: /intake/public-service.png
+  Finance / accounting: /intake/finance.png
 
 passions:
   - Solving puzzles / problems
@@ -78,7 +134,7 @@ passions:
   - Growing food / nature
   - Performing / presenting
   - Making products people use
-  - Improving how organisations run
+  - Making things work better
 
 work_experience_types:
   - None yet
@@ -192,6 +248,12 @@ course_to_sector:
 
 # Maps intake interests → company sector tags
 interest_to_sector:
+  Gaming: [cyber_digital, creative_events]
+  Team sports / fitness: [health_care, education_training]
+  Social media / content / marketing: [creative_events, business_professional]
+  Making things: [creative_events, aerospace_manufacturing, construction_green]
+  Campaigning: [public_sector, creative_events]
+  Building apps: [cyber_digital]
   Cybersecurity & digital defence: [cyber_digital]
   Software / apps / web: [cyber_digital]
   Data & AI: [cyber_digital, business_professional]

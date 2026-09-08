@@ -13,12 +13,12 @@ Briefings pull short **strategy cards** paraphrased from public careers / youth-
 | `data/corpus/howto/SOURCES.md` | How-to citations / links |
 | `data/corpus/howto_cards.txt` | Flat export for indexing |
 | `src/glos_recommender/rag.py` | FAISS retrieve + keyword fallback (+ howto) |
-| `scripts/build_faiss_corpus.py` | Rebuild index |
+| `scripts/07_build_faiss_corpus.py` | Rebuild index |
 
 ## Rebuild after editing cards
 
 ```powershell
-.venv\Scripts\python scripts/build_faiss_corpus.py
+.venv\Scripts\python scripts/07_build_faiss_corpus.py
 ```
 
 Restart the API so it reloads the index (or use `--reload` and trigger a code touch).

@@ -8,11 +8,39 @@ from typing import Any
 
 _SIC_CODE_PREFIX = re.compile(r"^\d{4,5}\s*[-–—]\s*")
 
+# Companies House / registry pages are not employer websites.
+_REGISTRY_HOST_HINTS = (
+    "company-information.service.gov.uk",
+    "find-and-update.company-information",
+    "companieshouse.gov.uk",
+    "companieshouse.gov",
+)
 
+
+# True when URL is a Companies House / registry page (not a careers site).
+def is_registry_website(url: Any) -> bool:
+    u = str(url or "").strip().lower()
+    if not u:
+        return False
+    return any(h in u for h in _REGISTRY_HOST_HINTS)
+
+
+# Public employer homepage only — blank if missing or registry-only.
+def public_employer_website(url: Any) -> str:
+    u = str(url or "").strip()
+    if not u or is_registry_website(u):
+        return ""
+    if not u.lower().startswith(("http://", "https://")):
+        return ""
+    return u
+
+
+# Short activity label from SIC text.
 def sic_activity(text: str) -> str:
     return _SIC_CODE_PREFIX.sub("", str(text or "").strip()).strip().rstrip(".")
 
 
+# Clean Companies House-style summary text for UI.
 def clean_company_summary(text: Any) -> str:
     """Turn Companies House boilerplate into leaver-friendly employer blurbs."""
     s = " ".join(str(text or "").split())
@@ -62,6 +90,7 @@ def clean_company_summary(text: Any) -> str:
     )
 
 
+# Traffic-light style fit label from a 0–1 score.
 def fit_label(score: float) -> str:
     s = float(score)
     if s >= 0.55:
@@ -71,15 +100,14 @@ def fit_label(score: float) -> str:
     return "Worth exploring"
 
 
+# Public hiring label — matcher tags are not live vacancies.
 def hiring_label(row: dict[str, Any]) -> str:
-    signal = str(row.get("hiring_signal", "")).strip().lower()
-    if signal == "high" or float(row.get("hiring_score", 0) or 0) >= 0.85:
-        return "Often hiring"
-    if signal == "medium" or float(row.get("hiring_score", 0) or 0) >= 0.5:
-        return "Sometimes hiring"
+    """Do not claim an employer is hiring from seed / vacancy matcher tags."""
+    _ = row
     return "Check current openings"
 
 
+# Rank label for match position (e.g. Strong match).
 def overall_label(rank: int) -> str:
     if rank == 0:
         return "Your strongest match"

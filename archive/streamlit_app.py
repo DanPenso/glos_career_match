@@ -32,7 +32,7 @@ from glos_recommender.matching import load_companies, load_opportunities, match_
 load_dotenv(PROJECT_ROOT / ".env")
 
 st.set_page_config(
-    page_title="Glos Career Match",
+    page_title="MatchKite (archived)",
     page_icon="🗺️",
     layout="wide",
 )
@@ -267,7 +267,7 @@ def render_pathways(leaver: dict):
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info(
-                    "Cluster map unavailable — run `scripts/build_persona_model.py` then restart."
+                    "Cluster map unavailable — run `scripts/08_build_persona_model.py` then restart."
                 )
 
     routes = (persona.get("training_routes") or interest_cards)[:4]
@@ -336,7 +336,7 @@ def render_matches(leaver: dict, ranked: pd.DataFrame):
 
 
 def main():
-    st.title("Gloucestershire Career Match")
+    st.title("MatchKite (archived Streamlit prototype)")
     st.caption(
         "School & university leaver → top 3 local employers + personalised pathways · "
         "Non-commercial demo"

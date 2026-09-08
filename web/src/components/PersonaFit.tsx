@@ -150,14 +150,12 @@ export function PersonaFitPanel({
                       {row.closeness}
                     </span>
                   </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-[var(--paper)] ring-1 ring-[var(--line)]">
+                  <div className="h-2.5 overflow-hidden rounded-full bg-[var(--paper)] ring-1 ring-[var(--line)]">
                     <div
                       className={`h-full rounded-full transition-all duration-700 ${
                         row.is_primary
                           ? "bg-[var(--accent)]"
-                          : row.is_runner_up
-                            ? "bg-[var(--trust)]"
-                            : "bg-[var(--line)]"
+                          : "bg-[var(--bar-muted)]"
                       }`}
                       style={{ width: `${Math.max(6, row.closeness)}%` }}
                     />

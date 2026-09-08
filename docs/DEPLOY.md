@@ -1,9 +1,11 @@
-# Deploy guide (cheap public demo)
+# Deploy guide (MatchKite)
 
 Recommended split:
 
-- **Frontend:** Vercel (free) — `web/`
-- **API:** small VPS (~$5–6/mo) — Docker from repo root
+- **Frontend:** Vercel (free) — `web/` at **https://matchkite.com**
+- **API:** small VPS or Fly.io — **https://api.matchkite.com**
+
+GitHub repo slug is still `DanPenso/glos_career_match`; the product name is MatchKite.
 
 ## 0) One-time local check
 
@@ -19,7 +21,7 @@ Open http://localhost:3000 and run one match.
 ```bash
 git init
 git add .
-git commit -m "Prepare Gloucestershire Career Match demo for deployment"
+git commit -m "Prepare MatchKite demo for deployment"
 git branch -M main
 git remote add origin https://github.com/DanPenso/glos_career_match.git
 git push -u origin main
@@ -50,9 +52,10 @@ cp .env.example .env
 Edit `.env`:
 
 ```env
-OPENAI_API_KEY=sk-...          # optional (only for opt-in AI reports)
+OPENAI_API_KEY=                 # optional (only for opt-in AI reports)
 OPENAI_MODEL=gpt-4o-mini
-CORS_ORIGINS=https://your-app.vercel.app
+FAA_DISPLAY_API_KEY=            # optional (Open opportunities flag)
+CORS_ORIGINS=https://matchkite.com,https://www.matchkite.com
 LIVE_EVENTS_RETENTION_DAYS=180
 ```
 
@@ -70,7 +73,7 @@ sudo apt install -y caddy
 sudo cp deploy/Caddyfile.example /etc/caddy/Caddyfile
 # edit domain, then:
 sudo systemctl reload caddy
-curl https://api.yourdomain.com/health
+curl https://api.matchkite.com/health
 ```
 
 ## 3) Deploy frontend on Vercel
@@ -78,20 +81,35 @@ curl https://api.yourdomain.com/health
 1. Import GitHub repo in Vercel
 2. Set **Root Directory** = `web`
 3. Environment variable:
-   - `NEXT_PUBLIC_API_URL` = `https://api.yourdomain.com`
+   - `NEXT_PUBLIC_API_URL` = `https://api.matchkite.com`
 4. Deploy
 
-After first deploy, add your Vercel URL to API `CORS_ORIGINS` if needed and restart API:
+After first deploy, add `https://matchkite.com` (and `https://www.matchkite.com`) to API `CORS_ORIGINS` if needed and restart API:
 
 ```bash
 docker compose up -d
 ```
 
+## 3b) Point matchkite.com at Vercel
+
+The domain is registered at Porkbun. It will stay on the Porkbun parking page until DNS is changed.
+
+1. In Vercel: Project → Settings → Domains → add `matchkite.com` and `www.matchkite.com`.
+2. Vercel will show the records it needs (usually A `10.0.1.2` for the apex, CNAME `cname.vercel-dns.com` for `www`).
+3. In Porkbun → Domain Management → matchkite.com → DNS:
+   - Turn **off** URL forwarding / parking / “coming soon”.
+   - Delete the Porkbun parking A records and the `www` CNAME to `uixie.porkbun.com`.
+   - Add the Vercel A / CNAME records exactly as shown.
+4. Wait for DNS (often minutes, up to 48h). `https://matchkite.com` should then serve the Next.js app.
+5. For the API, add `api.matchkite.com` as a CNAME to your Fly app (`glos-career-match-api.fly.dev`) or an A record to the VPS, then set `NEXT_PUBLIC_API_URL=https://api.matchkite.com` on Vercel.
+
+Keep Porkbun nameservers (`*.ns.porkbun.com`) unless you deliberately move DNS to Vercel/Cloudflare.
+
 ## 4) Production smoke test
 
 ```bash
-curl https://api.yourdomain.com/health
-curl https://api.yourdomain.com/taxonomy
+curl https://api.matchkite.com/health
+curl https://api.matchkite.com/taxonomy
 ```
 
 Browser:
@@ -106,12 +124,14 @@ Browser:
 On your machine:
 
 ```bash
-.venv\Scripts\python scripts/build_company_masters.py
-.venv\Scripts\python scripts/build_company_embeddings.py
-.venv\Scripts\python scripts/build_faiss_corpus.py
-.venv\Scripts\python scripts/build_persona_model.py
-.venv\Scripts\python scripts/build_verified_programmes.py
-git add app/app_data data/seed/verified_programmes.csv
+.venv\Scripts\python scripts/02_build_company_masters.py
+.venv\Scripts\python scripts/03_build_verified_programmes.py
+.venv\Scripts\python scripts/04_export_rag_corpus.py
+.venv\Scripts\python scripts/05_build_company_embeddings.py
+.venv\Scripts\python scripts/06_build_catalogue_embeddings.py
+.venv\Scripts\python scripts/07_build_faiss_corpus.py
+.venv\Scripts\python scripts/08_build_persona_model.py
+git add app/app_data data/seed/verified_programmes.csv data/corpus
 git commit -m "Refresh runtime artefacts"
 git push
 ```
@@ -129,5 +149,5 @@ docker compose up -d --build
 |------|----------------|
 | Vercel (Next.js) | $0 |
 | VPS 2GB | ~$5–6/mo |
-| Domain (optional) | ~$10/yr |
+| Domain (matchkite.com) | already registered at Porkbun |
 | OpenAI (optional, opt-in only) | usage-based |

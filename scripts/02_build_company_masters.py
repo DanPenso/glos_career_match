@@ -10,7 +10,10 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from glos_recommender.vacancies import ensure_vacancies_available, merge_seed_with_vacancies
+from glos_recommender.etl.vacancies import (
+    ensure_vacancies_available,
+    merge_seed_with_vacancies,
+)
 
 
 def split_tags(series: pd.Series) -> pd.Series:

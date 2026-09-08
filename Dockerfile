@@ -1,4 +1,4 @@
-# Gloucestershire Career Match API (FastAPI + ML artefacts)
+# MatchKite API (FastAPI + ML artefacts)
 FROM python:3.11-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

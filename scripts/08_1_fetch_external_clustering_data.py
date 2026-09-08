@@ -4,7 +4,7 @@ JobCannon (CC-BY-4.0) is the primary fetch. O*NET is best-effort
 (zip layout changes; bridge CSV works offline without it).
 
 Run from project root:
-  .venv\\Scripts\\python scripts/fetch_external_clustering_data.py
+  .venv\\Scripts\\python scripts/08_1_fetch_external_clustering_data.py
 """
 
 from __future__ import annotations

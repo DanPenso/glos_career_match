@@ -1,7 +1,7 @@
 """Build / rebuild FAISS index from data/corpus (including evidence strategies).
 
 Run from project root:
-  .venv\\Scripts\\python scripts/build_faiss_corpus.py
+  .venv\\Scripts\\python scripts/07_build_faiss_corpus.py
 """
 
 from __future__ import annotations

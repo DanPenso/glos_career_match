@@ -4,7 +4,7 @@ Source: DfE National Careers Service course directory (Open Government Licence v
 https://www.gov.uk/government/publications/national-careers-service-course-directory
 
 Usage (from project root):
-  .venv\\Scripts\\python scripts/build_courses_seed_from_ncs.py
+  .venv\\Scripts\\python scripts/06_1_build_courses_seed_from_ncs.py
 """
 
 from __future__ import annotations
@@ -24,6 +24,13 @@ MICRO = SEED / "military_microcreds_seed.csv"
 
 PROVIDERS_CSV = RAW / "ncs_providers_20260629.csv"
 COURSES_CSV = RAW / "ncs_courses_20260629.csv"
+
+_NCS_FILE_MONTH = re.search(r"(20\d{2})(\d{2})", COURSES_CSV.name)
+NCS_SOURCE_DATE = (
+    f"{_NCS_FILE_MONTH.group(1)}-{_NCS_FILE_MONTH.group(2)}"
+    if _NCS_FILE_MONTH
+    else "2026-06"
+)
 
 # Postcode prefixes for Gloucestershire + Bristol
 POSTCODE_RE = re.compile(r"^(GL|BS)\d", re.I)
@@ -319,8 +326,14 @@ def build_courses() -> pd.DataFrame:
                 "profile_text": profile[:800],
                 "provider_rank": provider_rank,
                 "vocational_boost": vocational_boost,
+                "start_date": str(r.get("STARTDATE") or "").strip(),
+                "flexible_start": str(r.get("FLEXIBLE_STARTDATE") or "")
+                .strip()
+                .lower()
+                in {"true", "1", "yes"},
+                "course_run_id": str(r.get("COURSE_RUN_ID") or "").strip(),
                 "source": "ncs_course_directory",
-                "source_date": "2026-06",
+                "source_date": NCS_SOURCE_DATE,
             }
         )
 

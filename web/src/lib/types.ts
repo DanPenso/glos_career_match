@@ -28,6 +28,7 @@ export type IntakeForm = {
   use_openai_briefing: boolean;
   use_gemini_plan: boolean;
   allow_anonymous_logging: boolean;
+  live_opportunities_only?: boolean;
   mode: MatchMode;
 };
 
@@ -114,8 +115,18 @@ export type MatchCompany = {
   entry_fit_label: string;
   hiring_label: string;
   overall_label: string;
+  source?: string;
+  source_label?: string;
+  source_note?: string;
   briefing_markdown?: string | null;
-  briefing_source?: "openai" | null;
+  briefing_source?: "openai" | "grounded_template" | null;
+  open_now?: boolean;
+  open_label?: string;
+  open_url?: string;
+  open_count?: number;
+  open_as_of?: string | null;
+  open_source?: string;
+  open_titles?: string[];
 };
 
 export type Microcredential = {
@@ -180,6 +191,8 @@ export type TaxonomyResponse = {
     locations: string[];
     age_bands?: { id: string; label: string }[];
     interests: string[];
+    interest_icons?: Record<string, string>;
+    interest_groups?: { title: string; items: string[] }[];
     passions: string[];
     work_experience_types: string[];
     qualification_levels: string[];
@@ -188,7 +201,7 @@ export type TaxonomyResponse = {
     must_haves?: string[];
     support_available?: string[];
     apply_readiness?: string[];
-    course_areas: {
+    course_areas?: {
       school_college: string[];
       university: string[];
     };

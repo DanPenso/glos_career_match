@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FiveStepPlan } from "@/components/FiveStepPlan";
 import { PersonaFitPanel } from "@/components/PersonaFit";
+import { ReadAloudButton } from "@/components/ReadAloudButton";
 import {
   MilitaryAgeNotice,
   SafeguardingHelp,
@@ -34,20 +35,6 @@ function signalStyle(score: number): {
   return { background: "#fcd9b8", border: "#e07a28", color: "#6b3410" };
 }
 
-function hiringSignalScore(
-  hiringScore?: number,
-  hiringSignal?: string,
-): number {
-  if (typeof hiringScore === "number" && Number.isFinite(hiringScore)) {
-    return hiringScore;
-  }
-  const sig = String(hiringSignal || "").toLowerCase();
-  if (sig === "high") return 0.9;
-  if (sig === "medium") return 0.55;
-  if (sig === "low") return 0.25;
-  return 0.2;
-}
-
 function SignalStat({
   label,
   value,
@@ -74,7 +61,7 @@ function SignalStat({
         className="mt-1 text-xl font-semibold"
         style={{
           color: tone.color,
-          fontFamily: "var(--font-display), Georgia, serif",
+          fontFamily: "var(--font-display), var(--font-body), system-ui, sans-serif",
         }}
       >
         {value}
@@ -88,18 +75,20 @@ function PathwayGrid({
   caption,
   pathways,
 }: {
-  title: string;
+  title?: string;
   caption?: string;
   pathways: Pathway[];
 }) {
   return (
     <div className="space-y-3">
-      <div>
-        <h3 className="font-display text-2xl text-[var(--ink)]">{title}</h3>
-        {caption ? (
-          <p className="mt-1 text-sm text-[var(--ink-muted)]">{caption}</p>
-        ) : null}
-      </div>
+      {title ? (
+        <div>
+          <h3 className="font-display text-2xl text-[var(--ink)]">{title}</h3>
+          {caption ? (
+            <p className="mt-1 text-sm text-[var(--ink-muted)]">{caption}</p>
+          ) : null}
+        </div>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
         {pathways.map((p) => {
           const short = String(p.summary || "")
@@ -235,16 +224,51 @@ function modeCopy(mode: MatchMode | undefined) {
     title: "Your top employer matches",
     caption:
       "Options to explore — not a final decision. Check live vacancies before you apply.",
-    thirdLabel: "Are they hiring for entry roles?",
+    thirdLabel: "Live roles on this card?",
     thirdHint:
-      "Green = stronger signal, orange = softer — compares your top matches, not your chances of getting a job.",
+      "This demo is not a jobs board. Check the employer careers page for current openings.",
     advice: [
       "Treat these as options, not a verdict.",
       "Follow a training route — not only a brand name.",
-      "Verify openings on Find an apprenticeship.",
+      "Verify openings on the employer website.",
       "Pick one small step this month, then talk it through with an adviser.",
     ],
   };
+}
+
+type ResultsTab = "matches" | "cluster" | "training" | "online";
+
+function SectionPills({
+  tab,
+  onChange,
+}: {
+  tab: ResultsTab;
+  onChange: (next: ResultsTab) => void;
+}) {
+  const items: { id: ResultsTab; label: string }[] = [
+    { id: "matches", label: "Top 3 Matches" },
+    { id: "cluster", label: "Clustered Group" },
+    { id: "training", label: "Training Routes" },
+    { id: "online", label: "Online Courses" },
+  ];
+  return (
+    <div className="flex gap-2 overflow-x-auto pb-1">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onChange(item.id)}
+          className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
+            tab === item.id
+              ? "bg-[var(--ink)] text-[var(--paper)]"
+              : "bg-[var(--surface)] text-[var(--ink)] ring-1 ring-[var(--line)]"
+          }`}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export function MatchResults({
@@ -255,21 +279,41 @@ export function MatchResults({
   onReset: () => void;
 }) {
   const [active, setActive] = useState(0);
+  const [tab, setTab] = useState<ResultsTab>("matches");
   const match = data.matches[active];
   const mode = data.mode || "work";
   const copy = modeCopy(mode);
   const micros = data.microcredentials || [];
   const online = data.online_courses || [];
+  const training = (
+    data.training_routes?.length ? data.training_routes : data.pathways || []
+  ).slice(0, 4);
+
+  const heading =
+    tab === "cluster"
+      ? "Your career group"
+      : tab === "training"
+        ? "Training routes for you"
+        : tab === "online"
+          ? "Online courses to build skills"
+          : copy.title;
+  const caption =
+    tab === "cluster"
+      ? "How your answers sit next to other profiles in the model — not a job verdict."
+      : tab === "training"
+        ? "Ranked using your interests and your closest career groups in the model."
+        : tab === "online"
+          ? data.online_courses_disclaimer ||
+            "Curated suggestions with links to Coursera or Udemy search results. Check prices and availability on the platform."
+          : copy.caption;
 
   return (
-    <section className="space-y-8 animate-in">
+    <section className="space-y-6 animate-in">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-3xl text-[var(--ink)]">
-            {copy.title}
-          </h2>
-          <p className="mt-1 text-sm text-[var(--ink-muted)]">{copy.caption}</p>
-          {data.data_note ? (
+          <h2 className="font-display text-3xl text-[var(--ink)]">{heading}</h2>
+          <p className="mt-1 text-sm text-[var(--ink-muted)]">{caption}</p>
+          {tab === "matches" && data.data_note ? (
             <p className="mt-2 text-xs text-[var(--ink-muted)]">
               {data.data_note}
             </p>
@@ -280,89 +324,189 @@ export function MatchResults({
         </button>
       </div>
 
+      <SectionPills tab={tab} onChange={setTab} />
+
       {data.safety_referral_suggested ? <SafeguardingHelp /> : null}
       {data.military_age_notice ? <MilitaryAgeNotice /> : null}
 
-      <PersonaFitPanel
-        persona={data.persona}
-        blurb={data.persona_blurb}
-        disclaimer={data.persona_disclaimer}
-        runnerUp={data.runner_up}
-        fit={data.persona_fit}
-        map2d={data.persona_map_2d}
-        learningEventId={data.learning_event_id}
-      />
-
-      <details className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
-        <summary className="cursor-pointer font-display text-lg text-[var(--ink)]">
-          How to use this advice
-        </summary>
-        <ul className="mt-3 space-y-2 text-sm text-[var(--ink-muted)]">
-          {copy.advice.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-          {mode === "work" ? (
-            <li>
-              Verify openings on{" "}
-              <a
-                className="underline decoration-[var(--accent)]"
-                href="https://www.findapprenticeship.service.gov.uk/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Find an apprenticeship
-              </a>
-              .
-            </li>
-          ) : null}
-          {mode === "military" ? (
-            <li>
-              Check ELC courses via{" "}
-              <a
-                className="underline decoration-[var(--accent)]"
-                href="https://www.enhancedlearningcredits.com/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                ELCAS
-              </a>
-              .
-            </li>
-          ) : null}
-        </ul>
-      </details>
-
-      {(data.training_routes?.length || data.pathways?.length) ? (
-        <PathwayGrid
-          title="Training routes for you"
-          caption="Ranked using your interests and your closest career groups in the model."
-          pathways={(data.training_routes?.length
-            ? data.training_routes
-            : data.pathways
-          ).slice(0, 4)}
+      {tab === "cluster" ? (
+        <PersonaFitPanel
+          persona={data.persona}
+          blurb={data.persona_blurb}
+          disclaimer={data.persona_disclaimer}
+          runnerUp={data.runner_up}
+          fit={data.persona_fit}
+          map2d={data.persona_map_2d}
+          learningEventId={data.learning_event_id}
         />
       ) : null}
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {data.matches.map((m, i) => (
-          <button
-            key={m.company_id}
-            type="button"
-            onClick={() => setActive(i)}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
-              i === active
-                ? "bg-[var(--ink)] text-[var(--paper)]"
-                : "bg-[var(--surface)] text-[var(--ink)] ring-1 ring-[var(--line)]"
+      {tab === "training" ? (
+        training.length || (mode === "military" && micros.length) ? (
+          <div className="space-y-8">
+            {training.length ? (
+              <PathwayGrid pathways={training} />
+            ) : null}
+            {mode === "military" && micros.length ? (
+              <div className="space-y-3">
+                <div>
+                  <h3 className="font-display text-2xl text-[var(--ink)]">
+                    Local micro-credentials to explore
+                  </h3>
+                  <p className="mt-1 text-sm text-[var(--ink-muted)]">
+                    Short / Level 3+ courses near Gloucestershire and Bristol from
+                    National Careers Service open data. This demo does{" "}
+                    <strong>not</strong> confirm Enhanced Learning Credit (ELC)
+                    approval — always check{" "}
+                    <a
+                      className="underline decoration-[var(--accent)]"
+                      href="https://www.enhancedlearningcredits.com/"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      ELCAS
+                    </a>{" "}
+                    and your Education Staff.
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {micros.map((c) => (
+                    <div
+                      key={c.cred_id}
+                      className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm"
+                    >
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--trust)]">
+                        <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
+                          Check ELCAS
+                        </span>
+                      </p>
+                      <h4 className="border-b border-[var(--line)] pb-2 font-semibold text-[var(--ink)]">
+                        {c.title}
+                      </h4>
+                      <p className="mt-2 text-xs text-[var(--ink-muted)]">
+                        {c.provider}
+                        {c.town ? ` · ${c.town}` : ""}
+                        {c.level ? ` · ${c.level}` : ""}
+                      </p>
+                      <p className="mt-2 text-sm text-[var(--ink-muted)]">
+                        {(c.summary || "").slice(0, 160)}
+                        {(c.summary || "").length > 160 ? "…" : ""}
+                      </p>
+                      {c.website ? (
+                        <a
+                          href={c.website}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-block text-sm underline decoration-[var(--accent)]"
+                        >
+                          Course / provider link
+                        </a>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <p className="text-sm text-[var(--ink-muted)]">
+            No training routes for this profile yet.
+          </p>
+        )
+      ) : null}
+
+      {tab === "online" ? (
+        online.length ? (
+          <div className="grid gap-3 sm:grid-cols-1">
+            {online.map((c, i) => (
+              <div
+                key={c.course_id || c.title}
+                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm"
+              >
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--trust)]">
+                  <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
+                    #{i + 1} {c.provider || "Online"}
+                  </span>
+                </p>
+                <h4 className="border-b border-[var(--line)] pb-2 font-semibold text-[var(--ink)]">
+                  {c.title}
+                </h4>
+                <p className="mt-2 text-sm text-[var(--ink-muted)]">
+                  {c.description}
+                </p>
+                {c.url ? (
+                  <a
+                    href={c.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-block text-sm font-medium underline decoration-[var(--accent)]"
+                  >
+                    View on {c.provider || "platform"}
+                  </a>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-[var(--ink-muted)]">
+            No online course suggestions for this profile yet.
+          </p>
+        )
+      ) : null}
+
+      {tab === "matches" ? (
+        <>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {data.matches.map((m, i) => (
+              <button
+                key={m.company_id}
+                type="button"
+                onClick={() => setActive(i)}
+                className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
+                  i === active
+                    ? "bg-[var(--ink)] text-[var(--paper)]"
+                    : "bg-[var(--surface)] text-[var(--ink)] ring-1 ring-[var(--line)]"
+                }`}
+              >
+                #{i + 1} {m.name}
+                {m.open_now ? (
+                  <span
+                    className="ml-2 inline-block h-2 w-2 rounded-full bg-[var(--open)] align-middle"
+                    title="Open opportunities"
+                    aria-label="Open opportunities"
+                  />
+                ) : null}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : null}
+
+      {tab === "matches" && match ? (
+        <article className="relative space-y-5 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-7">
+          {match.open_now && match.open_url ? (
+            <a
+              href={match.open_url}
+              target="_blank"
+              rel="noreferrer"
+              title={
+                match.open_source === "ncs_live_directory"
+                  ? "Listed as open in the National Careers Service course directory"
+                  : "Listed as open on Find an apprenticeship"
+              }
+              className="absolute right-3 top-3 z-10 max-w-[min(100%-1.5rem,15rem)] rounded-full bg-[var(--open)] px-3 py-1 text-center text-xs font-bold leading-tight text-[var(--open-ink)] shadow-sm hover:brightness-95"
+            >
+              {match.open_label || "Open opportunities"}
+              {(match.open_count || 1) > 1
+                ? ` +${(match.open_count || 1) - 1}`
+                : ""}
+            </a>
+          ) : null}
+          <header
+            className={`space-y-2 ${
+              match.open_now ? "pr-2 pt-8 sm:pr-44 sm:pt-0" : ""
             }`}
           >
-            #{i + 1} {m.name}
-          </button>
-        ))}
-      </div>
-
-      {match ? (
-        <article className="space-y-5 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-7">
-          <header className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--trust)]">
               <span className="mr-2 inline-block rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
                 Match
@@ -398,9 +542,66 @@ export function MatchResults({
                 </>
               ) : null}
             </p>
+            {match.source_label ? (
+              <p className="text-xs text-[var(--ink-muted)]">
+                <span className="font-medium text-[var(--ink)]">
+                  Source: {match.source_label}
+                </span>
+                {match.source_note ? ` — ${match.source_note}` : null}
+                {mode === "work" ? (
+                  <>
+                    {" "}
+                    <a
+                      href={
+                        match.open_url ||
+                        match.website ||
+                        "https://www.findapprenticeship.service.gov.uk/"
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline decoration-[var(--accent)]"
+                    >
+                      {match.open_url
+                        ? "View open opportunity"
+                        : match.website
+                          ? "Check official openings"
+                          : "Search Find an apprenticeship"}
+                    </a>
+                  </>
+                ) : match.open_url || match.website ? (
+                  <>
+                    {" "}
+                    <a
+                      href={match.open_url || match.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline decoration-[var(--accent)]"
+                    >
+                      {match.open_url
+                        ? "View open opportunity"
+                        : "Check official site"}
+                    </a>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
+            {match.open_now &&
+            match.open_titles &&
+            match.open_titles.length > 1 ? (
+              <p className="text-xs text-[var(--ink-muted)]">
+                Also listed: {match.open_titles.slice(1).join(" · ")}
+              </p>
+            ) : null}
             {match.summary &&
             !(data.briefings_enabled && match.briefing_markdown) ? (
-              <p className="text-[var(--ink)]">{match.summary}</p>
+              <div className="space-y-2">
+                <ReadAloudButton
+                  key={`sum-${match.company_id || match.name}`}
+                  text={match.summary}
+                  label="Read aloud"
+                />
+                <p className="text-[var(--ink)]">{match.summary}</p>
+              </div>
             ) : null}
           </header>
 
@@ -426,7 +627,7 @@ export function MatchResults({
               value={match.hiring_label || "Check details"}
               score={
                 mode === "work"
-                  ? hiringSignalScore(match.hiring_score, match.hiring_signal)
+                  ? 0.35
                   : Math.min(1, (match.sector_score ?? 0) * 0.9 + 0.15)
               }
             />
@@ -435,9 +636,17 @@ export function MatchResults({
 
           {data.briefings_enabled && match.briefing_markdown ? (
             <div className="mt-2 space-y-2">
-              <p className="text-xs text-[var(--ink-muted)]">
-                Match report written with OpenAI
-              </p>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <p className="text-xs text-[var(--ink-muted)]">
+                  Match report written with OpenAI — facts come from open data /
+                  curated profiles; always check the official site.
+                </p>
+                <ReadAloudButton
+                  key={`brief-${match.company_id || match.name}`}
+                  text={match.briefing_markdown}
+                  label="Read aloud"
+                />
+              </div>
               <SimpleMarkdown text={match.briefing_markdown} />
             </div>
           ) : data.briefings_enabled ? (
@@ -457,109 +666,56 @@ export function MatchResults({
         </article>
       ) : null}
 
-      {mode === "military" && micros.length ? (
-        <div className="space-y-3">
-          <div>
-            <h3 className="font-display text-2xl text-[var(--ink)]">
-              Local micro-credentials to explore
-            </h3>
-            <p className="mt-1 text-sm text-[var(--ink-muted)]">
-              Short / Level 3+ courses near Gloucestershire and Bristol from
-              National Careers Service open data. This demo does{" "}
-              <strong>not</strong> confirm Enhanced Learning Credit (ELC)
-              approval — always check{" "}
-              <a
-                className="underline decoration-[var(--accent)]"
-                href="https://www.enhancedlearningcredits.com/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                ELCAS
-              </a>{" "}
-              and your Education Staff.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {micros.map((c) => (
-              <div
-                key={c.cred_id}
-                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm"
-              >
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--trust)]">
-                  <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
-                    Check ELCAS
-                  </span>
-                </p>
-                <h4 className="border-b border-[var(--line)] pb-2 font-semibold text-[var(--ink)]">
-                  {c.title}
-                </h4>
-                <p className="mt-2 text-xs text-[var(--ink-muted)]">
-                  {c.provider}
-                  {c.town ? ` · ${c.town}` : ""}
-                  {c.level ? ` · ${c.level}` : ""}
-                </p>
-                <p className="mt-2 text-sm text-[var(--ink-muted)]">
-                  {(c.summary || "").slice(0, 160)}
-                  {(c.summary || "").length > 160 ? "…" : ""}
-                </p>
-                {c.website ? (
+      {tab === "matches" ? (
+        <details className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
+          <summary className="cursor-pointer font-display text-lg text-[var(--ink)]">
+            How to use this advice
+          </summary>
+          <ul className="mt-3 space-y-2 text-sm text-[var(--ink-muted)]">
+            {copy.advice.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+            {mode === "work" ? (
+              <li>
+                Verify openings on{" "}
+                {match?.website ? (
                   <a
-                    href={c.website}
+                    className="underline decoration-[var(--accent)]"
+                    href={match.website}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-2 inline-block text-sm underline decoration-[var(--accent)]"
                   >
-                    Course / provider link
+                    the employer website
                   </a>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      {online.length ? (
-        <div className="space-y-3">
-          <div>
-            <h3 className="font-display text-2xl text-[var(--ink)]">
-              Online courses to build skills
-            </h3>
-            <p className="mt-1 text-sm text-[var(--ink-muted)]">
-              {data.online_courses_disclaimer ||
-                "Curated suggestions with links to Coursera or Udemy search results. Check prices and availability on the platform."}
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-1">
-            {online.map((c, i) => (
-              <div
-                key={c.course_id || c.title}
-                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm"
-              >
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--trust)]">
-                  <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
-                    #{i + 1} {c.provider || "Online"}
-                  </span>
-                </p>
-                <h4 className="border-b border-[var(--line)] pb-2 font-semibold text-[var(--ink)]">
-                  {c.title}
-                </h4>
-                <p className="mt-2 text-sm text-[var(--ink-muted)]">
-                  {c.description}
-                </p>
-                {c.url ? (
+                ) : (
                   <a
-                    href={c.url}
+                    className="underline decoration-[var(--accent)]"
+                    href="https://www.findapprenticeship.service.gov.uk/"
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-3 inline-block text-sm font-medium underline decoration-[var(--accent)]"
                   >
-                    View on {c.provider || "platform"}
+                    Find an apprenticeship
                   </a>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </div>
+                )}
+                .
+              </li>
+            ) : null}
+            {mode === "military" ? (
+              <li>
+                Check ELC courses via{" "}
+                <a
+                  className="underline decoration-[var(--accent)]"
+                  href="https://www.enhancedlearningcredits.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  ELCAS
+                </a>
+                .
+              </li>
+            ) : null}
+          </ul>
+        </details>
       ) : null}
     </section>
   );

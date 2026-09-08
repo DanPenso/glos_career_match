@@ -1,1 +1,1 @@
-# FastAPI package for Glos Career Match
+# FastAPI package for MatchKite

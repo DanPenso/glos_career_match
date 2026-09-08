@@ -1,6 +1,7 @@
-# Gloucestershire Career Match API — Fly.io
+# MatchKite API — Fly.io
 # Deploy: flyctl deploy --remote-only
 # Secrets: flyctl secrets set CORS_ORIGINS=... OPENAI_API_KEY=...
+# App slug is the existing Fly machine name (not renamed).
 
 app = 'glos-career-match-api'
 primary_region = 'lhr'

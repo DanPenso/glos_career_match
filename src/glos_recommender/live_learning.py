@@ -24,6 +24,7 @@ DEFAULT_LIVE_WEIGHT = 4.0
 DEFAULT_RETENTION_DAYS = 180
 
 
+# Normalise a value into a short list of non-empty strings.
 def _as_list(value: Any) -> list[str]:
     if value is None:
         return []
@@ -39,6 +40,7 @@ def _as_list(value: Any) -> list[str]:
     return [text]
 
 
+# Sector tags for an anonymous live-learning event.
 def _sectors_from_leaver(leaver: dict[str, Any]) -> list[str]:
     raw = set(_as_list(leaver.get("interest_sectors"))) | set(
         _as_list(leaver.get("target_sectors"))
@@ -46,6 +48,7 @@ def _sectors_from_leaver(leaver: dict[str, Any]) -> list[str]:
     return sorted(s for s in raw if s in SECTORS)
 
 
+# RIASEC codes/scores for a live-learning event.
 def _riasec_from_leaver(leaver: dict[str, Any]) -> tuple[list[str], dict[str, float]]:
     psych = leaver.get("psych") or {}
     dominant = [d for d in _as_list(psych.get("dominant_riasec")) if d in RIASEC]
@@ -65,6 +68,7 @@ def _riasec_from_leaver(leaver: dict[str, Any]) -> tuple[list[str], dict[str, fl
     return dominant, scores
 
 
+# Build one anonymous match event payload.
 def build_match_event(
     leaver: dict[str, Any],
     persona_payload: dict[str, Any] | None = None,
@@ -107,6 +111,7 @@ def build_match_event(
     }
 
 
+# Append an event to the live JSONL file.
 def append_live_event(event: dict[str, Any], path: Path | None = None) -> Path:
     """Append one JSON line. Creates data/live/ if needed."""
     out = path or EVENTS_PATH
@@ -117,6 +122,7 @@ def append_live_event(event: dict[str, Any], path: Path | None = None) -> Path:
     return out
 
 
+# How many days to keep live events (env or default).
 def _retention_days() -> int:
     """Read retention policy from env, fallback to conservative default."""
     raw = os.getenv("LIVE_EVENTS_RETENTION_DAYS", str(DEFAULT_RETENTION_DAYS)).strip()
@@ -127,6 +133,7 @@ def _retention_days() -> int:
     return max(1, days)
 
 
+# Parse an ISO timestamp string.
 def _parse_iso8601(value: Any) -> datetime | None:
     text = str(value or "").strip()
     if not text:
@@ -137,6 +144,7 @@ def _parse_iso8601(value: Any) -> datetime | None:
         return None
 
 
+# Drop live events older than retention.
 def prune_live_events(path: Path | None = None, *, now: datetime | None = None) -> int:
     """Delete expired live events and return number removed."""
     src = path or EVENTS_PATH
@@ -168,20 +176,23 @@ def prune_live_events(path: Path | None = None, *, now: datetime | None = None) 
     return removed
 
 
+# Build + append a live event after a match.
 def log_match_event(
     leaver: dict[str, Any],
     persona_payload: dict[str, Any] | None = None,
     *,
     channel: str = "web",
+    path: Path | None = None,
 ) -> dict[str, Any] | None:
     """Log a completed match. Returns the event, or None if nothing useful to store."""
     event = build_match_event(leaver, persona_payload, channel=channel)
     if not event["interest_sectors"] and not event["dominant_riasec"]:
         return None
-    append_live_event(event)
+    append_live_event(event, path)
     return event
 
 
+# Read all live events from JSONL.
 def load_live_events(path: Path | None = None) -> list[dict[str, Any]]:
     src = path or EVENTS_PATH
     if not src.exists():
@@ -199,6 +210,7 @@ def load_live_events(path: Path | None = None) -> list[dict[str, Any]]:
     return rows
 
 
+# Store helpful/not helpful on a live event.
 def record_persona_feedback(
     event_id: str,
     helpful: bool,
@@ -224,6 +236,7 @@ def record_persona_feedback(
     return True
 
 
+# Convert live events into persona training rows.
 def events_to_training_rows(
     events: list[dict[str, Any]] | None = None,
     *,
@@ -262,5 +275,6 @@ def events_to_training_rows(
     return rows
 
 
+# Count rows in the live events file.
 def live_event_count(path: Path | None = None) -> int:
     return len(load_live_events(path))

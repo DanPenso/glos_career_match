@@ -3,12 +3,12 @@
 Uses sector + RIASEC one-hots (same space as src/glos_recommender/personas.py).
 
 Preference order for training rows:
-  1. data/curated/leavers_train.csv (from scripts/curate_leaver_dataset.py)
+  1. data/curated/leavers_train.csv (from scripts/08_2_curate_leaver_dataset.py)
   2. data/processed/clustered_leavers.pkl
   3. Synthetic seeds from persona_priors.yaml
 
 Run from project root:
-  .venv\\Scripts\\python scripts/build_persona_model.py
+  .venv\\Scripts\\python scripts/08_build_persona_model.py
 """
 
 from __future__ import annotations

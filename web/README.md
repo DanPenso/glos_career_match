@@ -1,4 +1,4 @@
-# Glos Career Match (web)
+# MatchKite (web)
 
 Next.js + TypeScript UI for 16–24. Talks to the FastAPI matcher in `../api`.
 

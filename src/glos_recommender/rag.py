@@ -21,11 +21,13 @@ _index = None
 _store: dict[str, Any] | None = None
 
 
+# Load careers evidence strategy YAML cards.
 def load_evidence_cards(path: Path | None = None) -> list[dict[str, Any]]:
     data = yaml.safe_load((path or EVIDENCE_YAML).read_text(encoding="utf-8")) or {}
     return list(data.get("cards") or [])
 
 
+# Turn an evidence card into a FAISS text chunk.
 def card_to_chunk(card: dict[str, Any]) -> str:
     """Flatten a strategy card into one retrieval-friendly paragraph."""
     tags = ", ".join(card.get("tags") or [])
@@ -40,6 +42,7 @@ def card_to_chunk(card: dict[str, Any]) -> str:
     )
 
 
+# All evidence chunks for FAISS rebuild.
 def evidence_chunks_for_index() -> list[tuple[str, str]]:
     """Return (chunk_text, source_label) pairs for FAISS indexing."""
     out: list[tuple[str, str]] = []
@@ -48,11 +51,13 @@ def evidence_chunks_for_index() -> list[tuple[str, str]]:
     return out
 
 
+# Load howto YAML cards for plan breakdowns.
 def load_howto_cards(path: Path | None = None) -> list[dict[str, Any]]:
     data = yaml.safe_load((path or HOWTO_YAML).read_text(encoding="utf-8")) or {}
     return list(data.get("cards") or [])
 
 
+# Turn a howto card into a FAISS text chunk.
 def howto_to_chunk(card: dict[str, Any]) -> str:
     tags = ", ".join(card.get("tags") or [])
     return (
@@ -65,6 +70,7 @@ def howto_to_chunk(card: dict[str, Any]) -> str:
     )
 
 
+# All howto chunks for FAISS rebuild.
 def howto_chunks_for_index() -> list[tuple[str, str]]:
     out: list[tuple[str, str]] = []
     for card in load_howto_cards():
@@ -72,6 +78,7 @@ def howto_chunks_for_index() -> list[tuple[str, str]]:
     return out
 
 
+# Keyword fallback retrieval for howto cards.
 def retrieve_howto_keyword(
     query: str,
     *,
@@ -115,6 +122,7 @@ def retrieve_howto_keyword(
     return results
 
 
+# Retrieve howto cards (FAISS preferred).
 def retrieve_howto(query: str, *, top_k: int = 4) -> list[dict[str, Any]]:
     """Retrieve how-to cards; prefer FAISS howto:* hits, else keyword."""
     if not query.strip():
@@ -164,10 +172,12 @@ def retrieve_howto(query: str, *, top_k: int = 4) -> list[dict[str, Any]]:
     return howto_hits[:top_k]
 
 
+# Simple word tokenizer for keyword retrieval.
 def _tokenize(text: str) -> set[str]:
     return {t for t in re.findall(r"[a-z0-9_]+", text.lower()) if len(t) > 2}
 
 
+# Keyword fallback retrieval for evidence cards.
 def retrieve_evidence_keyword(
     query: str,
     *,
@@ -217,6 +227,7 @@ def retrieve_evidence_keyword(
     return results
 
 
+# Load FAISS index + chunk store into memory.
 def _load_faiss() -> bool:
     global _embedder, _index, _store
     if _index is not None and _store is not None and _embedder is not None:
@@ -248,16 +259,19 @@ def _load_faiss() -> bool:
         return False
 
 
+# Retrieve evidence/corpus chunks for a query.
 def retrieve(
     query: str,
     *,
     top_k: int = 6,
     prefer_evidence: bool = True,
+    employer_name: str | None = None,
 ) -> list[dict[str, Any]]:
     """Retrieve corpus chunks for a briefing query.
 
     Prefers evidence:* sources when available, then fills with other corpus hits.
     Falls back to keyword evidence cards if FAISS is missing.
+    When employer_name is set, company/opportunity catalogue chunks are dropped.
     """
     if not query.strip():
         return retrieve_evidence_keyword(query, top_k=top_k)
@@ -277,6 +291,8 @@ def retrieve(
     faiss.normalize_L2(q)
     # Over-fetch: evidence cards are few vs company/vacancy docs
     fetch_k = min(max(top_k * 40, 200), len(chunks))
+    if employer_name:
+        fetch_k = min(max(top_k * 80, 400), len(chunks))
     scores, idxs = _index.search(q, fetch_k)
 
     hits: list[dict[str, Any]] = []
@@ -297,6 +313,8 @@ def retrieve(
 
     evidence = [h for h in hits if str(h["source"]).startswith("evidence")]
     other = [h for h in hits if not str(h["source"]).startswith("evidence")]
+    if employer_name:
+        other = filter_retrieved_hits_for_employer(other, employer_name)
 
     # Guarantee strategy cards even if FAISS ranked them low
     if prefer_evidence and len(evidence) < evidence_n:
@@ -323,6 +341,29 @@ def retrieve(
     return unique
 
 
+# Keep STRATEGY/evidence/howto hits only — catalogue blurbs name fake schemes.
+def _keep_strategy_hit(hit: dict[str, Any]) -> bool:
+    src = str(hit.get("source") or "").lower()
+    chunk = str(hit.get("chunk") or hit.get("text") or "")
+    return (
+        src.startswith("evidence")
+        or src.startswith("howto")
+        or chunk.lstrip().startswith("STRATEGY:")
+    )
+
+
+# Drop catalogue/opportunity chunks; keep research STRATEGY cards only.
+def filter_retrieved_hits_for_employer(
+    hits: list[dict[str, Any]] | None,
+    employer_name: str,
+) -> list[dict[str, Any]]:
+    """Keep STRATEGY / evidence / howto hits. Drop company and opportunity chunks."""
+    if not hits:
+        return []
+    return [hit for hit in hits if _keep_strategy_hit(hit)]
+
+
+# Build the RAG query from leaver + company facts.
 def build_retrieval_query(leaver: dict[str, Any], company: dict[str, Any]) -> str:
     interests = ", ".join(leaver.get("interests") or [])
     courses = ", ".join(leaver.get("courses") or [])
@@ -339,11 +380,11 @@ def build_retrieval_query(leaver: dict[str, Any], company: dict[str, Any]) -> st
         f"persona group: {persona}. "
         f"interests: {interests}. courses: {courses}. sectors: {sectors}. "
         f"company: {company.get('name', '')}. "
-        f"company sectors: {company.get('sectors', '')}. "
-        f"entry routes: {company.get('entry_routes', '')}."
+        f"company sectors: {company.get('sectors', '')}."
     )
 
 
+# How many evidence cards are loaded.
 @lru_cache(maxsize=1)
 def evidence_card_count() -> int:
     return len(load_evidence_cards())

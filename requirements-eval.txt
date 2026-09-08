@@ -1,0 +1,27 @@
+# Optional RAGAS / LLM-as-judge stack. Not used by the app or the offline gold harness.
+# Offline gold set (no extra install, no network):
+#   python scripts/run_ai_eval.py
+#
+# Gold-set RAGAS pass (legacy; uses OPENAI_API_KEY if you pass --ragas):
+#   pip install -r requirements-eval.txt
+#   python scripts/run_ai_eval.py --ragas
+#
+# 200-journey WORK eval (Claude Haiku judge — never OpenAI as judge):
+#   python scripts/eval/generate_journeys_200.py
+#   python scripts/eval/run_journeys.py --smoke --offline
+#   python scripts/eval/run_journeys.py
+#   python scripts/eval/score_ragas.py --run-dir latest
+#   python scripts/eval/compare_runs.py --before data/eval/runs/20260902T150328Z --after latest --docs-dir docs/eval
+#   python scripts/eval/cluster_outputs.py --run-dir latest
+
+ragas>=0.2.0
+datasets>=2.16.0
+langchain-core>=0.2.0
+langchain-openai>=0.1.0
+tiktoken>=0.7.0
+pysbd>=0.3.4
+nest-asyncio>=1.6.0
+
+# 200-journey Haiku judge + plots (clustering uses local MiniLM already in the app)
+anthropic>=0.40.0
+matplotlib>=3.8.0

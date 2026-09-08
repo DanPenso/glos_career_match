@@ -4,7 +4,7 @@ Place raw downloads under this folder. Large files may be gitignored.
 
 | Folder | Source | Licence | Fetch |
 |--------|--------|---------|-------|
-| `jobcannon/` | [JobCannon Psychometric Response Dataset](https://github.com/PeterKolomiets/jobcannon-psychometric-dataset) | CC-BY-4.0 | `scripts/fetch_external_clustering_data.py` |
+| `jobcannon/` | [JobCannon Psychometric Response Dataset](https://github.com/PeterKolomiets/jobcannon-psychometric-dataset) | CC-BY-4.0 | `scripts/08_1_fetch_external_clustering_data.py` |
 | `onet/` | [O*NET Database](https://www.onetcenter.org/database.html) Interests + Occupation Data | US DOL / see O*NET terms (Interest Profiler CC-BY) | same script (best-effort) |
 
 Optional (manual deposit):

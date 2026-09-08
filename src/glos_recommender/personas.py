@@ -44,11 +44,13 @@ RIASEC = [
 RUNNER_UP_RATIO = 1.35
 
 
+# Load persona prior weights YAML.
 def load_persona_priors(path: Path | None = None) -> dict[str, Any]:
     with open(path or PRIORS_PATH, encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
 
+# Normalise sectors field into a set of tags.
 def _as_sector_set(value: Any) -> set[str]:
     if isinstance(value, set):
         return {str(x) for x in value}
@@ -59,6 +61,7 @@ def _as_sector_set(value: Any) -> set[str]:
     return {p.strip() for p in str(value).split("|") if p.strip()}
 
 
+# Numeric feature vector for persona distance.
 def leaver_feature_vector(leaver: dict[str, Any]) -> np.ndarray:
     """Sector + RIASEC one-hots — same space used to fit the persona K-Means model."""
     sectors = _as_sector_set(leaver.get("interest_sectors")) | _as_sector_set(
@@ -78,6 +81,7 @@ def leaver_feature_vector(leaver: dict[str, Any]) -> np.ndarray:
     return np.asarray(sec + ria, dtype="float64")
 
 
+# Load persona K-Means joblib if present.
 def _load_model() -> dict[str, Any] | None:
     if not MODEL_PATH.exists():
         return None
@@ -89,10 +93,12 @@ def _load_model() -> dict[str, Any] | None:
         return None
 
 
+# Convert cluster distance into a 0–1 similarity.
 def _distance_to_similarity(distance: float) -> float:
     return 1.0 / (1.0 + max(0.0, float(distance)))
 
 
+# Normalise persona fit scores to sum sensibly.
 def _normalise_fit(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Scale similarity so the closest persona is 100 (relative closeness)."""
     if not rows:
@@ -115,6 +121,7 @@ def _normalise_fit(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
+# Persona fit using YAML priors when no model.
 def _fit_from_priors(leaver: dict[str, Any]) -> list[dict[str, Any]]:
     priors = load_persona_priors().get("personas") or {}
     sectors = _as_sector_set(leaver.get("interest_sectors")) | _as_sector_set(
@@ -147,6 +154,7 @@ def _fit_from_priors(leaver: dict[str, Any]) -> list[dict[str, Any]]:
     return _normalise_fit(rows)
 
 
+# Compute persona fit list for a leaver.
 def compute_persona_fit(leaver: dict[str, Any]) -> dict[str, Any]:
     """Distances / closeness to every persona + optional 2D map coords."""
     model = _load_model()
@@ -232,6 +240,7 @@ def compute_persona_fit(leaver: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+# Pick primary (+ runner-up) persona for a leaver.
 def assign_persona(leaver: dict[str, Any]) -> dict[str, Any]:
     """Backward-compatible thin wrapper around compute_persona_fit."""
     fit = compute_persona_fit(leaver)
@@ -244,6 +253,7 @@ def assign_persona(leaver: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+# Index pathway cards by id.
 def _pathway_by_id() -> dict[str, dict[str, Any]]:
     catalogue = load_pathways()
     out: dict[str, dict[str, Any]] = {}
@@ -257,6 +267,7 @@ def _pathway_by_id() -> dict[str, dict[str, Any]]:
     return out
 
 
+# Pathway cards linked to a persona.
 def _cards_for_persona(persona: str, *, limit: int = 6) -> list[dict[str, Any]]:
     priors = load_persona_priors().get("personas") or {}
     meta = priors.get(persona) or {}
@@ -274,6 +285,7 @@ def _cards_for_persona(persona: str, *, limit: int = 6) -> list[dict[str, Any]]:
     return cards
 
 
+# Rank training routes for the persona panel.
 def ranked_training_routes(
     leaver: dict[str, Any],
     *,
@@ -293,6 +305,7 @@ def ranked_training_routes(
 
     scored: dict[str, dict[str, Any]] = {}
 
+    # Insert or update a training-route card in a ranked list.
     def upsert(card: dict[str, Any], score: float, source: str, reason: str) -> None:
         cid = str(card.get("id") or card.get("title"))
         prev = scored.get(cid)
@@ -355,6 +368,7 @@ def ranked_training_routes(
     return out
 
 
+# Peer pathway suggestions for this persona.
 def peer_pathways_for_persona(
     persona: str,
     *,
@@ -378,6 +392,7 @@ def peer_pathways_for_persona(
     return cards, blurb, disclaimer
 
 
+# Full persona payload for the match API response.
 def persona_bundle(
     leaver: dict[str, Any],
     *,
@@ -423,6 +438,7 @@ def persona_bundle(
     }
 
 
+# True if persona_kmeans.joblib is loadable.
 @lru_cache(maxsize=1)
 def model_available() -> bool:
     return MODEL_PATH.exists()

@@ -15,6 +15,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,7 +35,7 @@ from glos_recommender.intake_config import (
     load_psych_questions,
     pathways_for_sectors,
 )
-from glos_recommender.labels import clean_company_summary, fit_label, hiring_label, overall_label
+from glos_recommender.labels import fit_label, hiring_label, overall_label, public_employer_website
 from glos_recommender.matching import (
     load_companies,
     match_companies,
@@ -42,8 +43,21 @@ from glos_recommender.matching import (
 from glos_recommender.live_learning import log_match_event, record_persona_feedback
 from glos_recommender.military import match_military
 from glos_recommender.online_courses import match_online_courses
+from glos_recommender.open_opportunities import (
+    education_open_unavailable_detail,
+    filter_courses_with_open,
+    filter_employers_with_open,
+    load_open_apprenticeships,
+    military_open_unsupported_detail,
+    open_apprenticeship_index,
+    open_fields_for_course,
+    open_fields_for_employer,
+    open_fields_for_military,
+    work_open_unavailable_detail,
+)
 from glos_recommender.personas import persona_bundle
 from glos_recommender.programmes import programmes_for_company
+from glos_recommender.provenance import display_summary, provenance_payload
 from glos_recommender.safeguarding import (
     UNDER_16_DETAIL,
     age_band_allowed_for_match,
@@ -56,6 +70,7 @@ from glos_recommender.safeguarding import (
 )
 
 
+# Allowed browser origins for CORS (env or local defaults).
 def _cors_origins() -> list[str]:
     raw = os.getenv("CORS_ORIGINS", "").strip()
     if raw:
@@ -65,10 +80,12 @@ def _cors_origins() -> list[str]:
         "http://127.0.0.1:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3001",
+        "https://matchkite.com",
+        "https://www.matchkite.com",
     ]
 
 
-app = FastAPI(title="Glos Career Match API", version="0.1.0")
+app = FastAPI(title="MatchKite API", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins(),
@@ -99,6 +116,7 @@ class MatchRequest(BaseModel):
     use_openai_briefing: bool = False
     use_gemini_plan: bool = False
     allow_anonymous_logging: bool = True
+    live_opportunities_only: bool = False
     top_n: int = 3
     mode: str = "work"  # work | education | military
 
@@ -136,6 +154,13 @@ class PlanChatRequest(BaseModel):
     use_gemini_plan: bool = True
 
 
+class TtsRequest(BaseModel):
+    """Plain text for OpenAI TTS (markdown stripped on the client)."""
+
+    text: str = ""
+
+
+# Make leaver profile JSON-safe (sets become sorted lists).
 def _jsonable_leaver(leaver: dict[str, Any]) -> dict[str, Any]:
     out = dict(leaver)
     for key in ("target_sectors", "interest_sectors", "psych_sectors", "entry_routes"):
@@ -151,12 +176,33 @@ def _jsonable_leaver(leaver: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+_VISIBLE_BRIEFING_SOURCES = frozenset({"openai", "grounded_template"})
+
+
+# Keep briefings the UI should show; drop offline fallbacks.
+def _visible_briefing(markdown: str, source: str | None) -> tuple[str, str | None]:
+    if source in _VISIBLE_BRIEFING_SOURCES:
+        return markdown, source
+    return "", None
+
+
+# Shape one employer match row for the web API response.
+def _merge_open_into_row(row: pd.Series, open_info: dict[str, Any]) -> pd.Series:
+    if not open_info.get("open_now"):
+        return row
+    work = row.copy()
+    work["open_url"] = open_info.get("open_url") or ""
+    work["open_now"] = True
+    return work
+
+
 def _company_payload(
     leaver: dict[str, Any],
     row: pd.Series,
     rank: int,
     *,
     use_openai_briefing: bool,
+    open_index: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
     # Drop list-like cells that break JSON
@@ -164,13 +210,13 @@ def _company_payload(
         if isinstance(data[k], (list, tuple)) or str(k).endswith("_list"):
             if k.endswith("_list"):
                 data.pop(k, None)
+    open_info = open_fields_for_employer(data.get("name"), index=open_index)
+    row = _merge_open_into_row(row, open_info)
     briefing = ""
     briefing_source = None
     if use_openai_briefing:
         briefing, briefing_source = generate_briefing(leaver, row, use_openai=True)
-        if briefing_source != "openai":
-            briefing = ""
-            briefing_source = None
+        briefing, briefing_source = _visible_briefing(briefing, briefing_source)
     sector_fit = fit_label(float(data.get("sector_score") or 0))
     # Avoid "Strong" sector signal on vacancy-derived employers without verified programmes.
     if (
@@ -179,6 +225,7 @@ def _company_payload(
         and not programmes_for_company(str(data.get("company_id") or ""))
     ):
         sector_fit = "Good"
+    prov = provenance_payload(data, mode="work")
     return {
         "company_id": data.get("company_id"),
         "name": data.get("name"),
@@ -186,8 +233,8 @@ def _company_payload(
         "postcode": data.get("postcode"),
         "sectors": data.get("sectors"),
         "entry_routes": data.get("entry_routes"),
-        "summary": clean_company_summary(data.get("summary")),
-        "website": data.get("website"),
+        "summary": display_summary(data, mode="work"),
+        "website": public_employer_website(data.get("website")),
         "hiring_signal": data.get("hiring_signal"),
         "priority_employer": int(data.get("priority_employer") or 0),
         "final_score": float(data.get("final_score") or 0),
@@ -202,9 +249,12 @@ def _company_payload(
         "overall_label": overall_label(rank),
         "briefing_markdown": briefing,
         "briefing_source": briefing_source,
+        **prov,
+        **open_info,
     }
 
 
+# Attach OpenAI/offline briefing fields onto a match payload.
 def _attach_briefing(
     payload: dict[str, Any],
     leaver: dict[str, Any],
@@ -224,14 +274,13 @@ def _attach_briefing(
             mode=mode,
             related_microcreds=related_microcreds,
         )
-        if briefing_source != "openai":
-            briefing = ""
-            briefing_source = None
+        briefing, briefing_source = _visible_briefing(briefing, briefing_source)
     payload["briefing_markdown"] = briefing
     payload["briefing_source"] = briefing_source
     return payload
 
 
+# Shape one course match row for the web API response.
 def _course_payload(
     leaver: dict[str, Any],
     row: pd.Series,
@@ -265,6 +314,8 @@ def _course_payload(
     type_level = " · ".join(
         x for x in (type_label, level if level and level != "See provider" else "") if x
     )
+    open_info = open_fields_for_course(data)
+    row = _merge_open_into_row(row, open_info)
     payload = {
         "kind": "course",
         "course_id": data.get("course_id"),
@@ -293,13 +344,15 @@ def _course_payload(
         "hiring_label": type_level or type_label or level or "See provider",
         "hiring_signal": None,
         "overall_label": overall_label(rank),
-        "source": data.get("source"),
+        **provenance_payload(data, mode="education"),
+        **open_info,
     }
     return _attach_briefing(
         payload, leaver, row, mode="education", use_openai_briefing=use_openai_briefing
     )
 
 
+# Shape one military pathway row for the web API response.
 def _military_payload(
     leaver: dict[str, Any],
     row: pd.Series,
@@ -332,6 +385,8 @@ def _military_payload(
         "hiring_label": str(data.get("service") or "Armed Forces"),
         "hiring_signal": None,
         "overall_label": overall_label(rank),
+        **provenance_payload(data, mode="military"),
+        **open_fields_for_military(data),
     }
     return _attach_briefing(
         payload,
@@ -343,6 +398,7 @@ def _military_payload(
     )
 
 
+# Shape one military micro-credential card for the API.
 def _microcred_payload(row: pd.Series) -> dict[str, Any]:
     data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
     return {
@@ -360,9 +416,11 @@ def _microcred_payload(row: pd.Series) -> dict[str, Any]:
     }
 
 
+# Simple health check for Fly / uptime monitors.
 @app.get("/health")
 def health() -> dict[str, Any]:
     out: dict[str, Any] = {"ok": True}
+    out["tts_enabled"] = bool(os.getenv("OPENAI_API_KEY", "").strip())
     try:
         out["companies"] = len(load_companies())
     except Exception as e:
@@ -375,6 +433,7 @@ def health() -> dict[str, Any]:
     return out
 
 
+# Return intake options, psych questions, and age bands for the form.
 @app.get("/taxonomy")
 def taxonomy() -> dict[str, Any]:
     intake = load_intake_options()
@@ -385,6 +444,7 @@ def taxonomy() -> dict[str, Any]:
     }
 
 
+# Read and normalise age_band from request or leaver dict.
 def _age_band_from_payload(payload: dict[str, Any] | None) -> str:
     payload = payload or {}
     return normalise_age_band(
@@ -392,6 +452,7 @@ def _age_band_from_payload(payload: dict[str, Any] | None) -> str:
     )
 
 
+# Run work / education / military matching and attach personas + extras.
 @app.post("/match")
 def match(req: MatchRequest) -> dict[str, Any]:
     age_band = normalise_age_band(req.age_band)
@@ -418,6 +479,7 @@ def match(req: MatchRequest) -> dict[str, Any]:
     use_openai_briefing = bool(form.pop("use_openai_briefing", False))
     use_gemini_plan = bool(form.pop("use_gemini_plan", False))
     allow_anonymous_logging = bool(form.pop("allow_anonymous_logging", True))
+    live_opportunities_only = bool(form.pop("live_opportunities_only", False))
     top_n = form.pop("top_n", 3)
     form.pop("mode", None)
 
@@ -435,10 +497,21 @@ def match(req: MatchRequest) -> dict[str, Any]:
         use_openai_briefing = False
         use_gemini_plan = False
 
+    if live_opportunities_only and mode == "military":
+        raise HTTPException(status_code=400, detail=military_open_unsupported_detail())
+
     microcredentials: list[dict[str, Any]] = []
+    open_index: dict[str, Any] = {}
     try:
         if mode == "education":
-            leaver, ranked = match_courses(form, load_courses(), top_n=top_n)
+            courses = load_courses()
+            if live_opportunities_only:
+                courses = filter_courses_with_open(courses)
+                if courses is None or courses.empty:
+                    raise HTTPException(
+                        status_code=400, detail=education_open_unavailable_detail()
+                    )
+            leaver, ranked = match_courses(form, courses, top_n=top_n)
             matches = [
                 _course_payload(
                     leaver, row, i, use_openai_briefing=use_openai_briefing
@@ -462,13 +535,37 @@ def match(req: MatchRequest) -> dict[str, Any]:
                 for i, (_, row) in enumerate(ranked.iterrows())
             ]
         else:
-            leaver, ranked = match_companies(form, load_companies(), top_n=top_n)
+            try:
+                faa_doc = load_open_apprenticeships()
+            except Exception:
+                faa_doc = {}
+                if live_opportunities_only:
+                    raise HTTPException(
+                        status_code=503, detail=work_open_unavailable_detail()
+                    ) from None
+            open_index = open_apprenticeship_index(faa_doc)
+            companies = load_companies()
+            if live_opportunities_only:
+                companies = filter_employers_with_open(companies, index=open_index)
+                if companies is None or companies.empty:
+                    raise HTTPException(
+                        status_code=400, detail=work_open_unavailable_detail()
+                    )
+            leaver, ranked = match_companies(form, companies, top_n=top_n)
             matches = [
-                _company_payload(leaver, row, i, use_openai_briefing=use_openai_briefing)
+                _company_payload(
+                    leaver,
+                    row,
+                    i,
+                    use_openai_briefing=use_openai_briefing,
+                    open_index=open_index,
+                )
                 for i, (_, row) in enumerate(ranked.iterrows())
             ]
             for m in matches:
                 m["kind"] = "employer"
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -526,6 +623,7 @@ def match(req: MatchRequest) -> dict[str, Any]:
     }
 
 
+# Record whether a persona suggestion was helpful (live learning).
 @app.post("/feedback/persona")
 def persona_feedback(req: PersonaFeedbackRequest) -> dict[str, Any]:
     """Optional: was the career group useful? Strengthens next retrain."""
@@ -535,6 +633,7 @@ def persona_feedback(req: PersonaFeedbackRequest) -> dict[str, Any]:
     return {"ok": True, "event_id": req.event_id, "helpful": req.helpful}
 
 
+# Reject plan endpoints unless Gemini consent + age allow AI.
 def _require_plan_consent(use_gemini_plan: bool, *, leaver: dict[str, Any] | None) -> None:
     if not use_gemini_plan:
         raise HTTPException(
@@ -549,6 +648,7 @@ def _require_plan_consent(use_gemini_plan: bool, *, leaver: dict[str, Any] | Non
         )
 
 
+# Create a 5-step action plan for one match (Gemini or offline).
 @app.post("/plan/generate")
 def plan_generate(req: PlanGenerateRequest) -> dict[str, Any]:
     leaver = dict(req.leaver or {})
@@ -561,6 +661,7 @@ def plan_generate(req: PlanGenerateRequest) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+# Expand one plan step into concrete actions.
 @app.post("/plan/breakdown")
 def plan_breakdown(req: PlanBreakdownRequest) -> dict[str, Any]:
     leaver = dict(req.leaver or {})
@@ -580,6 +681,7 @@ def plan_breakdown(req: PlanBreakdownRequest) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+# Answer a follow-up question about one plan step (or safeguarding reply).
 @app.post("/plan/chat")
 def plan_chat(req: PlanChatRequest) -> dict[str, Any]:
     leaver = dict(req.leaver or {})
@@ -602,3 +704,41 @@ def plan_chat(req: PlanChatRequest) -> dict[str, Any]:
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+# OpenAI text-to-speech for inclusive read-aloud (mp3 bytes).
+@app.post("/tts")
+def text_to_speech(req: TtsRequest) -> Response:
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        raise HTTPException(status_code=503, detail="TTS unavailable — no OpenAI API key.")
+
+    text = " ".join(str(req.text or "").split()).strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Nothing to read.")
+    # OpenAI speech input limit is 4096 characters.
+    if len(text) > 4096:
+        text = text[:4093].rstrip() + "…"
+
+    model = os.getenv("OPENAI_TTS_MODEL", "tts-1-hd").strip() or "tts-1-hd"
+    voice = os.getenv("OPENAI_TTS_VOICE", "nova").strip() or "nova"
+
+    try:
+        from openai import OpenAI
+
+        client = OpenAI(api_key=api_key)
+        speech = client.audio.speech.create(
+            model=model,
+            voice=voice,  # type: ignore[arg-type]
+            input=text,
+            response_format="mp3",
+        )
+        audio = speech.content
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"TTS failed: {e}") from e
+
+    return Response(
+        content=audio,
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "no-store"},
+    )

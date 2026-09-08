@@ -1,9 +1,9 @@
 # TypeScript web product plan (16–24)
 
-Plan to evolve the current Streamlit **Gloucestershire Career Match** demo into a full TypeScript web app aimed at school and university leavers (roughly **16–24**).
+Historical plan to evolve the Streamlit prototype into the MatchKite Next.js app for school and university leavers (roughly **16–24**).
 
-**Status of this doc:** product / engineering plan (not yet implemented as a Next.js app).  
-**Current demo:** `streamlit run app/app.py` · MIT · see [DATA.md](../DATA.md), [LICENSE](../LICENSE).
+**Status of this doc:** shipped. The live product is MatchKite (`web/` + `api/`). Keep this file for the original product decisions; do not treat it as a backlog.  
+**Current product:** Next.js [`web/`](../web/) + FastAPI [`api/`](../api/) · MIT · see [DATA.md](../DATA.md), [LICENSE](../LICENSE).
 
 ---
 

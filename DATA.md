@@ -1,6 +1,6 @@
 # Data sources & attribution
 
-This project is a **non-commercial live demo** for careers guidance exploration in Gloucestershire. It is not an official careers service and does not sell recommendations.
+This project (**MatchKite**) is a **non-commercial live demo** for careers guidance exploration in Gloucestershire and Bristol. It is not an official careers service and does not sell recommendations.
 
 ## 1. DfE Find an Apprenticeship / Explore Education Statistics
 
@@ -15,13 +15,17 @@ This project is a **non-commercial live demo** for careers guidance exploration 
 
 **How we use it:** Historical and current vacancy adverts are summarised into employer profiles and example opportunities. Many rows are **Archived** or **Closed**. They must **not** be shown as guaranteed live vacancies. Always check [Find an apprenticeship](https://www.findapprenticeship.service.gov.uk/) for current openings.
 
-**Local storage:** Large downloads live under `data/raw/` (gitignored). Rebuild with `scripts/build_company_masters.py` or notebook `01_data_consolidation.ipynb`.
+**Open opportunities (live adverts):** The pink **Open opportunities** flag and the intake filter “Only show options with live apprenticeship opportunities” use the DfE [Display Advert API v2](https://developer.apprenticeships.education.gov.uk/) (keyed; terms of use). Cached under `data/live/open_apprenticeships.json` (gitignored). Refresh with `scripts/09_fetch_open_apprenticeships.py` or set `FAA_DISPLAY_API_KEY` so `/match` can refresh a stale cache. We store listing facts and the official vacancy URL only — not employer marketing copy. EES `current_status` is **not** used for this flag.
+
+**Provenance in the product:** Match cards show a `Source` label (curated / Companies House / Find an apprenticeship open data). AI briefings are instructed to treat vacancy text as historical and only cite verified programmes for roles. Rebuild corpus text with `scripts/04_export_rag_corpus.py` (then optionally `scripts/07_build_faiss_corpus.py`).
+
+**Local storage:** Large downloads live under `data/raw/` (gitignored). Rebuild with `scripts/02_build_company_masters.py` or notebook `01_data_consolidation.ipynb`.
 
 ## 2. Companies House (free company data product)
 
 **What we use:** Monthly [BasicCompanyData](http://download.companieshouse.gov.uk/en_output.html) snapshot. We keep **Active** companies whose registered-office postcode starts with `GL` (Gloucestershire) or `BS` (Bristol), rank a balanced top list by **accounts category** as a size proxy (GROUP/FULL/MEDIUM ahead of SMALL/MICRO — exact headcount is not in the free file), and upsert missing names into `data/seed/companies_seed.csv`.
 
-**Script:** `scripts/fetch_companies_house_employers.py`  
+**Script (01):** `scripts/01_fetch_companies_house_employers.py`  
 **Audit output:** `data/seed/companies_house_top100.csv`  
 **Raw zip:** `data/raw/companies_house_basic.zip` (gitignored)
 
@@ -36,6 +40,8 @@ This project is a **non-commercial live demo** for careers guidance exploration 
 **Licence:** Part of this repository under the project MIT License, unless a specific file says otherwise.
 
 **Note:** Employer names are used factually for local careers context. Inclusion does **not** imply endorsement by those organisations.
+
+**Website hygiene (2.1–2.4, after 02):** fill known URLs by hand — do not crawl commercial sites. `scripts/02_1_export_missing_websites.py` → `scripts/02_2_apply_manual_websites.py` → `scripts/02_3_apply_curated_vacancy_websites.py` → `scripts/02_4_remove_companies_without_website.py`
 
 ## 4. Pathway cards & sector guides
 
@@ -61,8 +67,8 @@ Keep API keys in `.env` (never commit). Optional LLM calls send the leaver profi
 - Occupation → sector bridge (`data/curated/occupation_to_sector.csv`)  
 - Optional [JobCannon Psychometric Response Dataset](https://github.com/PeterKolomiets/jobcannon-psychometric-dataset) RIASEC files (CC-BY-4.0) under `data/external/jobcannon/`
 
-**Scripts:** `scripts/fetch_external_clustering_data.py` → `scripts/curate_leaver_dataset.py` → `scripts/build_persona_model.py`  
-**Live loop:** anonymous match events in `data/live/` → `scripts/merge_live_into_curated.py` → rebuild persona model  
+**Scripts (8.1 → 8.2 → 08):** `scripts/08_1_fetch_external_clustering_data.py` → `scripts/08_2_curate_leaver_dataset.py` → `scripts/08_build_persona_model.py`  
+**Live loop (8.3 → 08):** anonymous match events in `data/live/` → `scripts/08_3_merge_live_into_curated.py` → rebuild persona model  
 **Docs:** [docs/curated_leavers.md](docs/curated_leavers.md)
 
 **Attribution (JobCannon):** JobCannon Psychometric Response Dataset, CC-BY-4.0 — https://jobcannon.io  
@@ -85,7 +91,7 @@ and matched company context are sent to OpenAI to generate briefing text.
 - `data/seed/courses_seed.csv` — FE/HE course matches (NVQ, Skills Bootcamp, T Level, BTEC, Access, etc.)  
 - `data/seed/military_microcreds_seed.csv` — Level 3+ / short courses for PD exploration  
 
-**Script:** `scripts/build_courses_seed_from_ncs.py` (force-includes NVQ / Skills Bootcamp titles; labels `course_type_label`)  
+**Script (6.1, then re-run 06):** `scripts/06_1_build_courses_seed_from_ncs.py` (force-includes NVQ / Skills Bootcamp titles; labels `course_type_label`)  
 **Raw downloads:** `data/raw/ncs_*.csv` (gitignored)
 
 **Licence:** [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
@@ -95,7 +101,7 @@ and matched company context are sent to OpenAI to generate briefing text.
 > Contains public sector information licensed under the Open Government Licence v3.0.  
 > Source: Department for Education — National Careers Service course directory.
 
-**Limits:** Course catalogues change monthly. Rows are **not** confirmed live enrolments. For Enhanced Learning Credits (ELC), eligibility must be checked on [ELCAS](https://www.enhancedlearningcredits.com/) and with Education Staff — this demo never asserts ELC approval.
+**Limits:** Course catalogues change monthly. The **Open opportunities** flag on education matches is shown only when the row is still a live NCS listing we can link: a future or flexible `STARTDATE`, or a recent monthly snapshot (within 45 days) plus a course URL. Re-run `scripts/06_1_build_courses_seed_from_ncs.py` after each GOV.UK file update so start dates stay current. Rows are **not** confirmed live enrolments. For Enhanced Learning Credits (ELC), eligibility must be checked on [ELCAS](https://www.enhancedlearningcredits.com/) and with Education Staff — this demo never asserts ELC approval.
 
 ## 8. Military pathways (curated guidance)
 
@@ -103,7 +109,7 @@ and matched company context are sent to OpenAI to generate briefing text.
 
 **Licence:** Original pathway blurbs under the project MIT License. Official site content remains Crown copyright; we link out rather than republishing long recruitment copy.
 
-**Limits:** Guidance only — **not** official recruitment advice and not an offer of employment.
+**Limits:** Guidance only — **not** official recruitment advice and not an offer of employment. There is no official open-roles feed, so military cards never show the **Open opportunities** flag.
 
 ## 10. Curated online courses (Coursera / Udemy links)
 
@@ -115,7 +121,7 @@ and matched company context are sent to OpenAI to generate briefing text.
 
 ## 11. What this demo is not
 
-- Not a live vacancy board  
+- Not a live vacancy board (the **Open opportunities** flag only links out to official Find an apprenticeship / NCS listings)  
 - Not official advice from DfE, MOD, employers, or local authorities  
 - Not a guarantee of interview, apprenticeship, course place, or job outcomes  
 - Not a commercial product (no referral tracking or monetised lead gen)
