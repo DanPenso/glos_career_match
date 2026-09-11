@@ -55,6 +55,7 @@ Edit `.env`:
 OPENAI_API_KEY=                 # optional (only for opt-in AI reports)
 OPENAI_MODEL=gpt-4o-mini
 FAA_DISPLAY_API_KEY=            # optional (Open opportunities flag)
+REED_API_KEY=                   # optional (Open jobs flag)
 CORS_ORIGINS=https://matchkite.com,https://www.matchkite.com
 LIVE_EVENTS_RETENTION_DAYS=180
 ```

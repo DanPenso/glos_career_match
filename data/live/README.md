@@ -29,3 +29,13 @@ Restart the API so it loads the new `app/app_data/persona_kmeans.joblib`.
 ```
 
 Requires `FAA_DISPLAY_API_KEY` in `.env`. Do not commit the JSON file.
+
+## Open jobs cache (Reed)
+
+`reed_jobs.json` is a cache of **currently listed** Reed jobs (Gloucester / Bristol radius) from the Jobseeker API. It is used for the Open jobs flag — not for clustering, and not for the live-apprenticeship intake filter.
+
+```bash
+.venv\Scripts\python scripts/10_fetch_reed_jobs.py
+```
+
+Requires `REED_API_KEY` in `.env`. Do not commit the JSON file.

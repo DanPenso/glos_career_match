@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { FiveStepPlan } from "@/components/FiveStepPlan";
 import { PersonaFitPanel } from "@/components/PersonaFit";
 import { ReadAloudButton } from "@/components/ReadAloudButton";
@@ -8,7 +8,12 @@ import {
   MilitaryAgeNotice,
   SafeguardingHelp,
 } from "@/components/SafeguardingHelp";
-import type { MatchMode, MatchResponse, Pathway } from "@/lib/types";
+import type {
+  MatchCompany,
+  MatchMode,
+  MatchResponse,
+  Pathway,
+} from "@/lib/types";
 
 /** Orange → green traffic shades from a 0–1 signal (no red). */
 function signalStyle(score: number): {
@@ -89,7 +94,7 @@ function PathwayGrid({
           ) : null}
         </div>
       ) : null}
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {pathways.map((p) => {
           const short = String(p.summary || "")
             .replace(/\s+/g, " ")
@@ -238,6 +243,199 @@ function modeCopy(mode: MatchMode | undefined) {
 
 type ResultsTab = "matches" | "cluster" | "training" | "online";
 
+function MatchCard({
+  match,
+  mode,
+  copy,
+  children,
+}: {
+  match: MatchCompany;
+  mode: MatchMode;
+  copy: ReturnType<typeof modeCopy>;
+  children?: ReactNode;
+}) {
+  const hasOpenApprenticeship = Boolean(match.open_now && match.open_url);
+  const hasOpenJob = Boolean(match.jobs_open_now && match.jobs_open_url);
+  return (
+    <article className="relative space-y-5 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-7">
+      {hasOpenApprenticeship || hasOpenJob ? (
+        <div className="absolute right-3 top-3 z-10 flex max-w-[min(100%-1.5rem,15rem)] flex-col items-end gap-1">
+          {hasOpenApprenticeship ? (
+            <a
+              href={match.open_url}
+              target="_blank"
+              rel="noreferrer"
+              title={
+                match.open_source === "ncs_live_directory"
+                  ? "Listed as open in the National Careers Service course directory"
+                  : "Listed as open on Find an apprenticeship"
+              }
+              className="rounded-full bg-[var(--open)] px-3 py-1 text-center text-xs font-bold leading-tight text-[var(--open-ink)] shadow-sm hover:brightness-95"
+            >
+              {match.open_label || "Open opportunities"}
+              {(match.open_count || 1) > 1
+                ? ` +${(match.open_count || 1) - 1}`
+                : ""}
+            </a>
+          ) : null}
+          {hasOpenJob ? (
+            <a
+              href={match.jobs_open_url}
+              target="_blank"
+              rel="noreferrer"
+              title="Listed as open on Reed"
+              className="rounded-full bg-[var(--jobs)] px-3 py-1 text-center text-xs font-bold leading-tight text-[var(--jobs-ink)] shadow-sm hover:brightness-95"
+            >
+              {match.jobs_open_label || "Open jobs"}
+              {(match.jobs_open_count || 1) > 1
+                ? ` +${(match.jobs_open_count || 1) - 1}`
+                : ""}
+            </a>
+          ) : null}
+        </div>
+      ) : null}
+      <header
+        className={`space-y-2 ${
+          hasOpenApprenticeship || hasOpenJob
+            ? hasOpenApprenticeship && hasOpenJob
+              ? "pr-2 pt-16 sm:pr-44 sm:pt-0"
+              : "pr-2 pt-8 sm:pr-44 sm:pt-0"
+            : ""
+        }`}
+      >
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--trust)]">
+          <span className="mr-2 inline-block rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
+            Match
+          </span>
+          {match.overall_label}
+        </p>
+        <h3 className="font-display text-3xl text-[var(--ink)]">
+          {match.name}
+        </h3>
+        <p className="text-sm text-[var(--ink-muted)]">
+          {mode === "education" && match.provider
+            ? `${match.provider} · ${match.town}`
+            : match.town}
+          {mode === "education" && match.course_type_label ? (
+            <>
+              {" · "}
+              <span className="font-medium text-[var(--trust)]">
+                {match.course_type_label}
+              </span>
+            </>
+          ) : null}
+          {match.website ? (
+            <>
+              {" · "}
+              <a
+                href={match.website}
+                target="_blank"
+                rel="noreferrer"
+                className="underline decoration-[var(--accent)]"
+              >
+                Website
+              </a>
+            </>
+          ) : null}
+        </p>
+        {match.source_label ? (
+          <p className="text-xs text-[var(--ink-muted)]">
+            <span className="font-medium text-[var(--ink)]">
+              Source: {match.source_label}
+            </span>
+            {match.source_note ? ` — ${match.source_note}` : null}
+            {mode === "work" ? (
+              <>
+                {" "}
+                <a
+                  href={
+                    match.open_url ||
+                    match.jobs_open_url ||
+                    match.website ||
+                    "https://www.findapprenticeship.service.gov.uk/"
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-[var(--accent)]"
+                >
+                  {match.open_url
+                    ? "View open opportunity"
+                    : match.jobs_open_url
+                      ? "View open job"
+                      : match.website
+                        ? "Check official openings"
+                        : "Search Find an apprenticeship"}
+                </a>
+              </>
+            ) : match.open_url || match.website ? (
+              <>
+                {" "}
+                <a
+                  href={match.open_url || match.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-[var(--accent)]"
+                >
+                  {match.open_url
+                    ? "View open opportunity"
+                    : "Check official site"}
+                </a>
+              </>
+            ) : null}
+          </p>
+        ) : null}
+        {match.open_now &&
+        match.open_titles &&
+        match.open_titles.length > 1 ? (
+          <p className="text-xs text-[var(--ink-muted)]">
+            Also listed: {match.open_titles.slice(1).join(" · ")}
+          </p>
+        ) : null}
+        {match.jobs_open_now &&
+        match.jobs_open_titles &&
+        match.jobs_open_titles.length ? (
+          <p className="text-xs text-[var(--ink-muted)]">
+            Jobs on Reed: {match.jobs_open_titles.join(" · ")}
+          </p>
+        ) : null}
+        {match.summary ? (
+          <p className="text-sm text-[var(--ink)]">{match.summary}</p>
+        ) : null}
+      </header>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <SignalStat
+          label="How well does the sector fit my interests and experience?"
+          value={match.sector_fit_label || "Worth exploring"}
+          score={match.sector_score ?? 0}
+        />
+        <SignalStat
+          label={
+            mode === "education"
+              ? "How well does this course route fit yours?"
+              : mode === "military"
+                ? "How well does this entry route fit yours?"
+                : "How well does their route fit yours?"
+          }
+          value={match.entry_fit_label || "Worth exploring"}
+          score={match.entry_score ?? 0}
+        />
+        <SignalStat
+          label={copy.thirdLabel}
+          value={match.hiring_label || "Check details"}
+          score={
+            mode === "work"
+              ? 0.35
+              : Math.min(1, (match.sector_score ?? 0) * 0.9 + 0.15)
+          }
+        />
+      </div>
+      <p className="text-xs text-[var(--ink-muted)]">{copy.thirdHint}</p>
+      {children}
+    </article>
+  );
+}
+
 function SectionPills({
   tab,
   onChange,
@@ -369,7 +567,7 @@ export function MatchResults({
                     and your Education Staff.
                   </p>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {micros.map((c) => (
                     <div
                       key={c.cred_id}
@@ -417,7 +615,7 @@ export function MatchResults({
 
       {tab === "online" ? (
         online.length ? (
-          <div className="grid gap-3 sm:grid-cols-1">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {online.map((c, i) => (
               <div
                 key={c.course_id || c.title}
@@ -455,187 +653,42 @@ export function MatchResults({
       ) : null}
 
       {tab === "matches" ? (
-        <>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {data.matches.map((m, i) => (
-              <button
-                key={m.company_id}
-                type="button"
-                onClick={() => setActive(i)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
-                  i === active
-                    ? "bg-[var(--ink)] text-[var(--paper)]"
-                    : "bg-[var(--surface)] text-[var(--ink)] ring-1 ring-[var(--line)]"
-                }`}
-              >
-                #{i + 1} {m.name}
-                {m.open_now ? (
-                  <span
-                    className="ml-2 inline-block h-2 w-2 rounded-full bg-[var(--open)] align-middle"
-                    title="Open opportunities"
-                    aria-label="Open opportunities"
-                  />
-                ) : null}
-              </button>
-            ))}
-          </div>
-        </>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {data.matches.map((m, i) => (
+            <button
+              key={m.company_id}
+              type="button"
+              onClick={() => setActive(i)}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
+                i === active
+                  ? "bg-[var(--ink)] text-[var(--paper)]"
+                  : "bg-[var(--surface)] text-[var(--ink)] ring-1 ring-[var(--line)]"
+              }`}
+            >
+              #{i + 1} {m.name}
+              {m.open_now ? (
+                <span
+                  className="ml-2 inline-block h-2 w-2 rounded-full bg-[var(--open)] align-middle"
+                  title="Open opportunities"
+                  aria-label="Open opportunities"
+                />
+              ) : null}
+              {m.jobs_open_now ? (
+                <span
+                  className="ml-2 inline-block h-2 w-2 rounded-full bg-[var(--jobs)] align-middle"
+                  title="Open jobs"
+                  aria-label="Open jobs"
+                />
+              ) : null}
+            </button>
+          ))}
+        </div>
       ) : null}
 
       {tab === "matches" && match ? (
-        <article className="relative space-y-5 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-7">
-          {match.open_now && match.open_url ? (
-            <a
-              href={match.open_url}
-              target="_blank"
-              rel="noreferrer"
-              title={
-                match.open_source === "ncs_live_directory"
-                  ? "Listed as open in the National Careers Service course directory"
-                  : "Listed as open on Find an apprenticeship"
-              }
-              className="absolute right-3 top-3 z-10 max-w-[min(100%-1.5rem,15rem)] rounded-full bg-[var(--open)] px-3 py-1 text-center text-xs font-bold leading-tight text-[var(--open-ink)] shadow-sm hover:brightness-95"
-            >
-              {match.open_label || "Open opportunities"}
-              {(match.open_count || 1) > 1
-                ? ` +${(match.open_count || 1) - 1}`
-                : ""}
-            </a>
-          ) : null}
-          <header
-            className={`space-y-2 ${
-              match.open_now ? "pr-2 pt-8 sm:pr-44 sm:pt-0" : ""
-            }`}
-          >
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--trust)]">
-              <span className="mr-2 inline-block rounded-full bg-[var(--accent)] px-2 py-0.5 text-[var(--accent-ink)]">
-                Match
-              </span>
-              {match.overall_label}
-            </p>
-            <h3 className="font-display text-3xl text-[var(--ink)]">
-              {match.name}
-            </h3>
-            <p className="text-sm text-[var(--ink-muted)]">
-              {mode === "education" && match.provider
-                ? `${match.provider} · ${match.town}`
-                : match.town}
-              {mode === "education" && match.course_type_label ? (
-                <>
-                  {" · "}
-                  <span className="font-medium text-[var(--trust)]">
-                    {match.course_type_label}
-                  </span>
-                </>
-              ) : null}
-              {match.website ? (
-                <>
-                  {" · "}
-                  <a
-                    href={match.website}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline decoration-[var(--accent)]"
-                  >
-                    Website
-                  </a>
-                </>
-              ) : null}
-            </p>
-            {match.source_label ? (
-              <p className="text-xs text-[var(--ink-muted)]">
-                <span className="font-medium text-[var(--ink)]">
-                  Source: {match.source_label}
-                </span>
-                {match.source_note ? ` — ${match.source_note}` : null}
-                {mode === "work" ? (
-                  <>
-                    {" "}
-                    <a
-                      href={
-                        match.open_url ||
-                        match.website ||
-                        "https://www.findapprenticeship.service.gov.uk/"
-                      }
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline decoration-[var(--accent)]"
-                    >
-                      {match.open_url
-                        ? "View open opportunity"
-                        : match.website
-                          ? "Check official openings"
-                          : "Search Find an apprenticeship"}
-                    </a>
-                  </>
-                ) : match.open_url || match.website ? (
-                  <>
-                    {" "}
-                    <a
-                      href={match.open_url || match.website}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline decoration-[var(--accent)]"
-                    >
-                      {match.open_url
-                        ? "View open opportunity"
-                        : "Check official site"}
-                    </a>
-                  </>
-                ) : null}
-              </p>
-            ) : null}
-            {match.open_now &&
-            match.open_titles &&
-            match.open_titles.length > 1 ? (
-              <p className="text-xs text-[var(--ink-muted)]">
-                Also listed: {match.open_titles.slice(1).join(" · ")}
-              </p>
-            ) : null}
-            {match.summary &&
-            !(data.briefings_enabled && match.briefing_markdown) ? (
-              <div className="space-y-2">
-                <ReadAloudButton
-                  key={`sum-${match.company_id || match.name}`}
-                  text={match.summary}
-                  label="Read aloud"
-                />
-                <p className="text-[var(--ink)]">{match.summary}</p>
-              </div>
-            ) : null}
-          </header>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <SignalStat
-              label="How well does the sector fit my interests and experience?"
-              value={match.sector_fit_label || "Worth exploring"}
-              score={match.sector_score ?? 0}
-            />
-            <SignalStat
-              label={
-                mode === "education"
-                  ? "How well does this course route fit yours?"
-                  : mode === "military"
-                    ? "How well does this entry route fit yours?"
-                    : "How well does their route fit yours?"
-              }
-              value={match.entry_fit_label || "Worth exploring"}
-              score={match.entry_score ?? 0}
-            />
-            <SignalStat
-              label={copy.thirdLabel}
-              value={match.hiring_label || "Check details"}
-              score={
-                mode === "work"
-                  ? 0.35
-                  : Math.min(1, (match.sector_score ?? 0) * 0.9 + 0.15)
-              }
-            />
-          </div>
-          <p className="text-xs text-[var(--ink-muted)]">{copy.thirdHint}</p>
-
+        <MatchCard match={match} mode={mode} copy={copy}>
           {data.briefings_enabled && match.briefing_markdown ? (
-            <div className="mt-2 space-y-2">
+            <div className="space-y-2">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <p className="text-xs text-[var(--ink-muted)]">
                   Match report written with OpenAI — facts come from open data /
@@ -663,7 +716,7 @@ export function MatchResults({
             leaver={(data.leaver || {}) as Record<string, unknown>}
             enabled={Boolean(data.plans_enabled)}
           />
-        </article>
+        </MatchCard>
       ) : null}
 
       {tab === "matches" ? (

@@ -72,8 +72,11 @@ interests:
   - Public service & community
   - Finance / accounting
 
+# UI groups. "enjoy" items are sector-mapped interests shown with passions.
+# Passions stay in `passions` and are not mapped to sectors.
 interest_groups:
-  - title: Things you do a lot
+  - id: enjoy
+    title: What you enjoy
     items:
       - Gaming
       - Team sports / fitness
@@ -83,7 +86,8 @@ interest_groups:
       - Building apps
       - Creative / design / events
       - Environment & sustainability
-  - title: Work or study areas
+  - id: study
+    title: Work or study areas
     items:
       - Software / apps / web
       - Cybersecurity & digital defence
@@ -121,6 +125,18 @@ interest_icons:
   Environment & sustainability: /intake/environment.png
   Public service & community: /intake/public-service.png
   Finance / accounting: /intake/finance.png
+  Solving puzzles / problems: /intake/solving-puzzles.svg
+  Building or fixing things: /intake/building-fixing.svg
+  Helping people face-to-face: /intake/helping-people.svg
+  Creating visual / written content: /intake/creating-content.svg
+  Working outdoors: /intake/working-outdoors.svg
+  Leading teams / organising: /intake/leading-teams.svg
+  Analysing numbers / patterns: /intake/analysing-numbers.svg
+  Protecting systems / people: /intake/protecting.svg
+  Growing food / nature: /intake/growing-food.svg
+  Performing / presenting: /intake/performing.svg
+  Making products people use: /intake/making-products.svg
+  Making things work better: /intake/making-work-better.svg
 
 passions:
   - Solving puzzles / problems

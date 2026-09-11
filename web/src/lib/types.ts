@@ -127,6 +127,13 @@ export type MatchCompany = {
   open_as_of?: string | null;
   open_source?: string;
   open_titles?: string[];
+  jobs_open_now?: boolean;
+  jobs_open_label?: string;
+  jobs_open_url?: string;
+  jobs_open_count?: number;
+  jobs_open_as_of?: string | null;
+  jobs_open_source?: string;
+  jobs_open_titles?: string[];
 };
 
 export type Microcredential = {
@@ -192,7 +199,7 @@ export type TaxonomyResponse = {
     age_bands?: { id: string; label: string }[];
     interests: string[];
     interest_icons?: Record<string, string>;
-    interest_groups?: { title: string; items: string[] }[];
+    interest_groups?: { id?: string; title: string; items: string[] }[];
     passions: string[];
     work_experience_types: string[];
     qualification_levels: string[];

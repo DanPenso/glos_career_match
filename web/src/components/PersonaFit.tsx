@@ -176,7 +176,7 @@ export function PersonaFitPanel({
             </p>
             <svg
               viewBox="0 0 100 100"
-              className="mt-3 aspect-square w-full max-w-md rounded-2xl bg-[#eef4f1] ring-1 ring-[var(--line)]"
+              className="mt-3 aspect-square w-full max-w-xl rounded-2xl bg-[#eef4f1] ring-1 ring-[var(--line)] lg:max-w-none"
               role="img"
               aria-label="Map of career groups with your position"
             >

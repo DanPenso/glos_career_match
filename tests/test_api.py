@@ -237,6 +237,53 @@ def test_match_attaches_open_opportunities_flag(
     assert "findapprenticeship.service.gov.uk/apprenticeship/1" in match["open_url"]
 
 
+def test_match_attaches_open_jobs_flag(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        "api.main.load_open_apprenticeships",
+        lambda **kwargs: {"fetched_at": None, "vacancies": []},
+    )
+    monkeypatch.setattr("api.main.open_apprenticeship_index", lambda doc: {})
+    monkeypatch.setattr(
+        "api.main.open_fields_for_employer",
+        lambda name, index=None: {
+            "open_now": False,
+            "open_label": "",
+            "open_url": "",
+            "open_count": 0,
+            "open_as_of": None,
+            "open_source": "",
+            "open_titles": [],
+        },
+    )
+    monkeypatch.setattr(
+        "api.main.load_reed_jobs",
+        lambda **kwargs: {"fetched_at": "2026-09-11T12:00:00+00:00", "jobs": []},
+    )
+    monkeypatch.setattr("api.main.open_jobs_index", lambda doc: {})
+    monkeypatch.setattr(
+        "api.main.open_fields_for_employer_jobs",
+        lambda name, index=None: {
+            "jobs_open_now": True,
+            "jobs_open_label": "Open jobs",
+            "jobs_open_url": "https://www.reed.co.uk/jobs/40126680",
+            "jobs_open_count": 2,
+            "jobs_open_as_of": "2026-09-11T12:00:00+00:00",
+            "jobs_open_source": "reed_jobseeker",
+            "jobs_open_titles": ["Graduate software engineer", "Analyst"],
+        },
+    )
+    response = client.post("/match", json=_match_body())
+    assert response.status_code == 200
+    match = response.json()["matches"][0]
+    assert match["open_now"] is False
+    assert match["jobs_open_now"] is True
+    assert match["jobs_open_label"] == "Open jobs"
+    assert match["jobs_open_count"] == 2
+    assert "reed.co.uk/jobs/40126680" in match["jobs_open_url"]
+
+
 def test_match_live_filter_work_without_cache(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:

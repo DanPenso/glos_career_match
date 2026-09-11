@@ -17,6 +17,8 @@ This project (**MatchKite**) is a **non-commercial live demo** for careers guida
 
 **Open opportunities (live adverts):** The pink **Open opportunities** flag and the intake filter “Only show options with live apprenticeship opportunities” use the DfE [Display Advert API v2](https://developer.apprenticeships.education.gov.uk/) (keyed; terms of use). Cached under `data/live/open_apprenticeships.json` (gitignored). Refresh with `scripts/09_fetch_open_apprenticeships.py` or set `FAA_DISPLAY_API_KEY` so `/match` can refresh a stale cache. We store listing facts and the official vacancy URL only — not employer marketing copy. EES `current_status` is **not** used for this flag.
 
+**Open jobs (Reed):** The blue **Open jobs** flag uses the [Reed Jobseeker API](https://www.reed.co.uk/developers/Jobseeker) (keyed; terms of use) for Gloucester / Bristol radius searches. Cached under `data/live/reed_jobs.json` (gitignored). Refresh with `scripts/10_fetch_reed_jobs.py` or set `REED_API_KEY` so `/match` can refresh a stale cache. We store listing facts and the Reed job URL only. This flag does **not** drive the live-apprenticeship intake filter. Reed rows whose title looks like an apprenticeship are dropped so Find an apprenticeship remains the source for those.
+
 **Provenance in the product:** Match cards show a `Source` label (curated / Companies House / Find an apprenticeship open data). AI briefings are instructed to treat vacancy text as historical and only cite verified programmes for roles. Rebuild corpus text with `scripts/04_export_rag_corpus.py` (then optionally `scripts/07_build_faiss_corpus.py`).
 
 **Local storage:** Large downloads live under `data/raw/` (gitignored). Rebuild with `scripts/02_build_company_masters.py` or notebook `01_data_consolidation.ipynb`.
@@ -121,7 +123,7 @@ and matched company context are sent to OpenAI to generate briefing text.
 
 ## 11. What this demo is not
 
-- Not a live vacancy board (the **Open opportunities** flag only links out to official Find an apprenticeship / NCS listings)  
+- Not a live vacancy board (the **Open opportunities** / **Open jobs** flags only link out to Find an apprenticeship, NCS, or Reed listings)  
 - Not official advice from DfE, MOD, employers, or local authorities  
 - Not a guarantee of interview, apprenticeship, course place, or job outcomes  
 - Not a commercial product (no referral tracking or monetised lead gen)

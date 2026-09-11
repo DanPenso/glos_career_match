@@ -85,6 +85,23 @@ function toggle(list: string[], value: string, max?: number): string[] {
   return [...list, value];
 }
 
+function groupById(
+  groups: { id?: string; title: string; items: string[] }[] | undefined,
+  id: string,
+): string[] {
+  const byId = groups?.find((g) => g.id === id);
+  if (byId?.items?.length) return byId.items;
+  const byTitle = groups?.find((g) =>
+    id === "study"
+      ? /work or study/i.test(g.title)
+      : /enjoy|things you do/i.test(g.title),
+  );
+  return byTitle?.items ?? [];
+}
+
+const ENJOY_MAX = 5;
+const STUDY_MAX = 5;
+
 function allowsAi(ageBand: string): boolean {
   return ageBand === "16_17" || ageBand === "18_24" || ageBand === "25_plus";
 }
@@ -102,8 +119,8 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
     intake.qualification_levels[0] ?? "",
   );
   const [availability, setAvailability] = useState(intake.availability[0] ?? "");
-  const [interests, setInterests] = useState<string[]>([]);
-  const [passions, setPassions] = useState<string[]>([]);
+  const [enjoyPicks, setEnjoyPicks] = useState<string[]>([]);
+  const [studyPicks, setStudyPicks] = useState<string[]>([]);
   const [experience, setExperience] = useState<string[]>([]);
   const [showMoreAboutYou, setShowMoreAboutYou] = useState(false);
   const [proudExample, setProudExample] = useState("");
@@ -122,7 +139,19 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
   const aiAllowed = allowsAi(ageBand);
   const needsYouthTick = ageBand === "16_17";
   const showHealthNote = barriers.some((b) => /health|disability/i.test(b));
+  const studyAreas = groupById(intake.interest_groups, "study");
+  const enjoyActivities =
+    groupById(intake.interest_groups, "enjoy").length > 0
+      ? groupById(intake.interest_groups, "enjoy")
+      : (intake.interests || []).filter((item) => !studyAreas.includes(item));
+  const passionSet = new Set(intake.passions);
+  const enjoyItems = [...enjoyActivities, ...intake.passions];
   const formReady = Boolean(ageBand) && !under16;
+  const selectedInterests = [
+    ...enjoyPicks.filter((item) => !passionSet.has(item)),
+    ...studyPicks,
+  ];
+  const selectedPassions = enjoyPicks.filter((item) => passionSet.has(item));
 
   function submitMode(mode: MatchMode) {
     if (!ageBand) {
@@ -135,8 +164,8 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
       );
       return;
     }
-    if (!interests.length) {
-      setError("Pick at least one thing you’re into.");
+    if (!selectedInterests.length) {
+      setError("Pick at least one thing you enjoy doing, or a work / study area.");
       return;
     }
     if (
@@ -155,8 +184,8 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
       location,
       age_band: ageBand,
       courses: [],
-      interests,
-      passions,
+      interests: selectedInterests,
+      passions: selectedPassions,
       work_experience: experience,
       qualification_level: qualification,
       availability,
@@ -233,7 +262,7 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
 
       {formReady ? (
         <>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label className="block space-y-1.5 text-sm">
               <span className="font-medium text-[var(--ink-muted)]">I am a…</span>
               <select
@@ -310,54 +339,54 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
             </span>
           </label>
 
-          <fieldset className="space-y-5">
-            <legend className="text-sm font-medium text-[var(--ink-muted)]">
-              What are you into? (up to 5)
-            </legend>
-            <p className="text-xs text-[var(--ink-muted)]">
-              Mix things you do for fun with areas you might want to work in —
-              five picks in total.
-            </p>
-            {(intake.interest_groups?.length
-              ? intake.interest_groups
-              : [{ title: "", items: intake.interests }]
-            ).map((group) => (
-              <div key={group.title || "all"} className="space-y-3">
-                {group.title ? (
-                  <p className="text-sm font-medium text-[var(--ink)]">
-                    {group.title}
-                  </p>
-                ) : null}
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {group.items.map((item) => (
-                    <InterestTile
-                      key={item}
-                      label={item}
-                      icon={intake.interest_icons?.[item]}
-                      selected={interests.includes(item)}
-                      onClick={() => setInterests(toggle(interests, item, 5))}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </fieldset>
-
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium text-[var(--ink-muted)]">
-              What you enjoy (up to 4)
+              What you enjoy (up to {ENJOY_MAX})
             </legend>
-            <div className="flex flex-wrap gap-2">
-              {intake.passions.map((item) => (
-                <Chip
+            <p className="text-xs text-[var(--ink-muted)]">
+              Mix things you do a lot with how you like to spend your energy —
+              {" "}
+              {ENJOY_MAX} picks in this section.
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {enjoyItems.map((item) => (
+                <InterestTile
                   key={item}
                   label={item}
-                  selected={passions.includes(item)}
-                  onClick={() => setPassions(toggle(passions, item, 4))}
+                  icon={intake.interest_icons?.[item]}
+                  selected={enjoyPicks.includes(item)}
+                  onClick={() =>
+                    setEnjoyPicks(toggle(enjoyPicks, item, ENJOY_MAX))
+                  }
                 />
               ))}
             </div>
           </fieldset>
+
+          {studyAreas.length ? (
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-[var(--ink-muted)]">
+              Work or study areas (up to {STUDY_MAX})
+            </legend>
+            <p className="text-xs text-[var(--ink-muted)]">
+              Subjects or industries you might want to work in. You can skip
+              this if you only know what you enjoy doing.
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {studyAreas.map((item) => (
+                <InterestTile
+                  key={item}
+                  label={item}
+                  icon={intake.interest_icons?.[item]}
+                  selected={studyPicks.includes(item)}
+                  onClick={() =>
+                    setStudyPicks(toggle(studyPicks, item, STUDY_MAX))
+                  }
+                />
+              ))}
+            </div>
+          </fieldset>
+          ) : null}
 
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium text-[var(--ink-muted)]">

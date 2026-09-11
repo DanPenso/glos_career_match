@@ -51,7 +51,7 @@ export default function HomePage() {
               "radial-gradient(600px 280px at 80% 20%, var(--hero-glow), transparent 60%)",
           }}
         />
-        <div className="relative mx-auto flex max-w-3xl flex-col gap-2 px-5 pb-6 pt-6 sm:gap-3 sm:px-8 sm:pb-7 sm:pt-7">
+        <div className="page-shell relative flex flex-col gap-3 pb-6 pt-6 sm:gap-4 sm:pb-8 sm:pt-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
           <div className="flex items-center gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -70,18 +70,20 @@ export default function HomePage() {
               </span>
             </div>
           </div>
-          <p className="max-w-xl font-display text-xl leading-snug tracking-tight text-[var(--paper)] sm:text-2xl">
-            Ready for your career to take flight?
-          </p>
-          <p className="max-w-xl text-sm text-[var(--paper)]/85 sm:text-base">
-            Tell us what you’re into, and we’ll match you to local jobs, courses,
-            training, or military pathways in Bristol and Gloucestershire —
-            helping your career take off from wherever you are.
-          </p>
+          <div className="max-w-xl lg:max-w-lg">
+            <p className="font-display text-xl leading-snug tracking-tight text-[var(--paper)] sm:text-2xl">
+              Ready for your career to take flight?
+            </p>
+            <p className="mt-2 text-sm text-[var(--paper)]/85 sm:text-base">
+              Tell us what you’re into, and we’ll match you to local jobs, courses,
+              training, or military pathways in Bristol and Gloucestershire —
+              helping your career take off from wherever you are.
+            </p>
+          </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-3xl px-5 py-7 sm:px-8">
+      <div className="page-shell py-7 sm:py-8">
         {results ? (
           <MatchResults data={results} onReset={() => setResults(null)} />
         ) : (
@@ -136,7 +138,7 @@ export default function HomePage() {
         )}
       </div>
 
-      <footer className="mx-auto max-w-3xl px-5 pb-12 text-xs text-[var(--ink-muted)] sm:px-8">
+      <footer className="page-shell pb-12 text-xs text-[var(--ink-muted)]">
         Non-commercial demo · MIT · DfE / Companies House / National Careers
         Service data under OGL — see DATA.md ·
         <a href="/privacy" className="ml-1 underline decoration-[var(--accent)]">

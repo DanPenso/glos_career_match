@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-load_dotenv(ROOT / ".env")
+load_dotenv(ROOT / ".env", override=True)
 
 from glos_recommender.action_plan import (
     breakdown_step,
@@ -43,6 +43,11 @@ from glos_recommender.matching import (
 from glos_recommender.live_learning import log_match_event, record_persona_feedback
 from glos_recommender.military import match_military
 from glos_recommender.online_courses import match_online_courses
+from glos_recommender.open_jobs import (
+    load_reed_jobs,
+    open_fields_for_employer_jobs,
+    open_jobs_index,
+)
 from glos_recommender.open_opportunities import (
     education_open_unavailable_detail,
     filter_courses_with_open,
@@ -203,6 +208,7 @@ def _company_payload(
     *,
     use_openai_briefing: bool,
     open_index: dict[str, Any] | None = None,
+    jobs_index: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     data = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
     # Drop list-like cells that break JSON
@@ -211,6 +217,7 @@ def _company_payload(
             if k.endswith("_list"):
                 data.pop(k, None)
     open_info = open_fields_for_employer(data.get("name"), index=open_index)
+    jobs_info = open_fields_for_employer_jobs(data.get("name"), index=jobs_index)
     row = _merge_open_into_row(row, open_info)
     briefing = ""
     briefing_source = None
@@ -251,6 +258,7 @@ def _company_payload(
         "briefing_source": briefing_source,
         **prov,
         **open_info,
+        **jobs_info,
     }
 
 
@@ -544,6 +552,11 @@ def match(req: MatchRequest) -> dict[str, Any]:
                         status_code=503, detail=work_open_unavailable_detail()
                     ) from None
             open_index = open_apprenticeship_index(faa_doc)
+            try:
+                reed_doc = load_reed_jobs()
+            except Exception:
+                reed_doc = {}
+            jobs_index = open_jobs_index(reed_doc)
             companies = load_companies()
             if live_opportunities_only:
                 companies = filter_employers_with_open(companies, index=open_index)
@@ -559,6 +572,7 @@ def match(req: MatchRequest) -> dict[str, Any]:
                     i,
                     use_openai_briefing=use_openai_briefing,
                     open_index=open_index,
+                    jobs_index=jobs_index,
                 )
                 for i, (_, row) in enumerate(ranked.iterrows())
             ]
@@ -609,7 +623,10 @@ def match(req: MatchRequest) -> dict[str, Any]:
         "online_courses": online_courses,
         "online_courses_disclaimer": online_disclaimer,
         "data_note": {
-            "work": "Employer matches from curated + Companies House / DfE open data.",
+            "work": (
+                "Employer matches from curated + Companies House / DfE open data. "
+                "Live flags link out to Find an apprenticeship or Reed listings."
+            ),
             "education": (
                 "Course matches from the National Careers Service course directory "
                 "(Open Government Licence v3.0), filtered to Gloucestershire and Bristol."

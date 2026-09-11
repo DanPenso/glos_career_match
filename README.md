@@ -62,6 +62,7 @@ Optional (only when that data changes):
 - **6.1** NCS course seed, then re-run 06: `scripts/06_1_build_courses_seed_from_ncs.py`
 - **8.1–8.3** persona mix, then re-run 08: `scripts/08_1_fetch_external_clustering_data.py` → `scripts/08_2_curate_leaver_dataset.py` → `scripts/08_3_merge_live_into_curated.py`
 - **09** live apprenticeship cache (Display Advert API key): `scripts/09_fetch_open_apprenticeships.py`
+- **10** live Reed jobs cache (Jobseeker API key): `scripts/10_fetch_reed_jobs.py`
 
 Judge / gold-set eval stays in `scripts/eval/` and `scripts/run_ai_eval.py`.
 

@@ -21,6 +21,9 @@
   /* Open opportunities flag — distinct from lime CTAs */
   --open: #ec4899;
   --open-ink: #ffffff;
+  /* Open jobs (Reed) — distinct from pink apprenticeships */
+  --jobs: #0284c7;
+  --jobs-ink: #ffffff;
 }
 
 body {
@@ -66,6 +69,10 @@ body {
   .stat-value {
     @apply mt-1 text-xl font-semibold text-[var(--ink)];
     font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  }
+
+  .page-shell {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8 lg:px-10;
   }
 }
 
