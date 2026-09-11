@@ -112,9 +112,9 @@ def test_display_summary_seed_omits_marketing_pathways() -> None:
             ),
         }
     )
-    assert "CGI is listed in Gloucester / Cheltenham corridor (GL1)." in cgi
+    assert cgi == ""
+    assert "matcher sector tags" not in cgi.lower()
     assert "apprenticeship" not in cgi.lower()
-    assert "graduate" not in cgi.lower()
 
     aviva = display_summary(
         {
@@ -129,9 +129,9 @@ def test_display_summary_seed_omits_marketing_pathways() -> None:
             ),
         }
     )
-    assert "Aviva PLC is listed in Local Area (BS34)." in aviva
+    assert aviva == ""
     assert "Claims Apprentice" not in aviva
-    assert "Business Analyst" not in aviva
+    assert "listed in" not in aviva
 
 
 def test_display_summary_vacancy_omits_role_titles() -> None:

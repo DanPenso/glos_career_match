@@ -20,7 +20,7 @@ from .provenance import (
     source_label,
 )
 from .rag import build_retrieval_query, filter_retrieved_hits_for_employer, retrieve
-from .scoring import split_pipe
+from .travel import commute_hint
 
 
 EMPLOYER_SYSTEM_PROMPT = """You are a friendly Gloucestershire careers coach speaking directly to a young person.
@@ -143,24 +143,27 @@ no Why section, and no Training routes. Those are filled in separately.
 Keep it to at most 3–5 short lines. Do not use bullet dashes (-) — plain sentences only.
 Do not name employers, programmes, scheme titles, vacancies, or job titles.
 Do not claim any employer works in a sector. Do not invent culture, values, or mission.
-You are writing personal next-step advice from overlapping interests and STRATEGY cards only.
-Use only the overlapping interests listed in the user message for the project, study stretch, and encounter.
-Do not mention or build toward any other intake interest (healthcare, aerospace, cyber, data, finance, and so on) unless it appears in that overlap list.
-If the overlap list is none, write a generic local project — do not name extra sectors.
+You are writing personal next-step advice from one focus area only.
+Use only the single focus area listed in the user message.
+Do not mention or build toward any other intake interest (healthcare, aerospace, cyber, data, finance, and so on) unless it is that focus area.
+If the focus area is none, write a generic local project — do not name extra sectors.
+Prefer a real way to get experience this month over a generic craft project:
+helping, volunteering, shadowing, coaching, or making something they can show.
+If a listed passion fits the focus area (for example sport plus education → coaching at a youth club), use it.
+This is personal experience — never say a named employer is hiring or runs that activity.
 You are careers guidance only — not a counsellor or crisis service. Do not give medical advice.
 If the person discloses self-harm, abuse, or immediate danger, urge them to seek real-world help
 (999 / Childline 0800 1111 / Samaritans 116 123) and do not dig for details.
 
 RESEARCH-BACKED ADVICE RULES:
 When RETRIEVED CONTEXT includes STRATEGY cards, use helpful "Do" actions.
-Prefer a balanced mix: one personal project you can show or talk about, one study or
-research stretch, and optionally one real-world encounter or application practice.
-Cite sources in plain language once or twice, e.g. "Careers research suggests…"
-or "Youth employment evidence suggests…". Do not name the underlying research body.
-Do not invent statistics.
+Prefer a real local experience they could ask for this month, matched to the focus area,
+plus a short learning stretch if it helps.
+For education or training, good examples are helping in a school, youth club, after-school
+club, or as a sports coach — only if that fits this leaver.
+Cite sources in plain language only when it helps. Do not invent statistics.
 Obey each card's "Do not claim" constraints.
-Use plain words for projects (e.g. a small CAD build, a short website, helping at a club
-and noting what you learned) — no jargon like "reflection logs".
+Do not start every answer with the same stock phrase.
 """
 
 _TYPE_SUFFIX = re.compile(r"\s*Type:\s*.+$", re.I)
@@ -179,14 +182,22 @@ _SECTOR_LABELS = {
     "business_professional": "business / professional services",
     "education_training": "education / training",
 }
-_REGISTER_LIMIT = (
-    "That is a location and sector clue from the company register — "
-    "not a careers page and not a sign they are hiring."
-)
-_VACANCY_LIMIT = (
-    "Vacancy titles in our data may be historical — not a sign they are hiring."
-)
 _GENERIC_BUILD_EXAMPLE = "a small making or repair task you can photograph"
+_BUILD_EXAMPLES_BY_SECTOR = {
+    "education_training": (
+        "helping at a school, youth club, or sports session as a volunteer helper or coach"
+    ),
+    "health_care": "a first-aid practice note or a care-skills checklist you can talk through",
+    "cyber_digital": "a small website, script, or a short write-up of a tool you tried",
+    "aerospace_manufacturing": "a small CAD sketch, 3D print, or a photographed making task",
+    "construction_green": "a small making or repair task you can photograph",
+    "agri_tech_food": "a growing, cooking, or food-hygiene task you can photograph",
+    "public_sector": "a short note on a local service, or volunteering you can talk through",
+    "creative_events": "a one-page event plan, poster, or a short video you can show",
+    "hospitality_tourism": "a sample menu, welcome card, or a short service checklist",
+    "hospitality_retail": "a product-display photo or a short customer-service checklist",
+    "business_professional": "a one-page process map or a spreadsheet that solves a real task",
+}
 _GROUNDED_H2 = (
     "## Why this company fits you",
     "## Training routes that fit your interests",
@@ -222,13 +233,24 @@ def _join_natural(parts: list[str], *, conj: str = "and") -> str:
 
 
 # Human matcher sector tags for the grounded work template.
-def _matcher_sector_label(company: dict[str, Any]) -> str:
+def _ordered_company_sectors(company: dict[str, Any]) -> list[str]:
     raw = company.get("sectors")
-    if isinstance(raw, (list, tuple, set)):
+    if isinstance(raw, (list, tuple)):
         tags = [str(x).strip() for x in raw if str(x).strip()]
     else:
         tags = [p.strip() for p in str(raw or "").split("|") if p.strip()]
-    labels = [_SECTOR_LABELS.get(tag, tag.replace("_", " ")) for tag in tags]
+    seen: list[str] = []
+    for tag in tags:
+        if tag not in seen:
+            seen.append(tag)
+    return seen
+
+
+def _matcher_sector_label(company: dict[str, Any]) -> str:
+    labels = [
+        _SECTOR_LABELS.get(tag, tag.replace("_", " "))
+        for tag in _ordered_company_sectors(company)
+    ]
     return _join_natural(labels) or "this sector"
 
 
@@ -241,21 +263,55 @@ def _interest_to_sector_map() -> dict[str, tuple[str, ...]]:
     }
 
 
-# Leaver interest labels whose mapped sectors intersect this employer's tags.
+# The single most relevant overlapping interest: company's first sector the leaver also has.
 def _overlapping_interest_labels(
     leaver: dict[str, Any], company: dict[str, Any]
 ) -> list[str]:
-    company_sectors = split_pipe(company.get("sectors"))
     mapping = _interest_to_sector_map()
-    labels: list[str] = []
+    user_labels: list[str] = []
     for item in leaver.get("interests") or []:
         label = str(item).strip()
-        if not label:
-            continue
-        mapped = set(mapping.get(label) or ())
-        if mapped & company_sectors:
-            labels.append(label)
-    return labels
+        if label and label not in user_labels:
+            user_labels.append(label)
+    for sector in _ordered_company_sectors(company):
+        for label in user_labels:
+            mapped = set(mapping.get(label) or ())
+            if sector in mapped:
+                return [label]
+    return []
+
+
+# The one employer sector that matches that primary interest.
+def _overlapping_sector_ids(
+    leaver: dict[str, Any], company: dict[str, Any]
+) -> list[str]:
+    mapping = _interest_to_sector_map()
+    labels = _overlapping_interest_labels(leaver, company)
+    if not labels:
+        return []
+    mapped = set(mapping.get(labels[0]) or ())
+    for sector in _ordered_company_sectors(company):
+        if sector in mapped:
+            return [sector]
+    return []
+
+
+# Human phrase for the overlapping work area (not every matcher tag).
+def _work_in_phrase(leaver: dict[str, Any], company: dict[str, Any]) -> str:
+    labels = [
+        _SECTOR_LABELS.get(sector, sector.replace("_", " "))
+        for sector in _overlapping_sector_ids(leaver, company)
+    ]
+    return _join_natural(labels) or _matcher_sector_label(company)
+
+
+# Concrete project example tied to the overlapping sector.
+def _build_example(leaver: dict[str, Any], company: dict[str, Any]) -> str:
+    for sector in _overlapping_sector_ids(leaver, company):
+        example = _BUILD_EXAMPLES_BY_SECTOR.get(sector)
+        if example:
+            return example
+    return _GENERIC_BUILD_EXAMPLE
 
 
 # True when work-mode CH/vacancy/seed rows have no verified programmes.
@@ -267,77 +323,16 @@ def _is_thin_work_record(company: dict[str, Any], mode: str) -> bool:
     return not programmes_for_company(str(company.get("company_id") or ""))
 
 
-# Grounded 3-section work briefing for thin CH / vacancy rows.
+# Grounded 3-section work briefing for thin CH / vacancy / seed rows.
 def _grounded_work_briefing(
     leaver: dict[str, Any],
     company: dict[str, Any],
 ) -> str:
-    name = _subject_name(company)
-    town = str(company.get("town") or "").strip() or "Gloucestershire"
-    postcode = str(company.get("postcode") or "").strip()
-    listed = f"{name} is listed in {town}"
-    if postcode:
-        listed = f"{listed} ({postcode})"
-    listed = f"{listed}."
-
-    overlap = _overlapping_interest_labels(leaver, company)
-    fit_phrase = _join_natural(overlap)
-    interest_route = _join_natural(
-        [item.lower() for item in overlap],
-        conj="or",
-    ) or "this sector"
-    overlap_phrase = fit_phrase or "your target sector"
-    sector_label = _matcher_sector_label(company)
-    kind = classify_employer_source(company)
-
-    website = public_employer_website(company.get("website"))
-    proud = " ".join(str(leaver.get("proud_example") or "").split()).strip()
-    example = proud or _GENERIC_BUILD_EXAMPLE
-
-    why = (
-        f"{listed} Our matcher tagged them under {sector_label}"
-    )
-    if fit_phrase:
-        why = f"{why}, which lines up with your interest in {fit_phrase}."
-    else:
-        why = f"{why}."
-    if kind == "vacancies":
-        why = f"{why} {_VACANCY_LIMIT}"
-    elif kind == "companies_house":
-        why = f"{why} {_REGISTER_LIMIT}"
-    careers = (
-        f"Look for an official careers page at the company ({website}) for information."
-        if website
-        else "Look for an official careers page at the company for information."
-    )
-    routes = (
-        f"People exploring {interest_route} routes in Gloucestershire often explore "
-        f"local college or apprenticeship options. {careers} Book a chat with a careers "
-        "adviser or local Careers Hub event to help you with your next steps."
-    )
-    build = (
-        f"Start one small project you can show or talk about linked to {overlap_phrase} "
-        f"(for example a simple outdoor build, like {example}). Spend a short session "
-        "learning or researching one skill used in that kind of work (a free tutorial, "
-        "library book, or open online lesson). Careers research suggests "
-        "arranging one real encounter this month, such as an open day or a short chat, "
-        "when you are ready."
-    )
-    return "\n".join(
-        [
-            f"# Your match — {name}",
-            "",
-            f"_Data source: {source_label(kind)}. Always verify on the official site._",
-            "",
-            _GROUNDED_H2[0],
-            why,
-            "",
-            _GROUNDED_H2[1],
-            routes,
-            "",
-            _GROUNDED_H2[2],
-            build,
-        ]
+    return _assemble_work_briefing(
+        leaver,
+        company,
+        [],
+        _work_build_next(leaver, company, None),
     )
 
 
@@ -491,10 +486,14 @@ def build_work_build_next_prompt(
         retrieved_chunks = filter_retrieved_hits_for_employer(retrieved_chunks, name)
     overlap = _overlapping_interest_labels(leaver, company)
     overlap_phrase = (
-        _join_natural(overlap)
-        or "none — write a generic local project; do not name other intake interests"
+        overlap[0]
+        if overlap
+        else "none — write a generic local project; do not name other intake interests"
     )
     proud = " ".join(str(leaver.get("proud_example") or "").split()).strip() or "none logged"
+    passions = ", ".join(
+        str(p).strip() for p in (leaver.get("passions") or []) if str(p).strip()
+    ) or "none logged"
     profile = _profile_text_without_non_overlap(leaver, overlap)
     user_prompt = f"""Write only the "What to build or develop next" paragraph for this leaver.
 Do not write Why this company fits you or Training routes. Those are filled in separately.
@@ -502,21 +501,24 @@ Do not write Why this company fits you or Training routes. Those are filled in s
 LEAVER PROFILE:
 {profile}
 
-Passions: {', '.join(leaver.get('passions', []))}
+Passions: {passions}
 Experience: {', '.join(leaver.get('work_experience', []))}
 Availability: {leaver.get('availability', '')}
 Qualification level: {leaver.get('qualification_level', '')}
 
-Overlapping interests (the only interests you may use for the project/study/encounter mix): {overlap_phrase}
+Focus area (use this one only): {overlap_phrase}
 Logged proud example (you may echo its spirit, without switching sector): {proud}
-Do not mention any other intake interest. Do not claim any employer works in these fields. Do not name programmes or vacancies.
+Suggest one concrete way to get experience this month in that focus area.
+If the focus is education or training, prefer asking to help at a school, youth club, after-school activity, or as a sports coach when that fits.
+This is personal experience — do not claim any employer runs it or is hiring.
+Do not mention any other intake interest. Do not name programmes or vacancies.
 
 RETRIEVED CONTEXT (STRATEGY advice only — not employer programmes):
 {_format_chunks(retrieved_chunks)}
 
 Write 3–5 short sentences in second person. No markdown headings. No employer names. No scheme titles.
-Include one personal project you can show or talk about, one study or research stretch, and optionally one real-world encounter if a STRATEGY card supports it.
-If a STRATEGY card supports a real encounter, you may write "Careers research suggests…".
+Lead with the experience or practice, then a short learning stretch if useful.
+Do not start every paragraph with "Start one small project" or "Make something small".
 Use plain language — no academic jargon.
 """
     return BUILD_NEXT_SYSTEM_PROMPT, user_prompt
@@ -583,13 +585,10 @@ def _assemble_work_briefing(
     programmes: list[dict[str, Any]],
     build_next: str,
 ) -> str:
-    kind = classify_employer_source(company)
     name = _subject_name(company)
     return "\n".join(
         [
             f"# Your match — {name}",
-            "",
-            f"_Data source: {source_label(kind)}. Always verify on the official site._",
             "",
             _GROUNDED_H2[0],
             _work_why_paragraph(leaver, company),
@@ -755,16 +754,11 @@ def generate_briefing(
     """Return (briefing_markdown, source).
 
     Source is 'openai', 'grounded_template', or 'offline'.
-    Thin Companies House / vacancy / seed work rows with no verified programmes skip
-    OpenAI and the pathway-title fallback, and return a grounded 3-section template.
-    Seed work rows with verified programmes still call OpenAI, but only for
-    "What to build or develop next"; Why and Training routes are filled in code.
+    Why and Training routes are always filled in code. OpenAI may write
+    "What to build or develop next" only, including for thin work rows.
     """
     company_dict = company if isinstance(company, dict) else company.to_dict()
     mode = (mode or "work").strip().lower()
-    if _is_thin_work_record(company_dict, mode):
-        return _grounded_work_briefing(leaver, company_dict), "grounded_template"
-
     chunks = retrieved_chunks
     if chunks is None:
         try:
@@ -772,29 +766,22 @@ def generate_briefing(
         except Exception:
             chunks = []
 
-    offline = fallback_briefing(
-        leaver,
-        company_dict,
-        retrieved_chunks=chunks,
-        mode=mode,
-        related_microcreds=related_microcreds,
-    )
-    if not use_openai:
-        return offline, "offline"
+    if mode != "work":
+        offline = fallback_briefing(
+            leaver,
+            company_dict,
+            retrieved_chunks=chunks,
+            mode=mode,
+            related_microcreds=related_microcreds,
+        )
+        if not use_openai:
+            return offline, "offline"
+        api_key = os.getenv("OPENAI_API_KEY", "").strip()
+        if not api_key:
+            return offline, "offline"
+        try:
+            from openai import OpenAI
 
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        return offline, "offline"
-
-    try:
-        from openai import OpenAI
-
-        work_mode = mode == "work"
-        if work_mode:
-            system, user = build_work_build_next_prompt(
-                leaver, company_dict, retrieved_chunks=chunks
-            )
-        else:
             system, user = build_briefing_prompt(
                 leaver,
                 company_dict,
@@ -802,6 +789,42 @@ def generate_briefing(
                 mode=mode,
                 related_microcreds=related_microcreds,
             )
+            client = OpenAI(api_key=api_key)
+            resp = client.chat.completions.create(
+                model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                temperature=0.3,
+                max_tokens=900,
+            )
+            text = (resp.choices[0].message.content or "").strip()
+            if not text:
+                return offline, "offline"
+            return text, "openai"
+        except Exception:
+            return offline, "offline"
+
+    programmes = programmes_for_company(str(company_dict.get("company_id") or ""))
+    thin = _is_thin_work_record(company_dict, mode)
+    locked_programmes: list[dict[str, Any]] = [] if thin else programmes
+    template_build = _work_build_next(leaver, company_dict, chunks)
+    assembled = _assemble_work_briefing(
+        leaver, company_dict, locked_programmes, template_build
+    )
+    fallback_source = "grounded_template" if thin else "offline"
+    if not use_openai:
+        return assembled, fallback_source
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        return assembled, fallback_source
+    try:
+        from openai import OpenAI
+
+        system, user = build_work_build_next_prompt(
+            leaver, company_dict, retrieved_chunks=chunks
+        )
         client = OpenAI(api_key=api_key)
         resp = client.chat.completions.create(
             model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
@@ -809,28 +832,23 @@ def generate_briefing(
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            temperature=0.3,
-            max_tokens=400 if work_mode else 900,
+            temperature=0.5,
+            max_tokens=400,
         )
         text = (resp.choices[0].message.content or "").strip()
         if not text:
-            return offline, "offline"
-        if work_mode:
-            programmes = programmes_for_company(
-                str(company_dict.get("company_id") or "")
-            )
-            body = _extract_build_next_body(text)
-            if not _build_next_is_safe(
-                body, programmes, leaver=leaver, company=company_dict
-            ):
-                body = _work_build_next(leaver, company_dict, chunks)
-            return (
-                _assemble_work_briefing(leaver, company_dict, programmes, body),
-                "openai",
-            )
-        return text, "openai"
+            return assembled, fallback_source
+        body = _extract_build_next_body(text)
+        if not _build_next_is_safe(
+            body, programmes, leaver=leaver, company=company_dict
+        ):
+            body = template_build
+        return (
+            _assemble_work_briefing(leaver, company_dict, locked_programmes, body),
+            "openai",
+        )
     except Exception:
-        return offline, "offline"
+        return assembled, fallback_source
 
 
 # Pull concrete 'Do' actions from evidence cards.
@@ -897,25 +915,21 @@ def _strategy_supports_encounter(retrieved_chunks: list[dict[str, Any]] | None) 
     return False
 
 
-# Offline work-mode "why this company" paragraph (seed-style prose).
+# Offline work-mode "why this company" paragraph.
 def _work_why_paragraph(leaver: dict[str, Any], company: dict[str, Any]) -> str:
     name = _subject_name(company)
     town = str(company.get("town") or "").strip() or "Gloucestershire"
-    postcode = str(company.get("postcode") or "").strip()
-    fit_phrase = _join_natural(_overlapping_interest_labels(leaver, company))
-    sector_label = _matcher_sector_label(company)
-    article = "an" if sector_label[:1].lower() in "aeiou" else "a"
-    listed = f"{name} is {article} {sector_label} employer in {town}"
-    if postcode:
-        listed = f"{listed} ({postcode})"
-    why = f"{listed}."
+    overlap = _overlapping_interest_labels(leaver, company)
+    fit_phrase = _join_natural(overlap)
+    work_in = _work_in_phrase(leaver, company)
+    why = f"{name} is based in {town}."
+    travel = commute_hint(leaver.get("location"), town)
+    if travel:
+        why = f"{why} {travel}"
     if fit_phrase:
-        why = f"{listed}. That sits with your interest in {fit_phrase}."
-    kind = classify_employer_source(company)
-    if kind == "companies_house":
-        why = f"{why} {_REGISTER_LIMIT}"
-    elif kind == "vacancies":
-        why = f"{why} {_VACANCY_LIMIT}"
+        why = f"{why} They work in {work_in}, which matches your interest in {fit_phrase}."
+    else:
+        why = f"{why} They are a local employer."
     return why
 
 
@@ -959,17 +973,25 @@ def _work_training_routes(
                 f"They have also previously run {article} {title}{level_bit}{cover}."
             )
         used = True
-    also = " as well" if programmes else ""
+    also = " as well as the routes above" if programmes else ""
     look = (
-        f"Look at {website} for information. "
+        f"Check {name}'s careers page ({website}) to see how they recruit. "
         if website
-        else "Look for an official careers page at the company for information. "
+        else "Check the company's official careers page to see how they recruit. "
     )
+    if overlap:
+        route_lead = (
+            f"If you want a structured way into {interest_route}, local college courses "
+            f"and apprenticeships are the usual next step{also}."
+        )
+    else:
+        route_lead = (
+            f"Local college courses and apprenticeships are the usual structured "
+            f"next step{also}."
+        )
     bits.append(
-        f"People exploring {interest_route} in Gloucestershire often compare "
-        f"local college or apprenticeship options{also}. {look}"
-        "Book a chat with a careers adviser or local Careers Hub event to help you "
-        "with your next steps."
+        f"{route_lead} {look}"
+        "A careers adviser or Careers Hub session can help you compare those options."
     )
     return " ".join(bits)
 
@@ -983,25 +1005,25 @@ def _work_build_next(
     overlap = _overlapping_interest_labels(leaver, company)
     interests_phrase = _join_natural(overlap) or "your target sector"
     proud = " ".join(str(leaver.get("proud_example") or "").split()).strip()
+    example = _build_example(leaver, company)
     if proud:
         project = (
-            f"Start one small project you can show, in the same spirit as the {proud} you logged "
-            f"— something linked to {interests_phrase} that you can talk through."
+            f"Make something small you can show, in the same spirit as {proud}, "
+            f"tied to {interests_phrase}."
         )
     else:
         project = (
-            f"Start one small project you can show or talk about linked to {interests_phrase} "
-            f"(for example {_GENERIC_BUILD_EXAMPLE})."
+            f"Make something small you can show or talk about in {interests_phrase} "
+            f"— for example {example}."
         )
     study = (
-        "Spend a short session on one skill used in that kind of work "
-        "(a free tutorial, library book, or open online lesson)."
+        "Then spend an hour on one skill that kind of work actually uses "
+        "(a free tutorial, a library book, or an open online lesson)."
     )
     parts = [project, study]
     if _strategy_supports_encounter(retrieved_chunks):
         parts.append(
-            "Careers research suggests arranging one real encounter this month, "
-            "such as an open day or a short chat, when you are ready."
+            "If you can, go to an open day or ask for a short chat this month."
         )
     return " ".join(parts)
 

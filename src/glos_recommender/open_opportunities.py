@@ -503,24 +503,44 @@ def work_open_unavailable_detail() -> str:
     if not _api_key() and not cache_has_open_apprenticeships():
         return (
             "Live apprenticeship listings are not loaded yet. Untick "
-            "“Only show options with live apprenticeship opportunities” to see work matches."
+            "“companies with live apprenticeship opportunities” to see work matches."
         )
     return (
         "No local employers in our directory currently have an open apprenticeship "
-        "on Find an apprenticeship. Untick “Only show options with live apprenticeship opportunities” "
+        "on Find an apprenticeship. Untick “companies with live apprenticeship opportunities” "
         "to see other work matches."
     )
+
+
+def work_jobs_unavailable_detail() -> str:
+    return (
+        "Live job listings from reed.co.uk are not loaded yet, or no local employers "
+        "in our directory currently have a live job there. Untick "
+        "“companies with live jobs on reed.co.uk” to see other work matches."
+    )
+
+
+def work_live_filter_empty_detail(*, apprenticeships: bool, jobs: bool) -> str:
+    if apprenticeships and jobs:
+        return (
+            "No local employers in our directory currently have an open apprenticeship "
+            "on Find an apprenticeship or a live job on reed.co.uk. Untick those filters "
+            "to see other work matches."
+        )
+    if jobs:
+        return work_jobs_unavailable_detail()
+    return work_open_unavailable_detail()
 
 
 def education_open_unavailable_detail() -> str:
     return (
         "No courses currently count as open to apply. Untick "
-        "“Only show options with live apprenticeship opportunities” to see all course matches."
+        "“companies with live apprenticeship opportunities” to see all course matches."
     )
 
 
 def military_open_unsupported_detail() -> str:
     return (
         "Military pathways do not have an official live-opportunities list. "
-        "Untick “Only show options with live apprenticeship opportunities”, or choose work or education."
+        "Untick the live apprenticeship and reed.co.uk job filters, or choose work or education."
     )

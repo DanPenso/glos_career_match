@@ -136,10 +136,7 @@ def display_summary(row: dict[str, Any] | None, *, mode: str = "work") -> str:
             "Role titles in that feed may be historical — confirm live vacancies "
             "on the service. This is not a list of open jobs."
         )
-    return (
-        f"{_listed_location_line(row)} Matcher sector tags only — "
-        "not a careers page and not a list of open roles."
-    )
+    return ""
 
 
 # Location/sector line for LLM facts — never curated marketing about routes.

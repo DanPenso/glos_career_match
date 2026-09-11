@@ -132,7 +132,8 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
   const [useOpenAIBriefing, setUseOpenAIBriefing] = useState(false);
   const [useGeminiPlan, setUseGeminiPlan] = useState(false);
   const [allowAnonymousLogging, setAllowAnonymousLogging] = useState(true);
-  const [liveOpportunitiesOnly, setLiveOpportunitiesOnly] = useState(false);
+  const [liveApprenticeshipsOnly, setLiveApprenticeshipsOnly] = useState(false);
+  const [liveJobsOnly, setLiveJobsOnly] = useState(false);
   const [error, setError] = useState("");
 
   const under16 = ageBand === "under_16";
@@ -199,7 +200,8 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
       use_openai_briefing: aiAllowed && useOpenAIBriefing,
       use_gemini_plan: aiAllowed && useGeminiPlan,
       allow_anonymous_logging: allowAnonymousLogging,
-      live_opportunities_only: mode !== "military" && liveOpportunitiesOnly,
+      live_apprenticeships_only: mode === "work" && liveApprenticeshipsOnly,
+      live_jobs_only: mode === "work" && liveJobsOnly,
       mode,
     });
   }
@@ -319,25 +321,31 @@ export function IntakeFormView({ taxonomy, onSubmit, busy, busyMode }: Props) {
             </label>
           </div>
 
-          <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-4 text-sm text-[var(--ink)]">
-            <input
-              type="checkbox"
-              className="mt-1"
-              checked={liveOpportunitiesOnly}
-              onChange={(e) => setLiveOpportunitiesOnly(e.target.checked)}
-            />
-            <span>
-              <span className="font-medium">
-                Only show options with live apprenticeship opportunities
-              </span>
-              <span className="mt-1 block text-xs text-[var(--ink-muted)]">
-                Work matches: open apprenticeships on Find an apprenticeship.
-                Education matches: courses listed as live in the National
-                Careers Service directory. Leave this unticked if you just want
-                local options. Does not apply to military pathways.
-              </span>
-            </span>
-          </label>
+          <fieldset className="space-y-3 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-4 text-sm text-[var(--ink)]">
+            <legend className="px-1 text-sm font-medium">Only show me</legend>
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={liveApprenticeshipsOnly}
+                onChange={(e) => setLiveApprenticeshipsOnly(e.target.checked)}
+              />
+              <span>companies with live apprenticeship opportunities</span>
+            </label>
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={liveJobsOnly}
+                onChange={(e) => setLiveJobsOnly(e.target.checked)}
+              />
+              <span>companies with live jobs on reed.co.uk</span>
+            </label>
+            <p className="text-xs text-[var(--ink-muted)]">
+              Applies to work matches. Leave both unticked to see all local
+              employers. Education and military pathways ignore these filters.
+            </p>
+          </fieldset>
 
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium text-[var(--ink-muted)]">

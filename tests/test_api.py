@@ -163,8 +163,9 @@ def test_match_uses_mocked_companies(client: TestClient) -> None:
     assert payload["matches"][0]["kind"] == "employer"
     assert payload["matches"][0]["hiring_label"] == "Check current openings"
     assert payload["matches"][0]["open_now"] is False
-    summary = payload["matches"][0]["summary"]
-    assert "Mock Employer is listed in Cheltenham (GL50 1AA)." in summary
+    summary = payload["matches"][0]["summary"] or ""
+    assert "matcher sector tags" not in summary.lower()
+    assert "listed in Cheltenham" not in summary
     assert "apprenticeship" not in summary.lower()
 
 
@@ -203,10 +204,16 @@ def test_plan_generate_uses_mock(client: TestClient) -> None:
 def test_match_rejects_live_filter_for_military(client: TestClient) -> None:
     response = client.post(
         "/match",
-        json=_match_body(mode="military", live_opportunities_only=True),
+        json=_match_body(mode="military", live_apprenticeships_only=True),
     )
     assert response.status_code == 400
     assert "official live-opportunities list" in response.json()["detail"]
+
+    response = client.post(
+        "/match",
+        json=_match_body(mode="military", live_jobs_only=True),
+    )
+    assert response.status_code == 400
 
 
 def test_match_attaches_open_opportunities_flag(
@@ -296,7 +303,61 @@ def test_match_live_filter_work_without_cache(
         "api.main.filter_employers_with_open",
         lambda companies, index=None: companies.iloc[0:0],
     )
-    response = client.post("/match", json=_match_body(live_opportunities_only=True))
+    response = client.post("/match", json=_match_body(live_apprenticeships_only=True))
     assert response.status_code == 400
     detail = response.json()["detail"].lower()
-    assert "live opportunities" in detail or "open apprenticeship" in detail
+    assert "apprenticeship" in detail
+
+
+def test_match_live_jobs_filter_without_cache(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        "api.main.load_open_apprenticeships",
+        lambda **kwargs: {"fetched_at": None, "vacancies": []},
+    )
+    monkeypatch.setattr("api.main.open_apprenticeship_index", lambda doc: {})
+    monkeypatch.setattr(
+        "api.main.load_reed_jobs",
+        lambda **kwargs: {"fetched_at": None, "jobs": []},
+    )
+    monkeypatch.setattr("api.main.open_jobs_index", lambda doc: {})
+    monkeypatch.setattr(
+        "api.main.filter_employers_with_open_jobs",
+        lambda companies, index=None: companies.iloc[0:0],
+    )
+    response = client.post("/match", json=_match_body(live_jobs_only=True))
+    assert response.status_code == 400
+    detail = response.json()["detail"].lower()
+    assert "reed" in detail or "job" in detail
+
+
+def test_match_live_filters_or_keeps_either_source(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    companies = _fake_ranked_companies()
+    monkeypatch.setattr("api.main.load_companies", lambda: companies)
+    monkeypatch.setattr(
+        "api.main.load_open_apprenticeships",
+        lambda **kwargs: {"fetched_at": None, "vacancies": []},
+    )
+    monkeypatch.setattr("api.main.open_apprenticeship_index", lambda doc: {})
+    monkeypatch.setattr(
+        "api.main.filter_employers_with_open",
+        lambda frame, index=None: frame.iloc[0:0],
+    )
+    monkeypatch.setattr(
+        "api.main.load_reed_jobs",
+        lambda **kwargs: {"fetched_at": "2026-09-11T12:00:00+00:00", "jobs": []},
+    )
+    monkeypatch.setattr("api.main.open_jobs_index", lambda doc: {"mock employer": []})
+    monkeypatch.setattr(
+        "api.main.filter_employers_with_open_jobs",
+        lambda frame, index=None: frame,
+    )
+    response = client.post(
+        "/match",
+        json=_match_body(live_apprenticeships_only=True, live_jobs_only=True),
+    )
+    assert response.status_code == 200
+    assert response.json()["matches"][0]["name"] == "Mock Employer"

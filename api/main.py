@@ -44,13 +44,12 @@ from glos_recommender.live_learning import log_match_event, record_persona_feedb
 from glos_recommender.military import match_military
 from glos_recommender.online_courses import match_online_courses
 from glos_recommender.open_jobs import (
+    filter_employers_with_open_jobs,
     load_reed_jobs,
     open_fields_for_employer_jobs,
     open_jobs_index,
 )
 from glos_recommender.open_opportunities import (
-    education_open_unavailable_detail,
-    filter_courses_with_open,
     filter_employers_with_open,
     load_open_apprenticeships,
     military_open_unsupported_detail,
@@ -58,6 +57,8 @@ from glos_recommender.open_opportunities import (
     open_fields_for_course,
     open_fields_for_employer,
     open_fields_for_military,
+    work_live_filter_empty_detail,
+    work_jobs_unavailable_detail,
     work_open_unavailable_detail,
 )
 from glos_recommender.personas import persona_bundle
@@ -122,6 +123,8 @@ class MatchRequest(BaseModel):
     use_gemini_plan: bool = False
     allow_anonymous_logging: bool = True
     live_opportunities_only: bool = False
+    live_apprenticeships_only: bool = False
+    live_jobs_only: bool = False
     top_n: int = 3
     mode: str = "work"  # work | education | military
 
@@ -199,6 +202,29 @@ def _merge_open_into_row(row: pd.Series, open_info: dict[str, Any]) -> pd.Series
     work["open_url"] = open_info.get("open_url") or ""
     work["open_now"] = True
     return work
+
+
+def _filter_companies_by_live(
+    companies: pd.DataFrame,
+    *,
+    apprenticeships: bool,
+    jobs: bool,
+    open_index: dict[str, Any],
+    jobs_index: dict[str, Any],
+) -> pd.DataFrame:
+    """Keep employers with a live FAA listing, Reed job, or either (OR)."""
+    if companies is None or companies.empty:
+        return companies
+    if not apprenticeships and not jobs:
+        return companies
+    keep = pd.Series(False, index=companies.index)
+    if apprenticeships:
+        faa = filter_employers_with_open(companies, index=open_index)
+        keep = keep | companies.index.isin(faa.index)
+    if jobs:
+        reed = filter_employers_with_open_jobs(companies, index=jobs_index)
+        keep = keep | companies.index.isin(reed.index)
+    return companies.loc[keep].copy()
 
 
 def _company_payload(
@@ -488,6 +514,8 @@ def match(req: MatchRequest) -> dict[str, Any]:
     use_gemini_plan = bool(form.pop("use_gemini_plan", False))
     allow_anonymous_logging = bool(form.pop("allow_anonymous_logging", True))
     live_opportunities_only = bool(form.pop("live_opportunities_only", False))
+    live_apprenticeships_only = bool(form.pop("live_apprenticeships_only", False)) or live_opportunities_only
+    live_jobs_only = bool(form.pop("live_jobs_only", False))
     top_n = form.pop("top_n", 3)
     form.pop("mode", None)
 
@@ -505,7 +533,7 @@ def match(req: MatchRequest) -> dict[str, Any]:
         use_openai_briefing = False
         use_gemini_plan = False
 
-    if live_opportunities_only and mode == "military":
+    if (live_apprenticeships_only or live_jobs_only) and mode == "military":
         raise HTTPException(status_code=400, detail=military_open_unsupported_detail())
 
     microcredentials: list[dict[str, Any]] = []
@@ -513,12 +541,6 @@ def match(req: MatchRequest) -> dict[str, Any]:
     try:
         if mode == "education":
             courses = load_courses()
-            if live_opportunities_only:
-                courses = filter_courses_with_open(courses)
-                if courses is None or courses.empty:
-                    raise HTTPException(
-                        status_code=400, detail=education_open_unavailable_detail()
-                    )
             leaver, ranked = match_courses(form, courses, top_n=top_n)
             matches = [
                 _course_payload(
@@ -547,7 +569,7 @@ def match(req: MatchRequest) -> dict[str, Any]:
                 faa_doc = load_open_apprenticeships()
             except Exception:
                 faa_doc = {}
-                if live_opportunities_only:
+                if live_apprenticeships_only and not live_jobs_only:
                     raise HTTPException(
                         status_code=503, detail=work_open_unavailable_detail()
                     ) from None
@@ -556,13 +578,27 @@ def match(req: MatchRequest) -> dict[str, Any]:
                 reed_doc = load_reed_jobs()
             except Exception:
                 reed_doc = {}
+                if live_jobs_only and not live_apprenticeships_only:
+                    raise HTTPException(
+                        status_code=503, detail=work_jobs_unavailable_detail()
+                    ) from None
             jobs_index = open_jobs_index(reed_doc)
             companies = load_companies()
-            if live_opportunities_only:
-                companies = filter_employers_with_open(companies, index=open_index)
+            if live_apprenticeships_only or live_jobs_only:
+                companies = _filter_companies_by_live(
+                    companies,
+                    apprenticeships=live_apprenticeships_only,
+                    jobs=live_jobs_only,
+                    open_index=open_index,
+                    jobs_index=jobs_index,
+                )
                 if companies is None or companies.empty:
                     raise HTTPException(
-                        status_code=400, detail=work_open_unavailable_detail()
+                        status_code=400,
+                        detail=work_live_filter_empty_detail(
+                            apprenticeships=live_apprenticeships_only,
+                            jobs=live_jobs_only,
+                        ),
                     )
             leaver, ranked = match_companies(form, companies, top_n=top_n)
             matches = [

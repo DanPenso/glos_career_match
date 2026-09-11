@@ -338,52 +338,6 @@ function MatchCard({
             </>
           ) : null}
         </p>
-        {match.source_label ? (
-          <p className="text-xs text-[var(--ink-muted)]">
-            <span className="font-medium text-[var(--ink)]">
-              Source: {match.source_label}
-            </span>
-            {match.source_note ? ` — ${match.source_note}` : null}
-            {mode === "work" ? (
-              <>
-                {" "}
-                <a
-                  href={
-                    match.open_url ||
-                    match.jobs_open_url ||
-                    match.website ||
-                    "https://www.findapprenticeship.service.gov.uk/"
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline decoration-[var(--accent)]"
-                >
-                  {match.open_url
-                    ? "View open opportunity"
-                    : match.jobs_open_url
-                      ? "View open job"
-                      : match.website
-                        ? "Check official openings"
-                        : "Search Find an apprenticeship"}
-                </a>
-              </>
-            ) : match.open_url || match.website ? (
-              <>
-                {" "}
-                <a
-                  href={match.open_url || match.website}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline decoration-[var(--accent)]"
-                >
-                  {match.open_url
-                    ? "View open opportunity"
-                    : "Check official site"}
-                </a>
-              </>
-            ) : null}
-          </p>
-        ) : null}
         {match.open_now &&
         match.open_titles &&
         match.open_titles.length > 1 ? (
@@ -689,11 +643,7 @@ export function MatchResults({
         <MatchCard match={match} mode={mode} copy={copy}>
           {data.briefings_enabled && match.briefing_markdown ? (
             <div className="space-y-2">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <p className="text-xs text-[var(--ink-muted)]">
-                  Match report written with OpenAI — facts come from open data /
-                  curated profiles; always check the official site.
-                </p>
+              <div className="flex justify-end">
                 <ReadAloudButton
                   key={`brief-${match.company_id || match.name}`}
                   text={match.briefing_markdown}

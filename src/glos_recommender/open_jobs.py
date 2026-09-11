@@ -1,7 +1,8 @@
-"""Live 'Open jobs' flags from Reed Jobseeker API — decorate-only.
+"""Live 'Open jobs' flags from Reed Jobseeker API.
 
-Does not drive the intake live-apprenticeship filter. Apprenticeship-titled
-Reed rows are dropped so Find an apprenticeship keeps those matches.
+Decorates work matches and can filter the directory to employers with a live
+Reed listing. Apprenticeship-titled Reed rows are dropped so Find an
+apprenticeship remains the source for those.
 """
 
 from __future__ import annotations
@@ -16,6 +17,8 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+
+import pandas as pd
 
 from .etl.vacancies import normalise_employer_name
 
@@ -404,3 +407,28 @@ def open_fields_for_employer_jobs(
         as_of=str(first.get("fetched_at") or ""),
         titles=titles,
     )
+
+
+def cache_has_open_jobs(doc: dict[str, Any] | None = None) -> bool:
+    try:
+        payload = doc if doc is not None else load_reed_jobs(allow_fetch=False)
+    except Exception:
+        payload = {}
+    return bool(_live_jobs(payload))
+
+
+def filter_employers_with_open_jobs(
+    companies: pd.DataFrame,
+    *,
+    index: dict[str, list[dict[str, Any]]] | None = None,
+) -> pd.DataFrame:
+    if companies is None or companies.empty:
+        return companies
+    grouped = index if index is not None else open_jobs_index(
+        load_reed_jobs(allow_fetch=False)
+    )
+    keys = set(grouped)
+    if not keys or "name" not in companies.columns:
+        return companies.iloc[0:0].copy()
+    mask = companies["name"].map(normalise_employer_name).isin(keys)
+    return companies.loc[mask].copy()

@@ -7,12 +7,12 @@ Next.js + TypeScript UI for 16–24. Talks to the FastAPI matcher in `../api`.
 From project root:
 
 ```bash
-# Terminal 1 — API
-.venv\Scripts\uvicorn api.main:app --reload --port 8000
+# Terminal 1 — API (Windows: .venv\Scripts\uvicorn …)
+uvicorn api.main:app --reload --port 8000
 
 # Terminal 2 — web
 cd web
-copy .env.local.example .env.local
+cp .env.local.example .env.local   # Windows: copy .env.local.example .env.local
 npm run dev
 ```
 

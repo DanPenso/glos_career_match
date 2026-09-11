@@ -37,7 +37,18 @@ data/external/onet/*
 *.zip
 # Keep curated bridge + built leavers tracked; parquet optional local
 data/curated/*.parquet
-# Anonymous live match events (retrain inputs)
+# Anonymous live match events (retrain inputs) + live listing caches
 data/live/*
 !data/live/README.md
 .vercel
+
+# Accidental nested clone of this repo
+glos_career_match/
+
+# Brand experiments (shipped assets live in web/public)
+assets/
+
+# Eval dumps (commit gold_set.json + docs/eval figures only)
+data/eval/runs/
+data/eval/journeys_200.jsonl
+data/eval/last_run.json

@@ -29,6 +29,8 @@ export type IntakeForm = {
   use_gemini_plan: boolean;
   allow_anonymous_logging: boolean;
   live_opportunities_only?: boolean;
+  live_apprenticeships_only?: boolean;
+  live_jobs_only?: boolean;
   mode: MatchMode;
 };
 

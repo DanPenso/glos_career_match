@@ -10,6 +10,7 @@ data/raw
 data/processed
 data/live/*
 !data/live/README.md
+data/eval
 .env
 .env.*
 web/.env.local
@@ -17,4 +18,7 @@ terminals
 archive
 notebooks
 docs
+assets
+models
+glos_career_match
 *.zip

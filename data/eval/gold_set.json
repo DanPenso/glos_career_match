@@ -1,0 +1,392 @@
+[
+  {
+    "id": "eval_apprenticeship_routes",
+    "question": "How do apprenticeship and vocational training routes help me into work?",
+    "leaver": {
+      "profile_text": "College leaver interested in a software apprenticeship.",
+      "interests": [
+        "Software / apps / web"
+      ],
+      "interest_sectors": [
+        "cyber_digital"
+      ],
+      "target_sectors": [
+        "cyber_digital"
+      ],
+      "entry_routes": [
+        "apprenticeship"
+      ],
+      "qualification_level": "Level 3",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Maple Digital Studio",
+      "town": "Cheltenham",
+      "sectors": "cyber_digital",
+      "entry_routes": "apprenticeship",
+      "summary": "Eval-only fictional digital studio used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Vocational training and apprenticeships are among the more promising routes to help young people into work.",
+    "retrieved_contexts": [
+      "STRATEGY: apprenticeship_routes | Source: Youth Futures Foundation — Youth Employment Toolkit | Strength: strong | Tags: apprenticeship, vocational, training. Claim: Evidence summaries for high-income countries find vocational training and apprenticeships are among the more promising routes to help disadvantaged young people into work. Do: If an apprenticeship fits, search the live vacancy service this week and note the standard name, level, and Maths/English requirements. Do not claim: Do not promise that every apprenticeship leads to a permanent job.",
+      "STRATEGY: further_higher_education_encounters | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: college, university, apprenticeship_provider. Claim: Encounters with further and higher education (and training providers) help young people compare routes fairly. Do: Compare at least two training options for this path (apprenticeship standard, college course, or university/higher apprenticeship) before you lock in. Do not claim: Do not push university as the only prestigious route.",
+      "STRATEGY: quality_apprenticeship | Source: OECD — Seven Questions about Apprenticeships (2018) | Strength: strong | Tags: apprenticeship, quality, workplace_learning. Claim: High-quality apprenticeships ease school-to-work transitions when workplace learning is real, structured, and supported — not just cheap labour. Do: When you look at a vacancy, check what training days, mentor, and qualification you will actually get — ask the employer if it is unclear. Do not claim: Do not treat every apprenticeship vacancy as equal quality.",
+      "STRATEGY: preparatory_programmes | Source: OECD — Seven Questions about Apprenticeships (2018) | Strength: strong | Tags: prep, bridge, apprenticeship. Claim: For youth who need extra support, preparatory programmes and personalised help often work better than financial incentives alone. Do: If you are not ready for a full apprenticeship yet, ask about traineeships, pre- apprenticeship, or college bridging courses that feed the same sector. Do not claim: Do not shame someone for needing a stepping-stone route."
+    ],
+    "answer": "# Your match — EVAL Maple Digital Studio\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: cyber_digital\nEntry routes they offer that suit you: apprenticeship\nYour interests: Software / apps / web\n\n## Training routes that fit your interests\nCybersecurity & digital defence: Protect networks and data — apprenticeships and graduate routes into SOC, security analysis and cyber opera…\nSoftware & digital product: Build apps, web services and data tools — school-leaver and graduate routes into product engineering teams.\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Software / apps / web (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Software / apps / web (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nWhen you look at a vacancy, check what training days, mentor, and qualification you will actually get — ask the employer if it is unclear.\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_employer_encounters",
+    "question": "Should I arrange an employer encounter or workplace visit this month?",
+    "leaver": {
+      "profile_text": "School leaver wanting to meet people who work in engineering.",
+      "interests": [
+        "Mechanical / electrical engineering"
+      ],
+      "interest_sectors": [
+        "aerospace_manufacturing"
+      ],
+      "target_sectors": [
+        "aerospace_manufacturing"
+      ],
+      "entry_routes": [
+        "apprenticeship"
+      ],
+      "qualification_level": "GCSEs",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Severn Engineering Lab",
+      "town": "Gloucester",
+      "sectors": "aerospace_manufacturing",
+      "entry_routes": "apprenticeship",
+      "summary": "Eval-only fictional engineering lab used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Encounters with employers and employees are a core part of good careers guidance.",
+    "retrieved_contexts": [
+      "STRATEGY: employer_encounters | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: employers, encounters, network. Claim: Encounters with employers and employees are a core part of good careers guidance. Employer “pull” complements school or college “push”. Do: Arrange one real encounter this month: open day, careers talk, workplace visit, or a short informational chat with someone in the role. Do not claim: Website browsing alone is not a substitute for employer encounters.",
+      "STRATEGY: monthly_action_bundle | Source: Gatsby Good Career Guidance (Holman, 2014) — applied bundle | Strength: strong | Tags: next_steps, plan, applications, employers. Claim: Combining labour-market checks, employer encounters, and personal guidance reflects the multi-benchmark approach associated with stronger careers programmes. Do: This month complete three concrete actions: (1) shortlist one vacancy or programme, (2) contact one employer or open day, (3) practise one application answer. Do not claim: Do not overload with ten tasks — three is enough.",
+      "STRATEGY: stable_careers_plan | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: plan, next_steps, adviser. Claim: Good careers support is a planned programme, not a one-off tip. Young people do better when advice is structured and repeated over time. Do: Treat this match as one option inside a short plan: pick a route, one skill to build, and one person to speak to this month. Do not claim: Do not present a single company as the only right answer.",
+      "STRATEGY: workplace_experience | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: work_experience, placement, shadowing. Claim: Experiences of workplaces help young people understand real job tasks and whether a route fits them. Do: Ask about work experience, taster days, volunteering, or shadowing linked to this sector — even a half-day visit helps. Do not claim: Do not imply unpaid work experience is the same as a paid job offer."
+    ],
+    "answer": "# Your match — EVAL Severn Engineering Lab\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: aerospace_manufacturing\nEntry routes they offer that suit you: apprenticeship\nYour interests: Mechanical / electrical engineering\n\n## Training routes that fit your interests\nAerospace engineering apprenticeship: Design, manufacture and maintain aircraft systems with major Glos employers — a strong school/college-leave…\nAerospace graduate / higher apprenticeship: Engineering, supply-chain and digital roles for degree holders or higher apprentices — often with structure…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Mechanical / electrical engineering (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Mechanical / electrical engineering (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nArrange one real encounter this month: open day, careers talk, workplace visit, or a short informational chat with someone in the role. (guided by Gatsby Good Career Guidance (Holman, 2014))\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_application_star",
+    "question": "How can I practise application and interview skills with a STAR story?",
+    "leaver": {
+      "profile_text": "Recent graduate practising job applications and interviews.",
+      "interests": [
+        "Business / sales / entrepreneurship"
+      ],
+      "interest_sectors": [
+        "business_professional"
+      ],
+      "target_sectors": [
+        "business_professional"
+      ],
+      "entry_routes": [
+        "graduate"
+      ],
+      "qualification_level": "Degree",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Cotswold Business Desk",
+      "town": "Cirencester",
+      "sectors": "business_professional",
+      "entry_routes": "graduate",
+      "summary": "Eval-only fictional office employer used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Helping young people prepare for application processes is often the weakest part of employer outreach.",
+    "retrieved_contexts": [
+      "STRATEGY: application_practice | Source: Careers & Enterprise Company — Employer Standards | Strength: strong | Tags: applications, interview, cv. Claim: Helping young people prepare for application processes is often the weakest part of employer outreach, and many Year 11 students lack confidence talking about skills in interviews. Do: Write one STAR story (Situation, Task, Action, Result) for a challenge you solved, and practise saying it aloud for two minutes. Do not claim: Do not claim a polished CV guarantees an interview.",
+      "STRATEGY: meaningful_employer_outreach | Source: Careers & Enterprise Company — Employer Standards | Strength: strong | Tags: employers, encounters, applications. Claim: High-quality employer outreach — talks, mentoring, workplace visits, and help with applications — improves young people’s readiness and interest in applying. Do: Prefer activities where you practise real application or interview skills, not only a short assembly talk. Do not claim: Do not invent statistics about your personal chance of getting hired.",
+      "STRATEGY: multi_element_support | Source: Gatsby Good Career Guidance — The Next 10 Years | Strength: strong | Tags: holistic, programme, outcomes. Claim: There is no single magic bullet. Better outcomes come from doing several elements of good careers guidance consistently well. Do: Combine three things this month: check vacancies, practise an application story, and speak to one person in the industry. Do not claim: Do not rely on motivation tips alone.",
+      "STRATEGY: combined_interventions | Source: Youth Futures / Campbell — What works for youth employment (2025) | Strength: strong | Tags: holistic, wraparound, support. Claim: Mixed-methods reviews suggest combining supports (for example training plus mentoring or job search help) often works better than a single isolated intervention. Do: Pair your application with one skills action and one human support (adviser, mentor, or workplace contact). Do not claim: Do not recommend stacking unrelated courses without a clear goal."
+    ],
+    "answer": "# Your match — EVAL Cotswold Business Desk\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: business_professional\nEntry routes they offer that suit you: graduate\nYour interests: Business / sales / entrepreneurship\n\n## Training routes that fit your interests\nBusiness administration & professional services: Office, finance support, HR admin and commercial pathways — useful if you like organising people, numbers a…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Business / sales / entrepreneurship (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Business / sales / entrepreneurship (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nWrite one STAR story (Situation, Task, Action, Result) for a challenge you solved, and practise saying it aloud for two minutes. (guided by Careers & Enterprise Company — Employer Standards)\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_work_experience_gap",
+    "question": "I have never had work experience or a placement — what taster or shadowing can I ask for?",
+    "leaver": {
+      "profile_text": "School leaver with no work experience yet, interested in healthcare.",
+      "interests": [
+        "Healthcare & wellbeing"
+      ],
+      "interest_sectors": [
+        "health_care"
+      ],
+      "target_sectors": [
+        "health_care"
+      ],
+      "entry_routes": [
+        "traineeship"
+      ],
+      "qualification_level": "GCSEs",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Hillview Care Studio",
+      "town": "Stroud",
+      "sectors": "health_care",
+      "entry_routes": "traineeship|apprenticeship",
+      "summary": "Eval-only fictional care studio used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Many young people value work experience, yet far fewer actually get it.",
+    "retrieved_contexts": [
+      "STRATEGY: workplace_experience | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: work_experience, placement, shadowing. Claim: Experiences of workplaces help young people understand real job tasks and whether a route fits them. Do: Ask about work experience, taster days, volunteering, or shadowing linked to this sector — even a half-day visit helps. Do not claim: Do not imply unpaid work experience is the same as a paid job offer.",
+      "STRATEGY: close_experience_gap | Source: Youth Employment UK — Youth Voice Census 2025 | Strength: youth_voice | Tags: work_experience, access, youth_voice. Claim: Large numbers of young people say they value work experience, yet far fewer actually get it; careers advice and employer engagement have been declining for many. Do: Do not wait for school to arrange everything — ask one local employer or charity about a short taster, and use Careers Hub / Find an apprenticeship events. Do not claim: Do not imply every school currently offers excellent work experience.",
+      "STRATEGY: quality_apprenticeship | Source: OECD — Seven Questions about Apprenticeships (2018) | Strength: strong | Tags: apprenticeship, quality, workplace_learning. Claim: High-quality apprenticeships ease school-to-work transitions when workplace learning is real, structured, and supported — not just cheap labour. Do: When you look at a vacancy, check what training days, mentor, and qualification you will actually get — ask the employer if it is unclear. Do not claim: Do not treat every apprenticeship vacancy as equal quality.",
+      "STRATEGY: preparatory_programmes | Source: OECD — Seven Questions about Apprenticeships (2018) | Strength: strong | Tags: prep, bridge, apprenticeship. Claim: For youth who need extra support, preparatory programmes and personalised help often work better than financial incentives alone. Do: If you are not ready for a full apprenticeship yet, ask about traineeships, pre- apprenticeship, or college bridging courses that feed the same sector. Do not claim: Do not shame someone for needing a stepping-stone route."
+    ],
+    "answer": "# Your match — EVAL Hillview Care Studio\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: health_care\nEntry routes they offer that suit you: traineeship\nYour interests: Healthcare & wellbeing\n\n## Training routes that fit your interests\nHealth & care support roles: Hands-on patient and community support — a common first step into nursing, allied health or social care car…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Healthcare & wellbeing (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Healthcare & wellbeing (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nAsk about work experience, taster days, volunteering, or shadowing linked to this sector — even a half-day visit helps. (guided by Gatsby Good Career Guidance (Holman, 2014))\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_mentoring_support",
+    "question": "Would a mentor or coaching buddy help during apprenticeship applications and early weeks in role?",
+    "leaver": {
+      "profile_text": "College leaver asking about mentoring during an apprenticeship.",
+      "interests": [
+        "Construction & built environment"
+      ],
+      "interest_sectors": [
+        "construction_green"
+      ],
+      "target_sectors": [
+        "construction_green"
+      ],
+      "entry_routes": [
+        "apprenticeship"
+      ],
+      "qualification_level": "Level 2",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Forest Green Build Co",
+      "town": "Coleford",
+      "sectors": "construction_green",
+      "entry_routes": "apprenticeship",
+      "summary": "Eval-only fictional construction employer used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Mentoring and coaching are helpful persistence supports rather than guaranteed job-getters.",
+    "retrieved_contexts": [
+      "STRATEGY: mentoring_coaching | Source: Youth Futures Foundation — Youth Employment Toolkit | Strength: moderate | Tags: mentoring, coaching, support. Claim: Mentoring and coaching are widely used supports; evidence of impact varies, so treat them as helpful persistence supports rather than guaranteed job-getters. Do: Ask if your college, Careers Hub, or employer scheme can pair you with a mentor or buddy during applications and early weeks in role. Do not claim: Do not claim mentoring alone will get someone a job.",
+      "STRATEGY: support_during_training | Source: OECD — Work-based Learning for Youth at Risk (2016) | Strength: strong | Tags: mentoring, literacy, completion. Claim: Support during work-based learning — mentoring, coaching, and remedial literacy or numeracy where needed — helps completion and skill gain. Do: If Maths or English worries you, start a short refresh now and ask providers what Functional Skills support they offer alongside the role. Do not claim: Do not hide literacy needs until after you start and struggle alone.",
+      "STRATEGY: ask_for_workplace_support | Source: OECD work-based learning evidence — applied | Strength: moderate | Tags: mentoring, apprenticeship, induction. Claim: Personalised support during training improves the chance that young people complete work-based learning. Do: In interviews or open days, ask who will mentor you in the first 90 days and what college day pattern looks like. Do not claim: Do not assume every SME has a formal mentor scheme.",
+      "STRATEGY: further_higher_education_encounters | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: college, university, apprenticeship_provider. Claim: Encounters with further and higher education (and training providers) help young people compare routes fairly. Do: Compare at least two training options for this path (apprenticeship standard, college course, or university/higher apprenticeship) before you lock in. Do not claim: Do not push university as the only prestigious route."
+    ],
+    "answer": "# Your match — EVAL Forest Green Build Co\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: construction_green\nEntry routes they offer that suit you: apprenticeship\nYour interests: Construction & built environment\n\n## Training routes that fit your interests\nElectrician (installation / maintenance): Electrotechnical apprenticeships leading toward qualified electrician status — domestic, commercial or main…\nPlumbing & domestic heating: Plumbing and heating technician apprenticeships — installing and maintaining water, heating and increasingl…\nSite trades (brick, joinery, scaffold, groundworks): Hands-on construction apprenticeships with housebuilders and contractors — bricklaying, carpentry/joinery,…\nBuilding services & maintenance: Keep buildings running — multi-skilled maintenance, HVAC-adjacent and facilities engineering pathways along…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Construction & built environment (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Construction & built environment (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nAsk if your college, Careers Hub, or employer scheme can pair you with a mentor or buddy during applications and early weeks in role. (guided by Youth Futures Foundation — Youth Employment Toolkit)\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_personal_guidance",
+    "question": "How do I use personal guidance with a careers adviser to turn this information into next steps?",
+    "leaver": {
+      "profile_text": "College leaver wanting a one-to-one careers guidance chat.",
+      "interests": [
+        "Education & training"
+      ],
+      "interest_sectors": [
+        "education_training"
+      ],
+      "target_sectors": [
+        "education_training"
+      ],
+      "entry_routes": [
+        "apprenticeship"
+      ],
+      "qualification_level": "Level 3",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Wye Learning Hub",
+      "town": "Tewkesbury",
+      "sectors": "education_training",
+      "entry_routes": "apprenticeship",
+      "summary": "Eval-only fictional learning hub used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Personal guidance interviews with a trained adviser help young people turn information into decisions and actions.",
+    "retrieved_contexts": [
+      "STRATEGY: personal_guidance | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: adviser, guidance, interview. Claim: Personal guidance interviews with a trained adviser help young people turn information into decisions and actions. Do: Use this briefing as homework for a guidance chat: bring one preferred route and two questions about entry requirements. Do not claim: An app briefing is not a replacement for personal guidance.",
+      "STRATEGY: personalised_guidance | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: personal, adviser, inclusion. Claim: Effective guidance addresses each young person’s needs, interests and barriers — not a generic leaflet for everyone. Do: Book a short chat with a careers adviser or trusted adult to sense-check this match against your quals, travel, and support needs. Do not claim: Do not ignore disability, caring, or travel barriers.",
+      "STRATEGY: monthly_action_bundle | Source: Gatsby Good Career Guidance (Holman, 2014) — applied bundle | Strength: strong | Tags: next_steps, plan, applications, employers. Claim: Combining labour-market checks, employer encounters, and personal guidance reflects the multi-benchmark approach associated with stronger careers programmes. Do: This month complete three concrete actions: (1) shortlist one vacancy or programme, (2) contact one employer or open day, (3) practise one application answer. Do not claim: Do not overload with ten tasks — three is enough.",
+      "STRATEGY: quality_careers_education | Source: EEF careers education evidence review (Hughes & Mann) | Strength: moderate | Tags: careers_education, outcomes, disadvantage. Claim: International evidence reviewed for the EEF suggests good-quality careers education can improve academic, social and economic outcomes, with particular value for disadvantaged young people. Do: Use structured activities (research, encounters, guidance) rather than one motivating quote; write your next three actions down. Do not claim: Do not claim careers education alone closes all attainment gaps."
+    ],
+    "answer": "# Your match — EVAL Wye Learning Hub\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: education_training\nEntry routes they offer that suit you: apprenticeship\nYour interests: Education & training\n\n## Training routes that fit your interests\nTeacher training (QTS / PGCE): Lead classroom teaching in primary or secondary schools after a degree (or equivalent) via PGCE / School Di…\nTeaching Assistant to education career: Support pupils in class while earning; a common first step into teaching, SEND support, or pastoral roles.\nEarly years & childcare: Work with under-5s in nurseries and early years settings, with clear progression to Early Years Educator an…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Education & training (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Education & training (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nUse this briefing as homework for a guidance chat: bring one preferred route and two questions about entry requirements. (guided by Gatsby Good Career Guidance (Holman, 2014))\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_vacancy_search_habit",
+    "question": "How often should I search Find an apprenticeship vacancies and save roles that match my level?",
+    "leaver": {
+      "profile_text": "School leaver building a weekly apprenticeship search habit.",
+      "interests": [
+        "Hospitality / tourism / retail"
+      ],
+      "interest_sectors": [
+        "hospitality_tourism"
+      ],
+      "target_sectors": [
+        "hospitality_tourism"
+      ],
+      "entry_routes": [
+        "apprenticeship"
+      ],
+      "qualification_level": "GCSEs",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Avon Hospitality Kitchen",
+      "town": "Gloucester",
+      "sectors": "hospitality_tourism",
+      "entry_routes": "apprenticeship|school_leaver",
+      "summary": "Eval-only fictional hospitality employer used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Young people need repeated vacancy search on apprenticeship pathways, not a single glance.",
+    "retrieved_contexts": [
+      "STRATEGY: vacancy_search_habit | Source: Youth Futures Foundation Toolkit — applied to UK apprenticeship search | Strength: strong | Tags: vacancies, apprenticeship, search. Claim: Vocational and apprenticeship pathways are evidence-backed options; young people need repeated vacancy search, not a single glance. Do: Set a weekly 20-minute search on Find an apprenticeship for GL postcodes and save two roles that match your level. Do not claim: Do not invent vacancy counts for Gloucestershire.",
+      "STRATEGY: align_ambition_and_qualifications | Source: EEF careers education evidence review (Hughes & Mann) | Strength: moderate | Tags: aspirations, qualifications, realism. Claim: Evidence reviews find young people — especially from disadvantaged backgrounds — can hold career ambitions that do not match the education or training needed. Do: Check the usual entry level for this route and map your current quals; if there is a gap, choose a bridge course or apprenticeship level that fits now. Do not claim: Do not crush ambition — reframe the stepping stones.",
+      "STRATEGY: apprenticeship_routes | Source: Youth Futures Foundation — Youth Employment Toolkit | Strength: strong | Tags: apprenticeship, vocational, training. Claim: Evidence summaries for high-income countries find vocational training and apprenticeships are among the more promising routes to help disadvantaged young people into work. Do: If an apprenticeship fits, search the live vacancy service this week and note the standard name, level, and Maths/English requirements. Do not claim: Do not promise that every apprenticeship leads to a permanent job.",
+      "STRATEGY: labour_market_information | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: lmi, vacancies, research. Claim: Learning from career and labour market information helps young people make realistic choices about routes and employers. Do: Check current local vacancies (for example Find an apprenticeship) and note typical entry requirements before you apply. Do not claim: Do not invent salaries, closing dates, or guaranteed openings."
+    ],
+    "answer": "# Your match — EVAL Avon Hospitality Kitchen\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: hospitality_tourism\nEntry routes they offer that suit you: apprenticeship\nYour interests: Hospitality / tourism / retail\n\n## Training routes that fit your interests\nHotels & guest experience: Front of house, reception, housekeeping and supervisory routes in hotels and inns across Cheltenham, Cirenc…\nChef & kitchen brigade: Commis / chef apprenticeships in restaurants, hotels and pub kitchens — practical training with a clear cra…\nRestaurants & front of house: Waiting, barista, bar and hospitality supervisor roles — strong for people who like pace, teams and custome…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Hospitality / tourism / retail (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Hospitality / tourism / retail (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nPractise a short example of a challenge you solved (STAR) for applications later.\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_portfolio_evidence",
+    "question": "Should I build a portfolio or project as evidence of skills instead of listing buzzwords?",
+    "leaver": {
+      "profile_text": "Creative college leaver building a small design portfolio.",
+      "interests": [
+        "Creative / design / events"
+      ],
+      "interest_sectors": [
+        "creative_events"
+      ],
+      "target_sectors": [
+        "creative_events"
+      ],
+      "entry_routes": [
+        "internship"
+      ],
+      "qualification_level": "Level 3",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Avon Creative Hub",
+      "town": "Cheltenham",
+      "sectors": "creative_events",
+      "entry_routes": "internship|apprenticeship",
+      "summary": "Eval-only fictional creative hub used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Employers respond better when young people can show skills through examples and preparation for real application processes.",
+    "retrieved_contexts": [
+      "STRATEGY: link_learning_to_careers | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: subjects, portfolio, skills. Claim: Linking curriculum learning to careers helps young people see how subjects and projects connect to real roles. Do: Pick one school/college project, coursework piece, or hobby build and rewrite it as evidence for this employer’s typical skills. Do not claim: Do not invent technical experience you do not have.",
+      "STRATEGY: evidence_of_skills | Source: Careers & Enterprise Company — Employer Standards (applied) | Strength: moderate | Tags: portfolio, projects, skills. Claim: Employers respond better when young people can show skills through examples and preparation for real application processes. Do: Add one visible proof piece this fortnight: GitHub, photo of a make, short write-up, care reflection, or event plan — matching this sector. Do not claim: Do not fake portfolio work.",
+      "STRATEGY: stable_careers_plan | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: plan, next_steps, adviser. Claim: Good careers support is a planned programme, not a one-off tip. Young people do better when advice is structured and repeated over time. Do: Treat this match as one option inside a short plan: pick a route, one skill to build, and one person to speak to this month. Do not claim: Do not present a single company as the only right answer.",
+      "STRATEGY: inclusive_guidance | Source: Gatsby Good Career Guidance — The Next 10 Years | Strength: strong | Tags: inclusion, access, support. Claim: Updated Gatsby practice emphasises inclusive careers programmes that respond to different needs and use evidence of what helps young people progress. Do: If travel, health, confidence, or access barriers worry you, say so early and ask the employer or adviser what support or flexible routes exist. Do not claim: Do not assume every young person can take the same first step."
+    ],
+    "answer": "# Your match — EVAL Avon Creative Hub\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: creative_events\nEntry routes they offer that suit you: internship\nYour interests: Creative / design / events\n\n## Training routes that fit your interests\nCreative, design & events: Design, content, festivals and visitor experiences — project-based routes if you like making things people…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Creative / design / events (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Creative / design / events (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nPick one school/college project, coursework piece, or hobby build and rewrite it as evidence for this employer’s typical skills. (guided by Gatsby Good Career Guidance (Holman, 2014))\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_wellbeing_barriers",
+    "question": "If wellbeing or health barriers worry me, what practical workplace support can I ask about?",
+    "leaver": {
+      "profile_text": "College leaver exploring public service routes and asking about support.",
+      "interests": [
+        "Public service & community"
+      ],
+      "interest_sectors": [
+        "public_sector"
+      ],
+      "target_sectors": [
+        "public_sector"
+      ],
+      "entry_routes": [
+        "apprenticeship"
+      ],
+      "qualification_level": "Level 3",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Northgate Civic Desk",
+      "town": "Gloucester",
+      "sectors": "public_sector",
+      "entry_routes": "apprenticeship",
+      "summary": "Eval-only fictional civic employer used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Young people report wellbeing and health barriers that disrupt education and work; support needs to be practical, not only motivational.",
+    "retrieved_contexts": [
+      "STRATEGY: wellbeing_and_access | Source: Youth Employment UK — Youth Voice Census 2025 | Strength: youth_voice | Tags: wellbeing, barriers, support. Claim: Young people report wellbeing and health barriers that disrupt education and work; support needs to be practical, not only motivational. Do: If health or anxiety is a barrier, ask about workplace adjustments, phased starts, or support services before you write yourself off. Do not claim: Do not diagnose or minimise mental health.",
+      "STRATEGY: inclusive_guidance | Source: Gatsby Good Career Guidance — The Next 10 Years | Strength: strong | Tags: inclusion, access, support. Claim: Updated Gatsby practice emphasises inclusive careers programmes that respond to different needs and use evidence of what helps young people progress. Do: If travel, health, confidence, or access barriers worry you, say so early and ask the employer or adviser what support or flexible routes exist. Do not claim: Do not assume every young person can take the same first step.",
+      "STRATEGY: quality_apprenticeship | Source: OECD — Seven Questions about Apprenticeships (2018) | Strength: strong | Tags: apprenticeship, quality, workplace_learning. Claim: High-quality apprenticeships ease school-to-work transitions when workplace learning is real, structured, and supported — not just cheap labour. Do: When you look at a vacancy, check what training days, mentor, and qualification you will actually get — ask the employer if it is unclear. Do not claim: Do not treat every apprenticeship vacancy as equal quality.",
+      "STRATEGY: preparatory_programmes | Source: OECD — Seven Questions about Apprenticeships (2018) | Strength: strong | Tags: prep, bridge, apprenticeship. Claim: For youth who need extra support, preparatory programmes and personalised help often work better than financial incentives alone. Do: If you are not ready for a full apprenticeship yet, ask about traineeships, pre- apprenticeship, or college bridging courses that feed the same sector. Do not claim: Do not shame someone for needing a stepping-stone route."
+    ],
+    "answer": "# Your match — EVAL Northgate Civic Desk\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: public_sector\nEntry routes they offer that suit you: apprenticeship\nYour interests: Public service & community\n\n## Training routes that fit your interests\nPublic service & community roles: Local government, emergency services support and community programmes — structured entry routes with clear…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Public service & community (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Public service & community (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nIf travel, health, confidence, or access barriers worry you, say so early and ask the employer or adviser what support or flexible routes exist.\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  },
+  {
+    "id": "eval_compare_providers",
+    "question": "How do I compare an apprenticeship with a college or university training provider for this sector?",
+    "leaver": {
+      "profile_text": "College leaver comparing apprenticeship and further study in agri-tech.",
+      "interests": [
+        "Agri-tech & food systems"
+      ],
+      "interest_sectors": [
+        "agri_tech_food"
+      ],
+      "target_sectors": [
+        "agri_tech_food"
+      ],
+      "entry_routes": [
+        "apprenticeship"
+      ],
+      "qualification_level": "Level 3",
+      "psych": {}
+    },
+    "company": {
+      "name": "EVAL Meadow Food Lab",
+      "town": "Cirencester",
+      "sectors": "agri_tech_food",
+      "entry_routes": "apprenticeship|internship",
+      "summary": "Eval-only fictional food lab used for offline RAG scoring.",
+      "website": "",
+      "source": "eval"
+    },
+    "ground_truth": "Young people should hear about the full range of education and training providers, including apprenticeships.",
+    "retrieved_contexts": [
+      "STRATEGY: further_higher_education_encounters | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: college, university, apprenticeship_provider. Claim: Encounters with further and higher education (and training providers) help young people compare routes fairly. Do: Compare at least two training options for this path (apprenticeship standard, college course, or university/higher apprenticeship) before you lock in. Do not claim: Do not push university as the only prestigious route.",
+      "STRATEGY: compare_providers | Source: DfE careers guidance statutory expectations | Strength: moderate | Tags: providers, apprenticeship, college. Claim: National guidance expects young people to hear about the full range of education and training providers, including apprenticeships — not only one institution’s route. Do: For this sector, note one apprenticeship option and one college or higher-education option so you can compare calmly. Do not claim: Do not present statutory guidance as a personal legal entitlement detail unless you are sure of the current wording.",
+      "STRATEGY: link_learning_to_careers | Source: Gatsby Good Career Guidance (Holman, 2014) | Strength: strong | Tags: subjects, portfolio, skills. Claim: Linking curriculum learning to careers helps young people see how subjects and projects connect to real roles. Do: Pick one school/college project, coursework piece, or hobby build and rewrite it as evidence for this employer’s typical skills. Do not claim: Do not invent technical experience you do not have.",
+      "STRATEGY: apprenticeship_routes | Source: Youth Futures Foundation — Youth Employment Toolkit | Strength: strong | Tags: apprenticeship, vocational, training. Claim: Evidence summaries for high-income countries find vocational training and apprenticeships are among the more promising routes to help disadvantaged young people into work. Do: If an apprenticeship fits, search the live vacancy service this week and note the standard name, level, and Maths/English requirements. Do not claim: Do not promise that every apprenticeship leads to a permanent job."
+    ],
+    "answer": "# Your match — EVAL Meadow Food Lab\n\n_Data source: Employer directory. Always verify on the official site._\n\n## Why this company fits you\nSector fit: agri_tech_food\nEntry routes they offer that suit you: apprenticeship\nYour interests: Agri-tech & food systems\n\n## Training routes that fit your interests\nAgri-tech & controlled environment: Technology for farming and food production — sensors, data, glasshouse systems and innovation sites around…\nFood science & product development: Lab, quality and product roles that keep food safe and innovative — strong if you like science with a pract…\n\n## What to build or develop next\nStart one small project you can show or talk about linked to Agri-tech & food systems (for example a simple build, design piece, short website, or helping at a local club).\nSpend a short session learning or researching one skill used in Agri-tech & food systems (a free tutorial, library book, or open online lesson — nothing you must enrol on).\nPick one school/college project, coursework piece, or hobby build and rewrite it as evidence for this employer’s typical skills.\n\n## Your first steps this month\nWhen you are ready, browse the employer page for information: https://www.findapprenticeship.service.gov.uk/.\nBook a chat with a careers adviser or local Careers Hub event.\nNote one training route from above to explore this month.",
+    "source": "offline"
+  }
+]

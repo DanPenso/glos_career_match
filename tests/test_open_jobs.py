@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import pandas as pd
+
 from glos_recommender.open_jobs import (
     JOBS_OPEN_LABEL,
+    filter_employers_with_open_jobs,
     is_apprenticeship_title,
     open_fields_for_employer_jobs,
     open_jobs_index,
@@ -56,6 +59,15 @@ def test_employer_jobs_join_by_normalised_name() -> None:
     assert "reed.co.uk/jobs/1" in info["jobs_open_url"]
     assert info["jobs_open_source"] == "reed_jobseeker"
     assert open_fields_for_employer_jobs("Unknown CIC", index=index)["jobs_open_now"] is False
+
+    companies = pd.DataFrame(
+        [
+            {"company_id": "a", "name": "Example Care Ltd"},
+            {"company_id": "b", "name": "Closed Bakery"},
+        ]
+    )
+    filtered = filter_employers_with_open_jobs(companies, index=index)
+    assert list(filtered["company_id"]) == ["a"]
 
 
 def test_expired_job_is_not_open() -> None:

@@ -27,10 +27,6 @@ _GROUNDED_H2 = [
     "## Training routes that fit your interests",
     "## What to build or develop next",
 ]
-_REGISTER_SENTENCE = (
-    "That is a location and sector clue from the company register — "
-    "not a careers page and not a sign they are hiring."
-)
 
 _MOCK_PROGRAMMES = [
     {
@@ -58,6 +54,10 @@ def _assert_grounded(md: str, source: str, *, pathway_titles: list[str]) -> None
     assert headings == _GROUNDED_H2
     lowered = md.lower()
     assert "hiring you" not in lowered
+    assert "data source:" not in lowered
+    assert "always verify on the official site" not in lowered
+    assert "our matcher tagged" not in lowered
+    assert "people exploring" not in lowered
     assert "we do not have a verified programme list" not in lowered
     assert "treat that as careers advice" not in lowered
     assert "nothing you must enrol on" not in lowered
@@ -240,17 +240,19 @@ def test_thin_companies_house_work_briefing_is_grounded(
         _leaver(),
         _ch_row(),
         use_openai=True,
+        retrieved_chunks=[],
         mode="work",
     )
-    assert calls["openai"] == 0
+    assert calls["openai"] == 1
     _assert_grounded(md, source, pathway_titles=_pathway_titles("construction_green"))
-    assert _REGISTER_SENTENCE in md
     assert "(Gatsby)" not in md
-    assert md.rstrip().endswith("when you are ready.")
     why = md.split("## Why this company fits you", 1)[1].split("## ", 1)[0]
-    assert why.strip().endswith("hiring.")
-    assert "company register" in why
-    assert "Crux Product Design Ltd is listed in Bristol (BS4)." in md
+    assert "company register" not in why.lower()
+    assert "not a sign they are hiring" not in why.lower()
+    assert "Crux Product Design Ltd is based in Bristol." in md
+    assert "construction / green built environment" in why
+    assert "Construction & built environment" in why
+    assert "minute drive" not in why
 
 
 def test_thin_vacancy_work_briefing_is_grounded(
@@ -270,14 +272,15 @@ def test_thin_vacancy_work_briefing_is_grounded(
         ),
         _vacancy_row(),
         use_openai=True,
+        retrieved_chunks=[],
         mode="work",
     )
-    assert calls["openai"] == 0
+    assert calls["openai"] == 1
     _assert_grounded(md, source, pathway_titles=_pathway_titles("cyber_digital"))
     assert "company register" not in md.lower()
     why = md.split("## Why this company fits you", 1)[1].split("## ", 1)[0]
-    assert "historical" in why.lower()
-    assert why.strip().endswith("hiring.")
+    assert "historical" not in why.lower()
+    assert "not a sign they are hiring" not in why.lower()
     assert "hiring you" not in why.lower()
     assert "https://severndigital.example/careers" in md
 
@@ -307,9 +310,10 @@ def test_thin_seed_without_programmes_skips_openai(
             summary="Global IT employer with digital graduate and apprenticeship pathways.",
         ),
         use_openai=True,
+        retrieved_chunks=[],
         mode="work",
     )
-    assert calls["openai"] == 0
+    assert calls["openai"] == 1
     _assert_grounded(
         md,
         source,
@@ -322,9 +326,10 @@ def test_thin_seed_without_programmes_skips_openai(
     assert "company register" not in md.lower()
     assert "have previously run" not in md.lower()
     assert "(Gatsby)" not in md
-    assert "CGI is listed in Gloucester / Cheltenham corridor (GL1)." in md
+    assert "CGI is based in Gloucester / Cheltenham corridor." in md
     why = md.split("## Why this company fits you", 1)[1].split("## ", 1)[0]
     assert "hiring." not in why
+    assert "business / professional" not in why
     assert "https://www.cgi.com/uk/en-gb/careers" in md
 
 
@@ -344,6 +349,7 @@ def test_grounded_why_only_uses_overlapping_interests(
             ],
             interest_sectors={"cyber_digital", "business_professional", "creative_events"},
             target_sectors={"cyber_digital", "business_professional", "creative_events"},
+            proud_example="",
         ),
         _seed_row(
             company_id="GLC024",
@@ -353,7 +359,8 @@ def test_grounded_why_only_uses_overlapping_interests(
             sectors="creative_events",
             website="https://www.newbreweryarts.org.uk/careers",
         ),
-        use_openai=True,
+        use_openai=False,
+        retrieved_chunks=[],
         mode="work",
     )
     assert source == "grounded_template"
@@ -361,13 +368,16 @@ def test_grounded_why_only_uses_overlapping_interests(
     assert "Creative / design / events" in why
     assert "Data & AI" not in why
     assert "Finance" not in why
+    assert "cyber / digital" not in why
     routes = md.split("## Training routes that fit your interests", 1)[1].split("## ", 1)[0]
     assert "data & ai" not in routes.lower()
     assert "finance" not in routes.lower()
     build = md.split("## What to build or develop next", 1)[1]
     assert "Creative / design / events" in build
+    assert "poster" in build or "event plan" in build or "video" in build
     assert "Data & AI" not in build
     assert "Finance" not in build
+    assert "outdoor build" not in build.lower()
 
 
 def test_grounded_why_omits_non_overlapping_aerospace(
@@ -387,14 +397,131 @@ def test_grounded_why_omits_non_overlapping_aerospace(
             target_sectors={"construction_green", "aerospace_manufacturing"},
         ),
         _ch_row(),
-        use_openai=True,
+        use_openai=False,
+        retrieved_chunks=[],
         mode="work",
     )
     assert source == "grounded_template"
     why = md.split("## Why this company fits you", 1)[1].split("## ", 1)[0]
     assert "Construction & built environment" in why
     assert "Aerospace" not in why
-    assert _REGISTER_SENTENCE in md
+    assert "company register" not in md.lower()
+
+
+def test_why_uses_only_the_primary_company_sector(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "glos_recommender.briefing.programmes_for_company",
+        lambda *args, **kwargs: [],
+    )
+    md, source = generate_briefing(
+        _leaver(
+            interests=["Education & training", "Healthcare & wellbeing"],
+            interest_sectors={"education_training", "health_care"},
+            target_sectors={"education_training", "health_care"},
+            proud_example="",
+        ),
+        _seed_row(
+            company_id="raised-in-bristol",
+            name="Raised in Bristol Ltd",
+            town="Bristol",
+            sectors="education_training|health_care",
+            website="https://www.eteach.com/careers/raisedinbristol",
+        ),
+        use_openai=False,
+        retrieved_chunks=[],
+        mode="work",
+    )
+    assert source == "grounded_template"
+    why = md.split("## Why this company fits you", 1)[1].split("## ", 1)[0]
+    assert "education / training" in why
+    assert "Education & training" in why
+    assert "health / care" not in why
+    assert "Healthcare" not in why
+    build = md.split("## What to build or develop next", 1)[1]
+    assert "school" in build.lower() or "youth club" in build.lower() or "coach" in build.lower()
+    assert "Healthcare" not in build
+
+
+def test_why_adds_commute_hint_from_leaver_location(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "glos_recommender.briefing.programmes_for_company",
+        lambda *args, **kwargs: [],
+    )
+    md, source = generate_briefing(
+        _leaver(
+            location="Cheltenham",
+            interests=["Making things"],
+            interest_sectors={"construction_green"},
+            target_sectors={"construction_green"},
+        ),
+        _seed_row(
+            name="Last Mile Infrastructure Group Limited",
+            town="Stonehouse",
+            sectors="construction_green",
+            website="https://www.lastmile-uk.com",
+        ),
+        use_openai=False,
+        retrieved_chunks=[],
+        mode="work",
+    )
+    assert source == "grounded_template"
+    why = md.split("## Why this company fits you", 1)[1].split("## ", 1)[0]
+    assert why.strip().startswith(
+        "Last Mile Infrastructure Group Limited is based in Stonehouse."
+    )
+    assert "40 minute drive from your location in Cheltenham" in why
+    assert "Cheltenham Spa" in why
+    assert "Stonehouse" in why
+    assert "Making things" in why
+
+
+def test_thin_record_uses_model_for_build_next(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "glos_recommender.briefing.programmes_for_company",
+        lambda *args, **kwargs: [],
+    )
+    calls = _mock_openai(
+        monkeypatch,
+        "Ask a local school or youth club if you can help for a few sessions, "
+        "or try assisting a sports coach if you enjoy that. Then watch one short "
+        "video on running an activity for a small group.",
+    )
+    md, source = generate_briefing(
+        _leaver(
+            interests=["Education & training"],
+            interest_sectors={"education_training"},
+            target_sectors={"education_training"},
+            proud_example="",
+        ),
+        _seed_row(
+            name="Raised in Bristol Ltd",
+            town="Bristol",
+            sectors="education_training|health_care",
+            website="https://www.eteach.com/careers/raisedinbristol",
+        ),
+        use_openai=True,
+        retrieved_chunks=[],
+        mode="work",
+    )
+    assert source == "openai"
+    assert calls["n"] == 1
+    why = md.split("## Why this company fits you", 1)[1].split("## ", 1)[0]
+    assert "education / training" in why
+    assert "health / care" not in why
+    assert "Our matcher tagged" not in why
+    build = md.split("## What to build or develop next", 1)[1]
+    assert "youth club" in build.lower()
+    assert "Raised in Bristol" not in build
+    user = next(m["content"] for m in calls["messages"] if m["role"] == "user")
+    assert "Focus area (use this one only): Education & training" in user
+    assert "school" in user.lower()
+    assert "youth club" in user.lower()
 
 
 def test_employer_prompt_restricts_why_to_overlap(
@@ -581,7 +708,7 @@ def test_work_fallback_seed_empty_programmes_is_three_section(
         mode="work",
     )
     _assert_three_work_h2s(md)
-    assert "college or apprenticeship" in md.lower()
+    assert "college courses and apprenticeships" in md.lower()
     assert "(Gatsby)" not in md
     assert "they offer" not in md.lower()
     for title in _pathway_titles("construction_green", "aerospace_manufacturing"):
@@ -709,7 +836,7 @@ def test_hybrid_work_briefing_drops_build_next_that_names_a_scheme(
     assert calls["n"] == 1
     build = md.split("## What to build or develop next", 1)[1]
     assert "Social Worker Degree Apprenticeship" not in build
-    assert "Start one small project" in build
+    assert "Make something small" in build
     assert "Public service & community" in build
     assert "Healthcare" not in build
     assert "Aerospace" not in build
@@ -737,12 +864,12 @@ def test_build_next_prompt_omits_employer_programmes(
     assert "Gloucestershire County Council" not in user
     assert "## Why this company fits you" not in combined
     assert "no why section" in system.lower()
-    assert "Public service & community" in user
+    assert "Focus area (use this one only): Public service & community" in user
     assert "Healthcare & wellbeing" not in user
     assert "Aerospace & advanced manufacturing" not in user
     assert "Interests: Public service" not in user
-    assert "overlapping interests" in user.lower()
-    assert "only the overlapping interests" in system.lower()
+    assert "focus area" in user.lower()
+    assert "single focus area" in system.lower()
 
 
 def test_hybrid_work_briefing_drops_build_next_with_non_overlap_interest(
