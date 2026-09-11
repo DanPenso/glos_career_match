@@ -9,6 +9,45 @@ Matches school, college, and university leavers to **top 3 Gloucestershire and B
 **UI:** Next.js [`web/`](web/) · **API:** FastAPI [`api/`](api/).  
 **Deploy:** [docs/DEPLOY.md](docs/DEPLOY.md).
 
+## RAGAS before vs after
+
+This is the main AI-safety result. We ran a **paired RAGAS-style assessment** on the same 200 work-mode journeys, before and after locking briefings to verified facts.
+
+| | Protocol |
+| --- | --- |
+| What was scored | Work-mode employer briefing + top-3 match list |
+| Design | **Paired before / after** — identical intakes, identical judge |
+| n | 200 synthetic leavers (50 each: no quals, school leaver, FE, graduate) |
+| Metrics | RAGAS core: **faithfulness**, **answer relevancy**, **context precision**. Domain extras: **programmes grounding**, **provenance cues** |
+| Judge | Claude Haiku (`scripts/eval/score_ragas.py`). Temperature 0. **OpenAI is never the judge.** |
+| Test | Wilcoxon signed-rank on paired scores; 95% bootstrap CI on the mean delta |
+
+**Headline:** mean **faithfulness 0.34 → 0.69** (Δ **+0.35**, 95% CI 0.33–0.38; *p* < 0.0001; 188 improved, 3 worse, 9 ties).
+
+<p align="center">
+  <img src="./docs/eval/ai_safety_metrics_before_after.png" alt="RAGAS before vs after: work briefing judge scores, n=200" width="900">
+</p>
+
+*Source: same 200 WORK journeys · Haiku judge · paired Wilcoxon · run `20260902T150328Z` (baseline) vs `20260904T101453Z` (grounded pipeline).*
+
+| Metric | Before | After | Mean Δ (95% CI) |
+| --- | ---: | ---: | --- |
+| Faithfulness (RAGAS) | 0.34 | 0.69 | +0.35 (0.33–0.38) |
+| Answer relevancy (RAGAS) | 0.56 | 0.65 | +0.09 (0.08–0.11) |
+| Context precision (RAGAS) | 0.52 | 0.74 | +0.22 (0.21–0.24) |
+| Programmes grounding | 0.31 | 0.80 | +0.50 (0.46–0.53) |
+| Provenance cues | 0.31 | 0.69 | +0.38 (0.35–0.40) |
+
+**How to read it.** Faithfulness is the safety metric: did the briefing invent roles, schemes, or culture that were not in the retrieved contexts? The grey bars are the free-form LLM briefing. The blue bars are the grounded path: **Why** and **Training routes** filled in code; OpenAI may only write **What to build**; thin Companies House rows skip the model.
+
+The original hole was **Companies House** matches (faithfulness 0.23 vs 0.38 on curated seed). After grounding, CH is 0.77 and seed is 0.65:
+
+<p align="center">
+  <img src="./docs/eval/ai_safety_faith_by_source.png" alt="RAGAS faithfulness by match source, seed vs Companies House" width="900">
+</p>
+
+This is careers guidance, not a jobs board. The judge can still dock packed top-3 employer names that never appeared in the retrieved contexts. Numbers: [`docs/eval/compare_summary.json`](docs/eval/compare_summary.json). Re-run notes are at the bottom of this README.
+
 ## Try a match (60 seconds)
 
 1. Open [matchkite.com](https://matchkite.com) (or local, below).
@@ -34,16 +73,12 @@ Live **Find an apprenticeship** and **Reed** listings decorate matches (pink / b
 
 ## How briefings stay grounded
 
+That RAGAS lift came from product constraints, not a better prompt:
+
 - **Why** and **Training routes** are filled in code (one overlapping interest + verified programmes only).
 - OpenAI may write **What to build** only, and only when the user opts in.
 - Thin Companies House / vacancy rows skip the model and use a template.
 - Under-16s cannot match. Crisis-like free text is not sent to third-party models.
-
-Work briefings were scored with Claude Haiku on **200** synthetic journeys (same file, same judge). Faithfulness **0.34 → 0.69** (mean Δ +0.35, 95% CI 0.33–0.38). Figures: [docs/eval](docs/eval/).
-
-![Judge scores before vs after](docs/eval/ai_safety_metrics_before_after.png)
-
-![Faithfulness by match source](docs/eval/ai_safety_faith_by_source.png)
 
 ## Quick start
 
@@ -141,19 +176,9 @@ Optional when that data changes: website hygiene **2.1–2.4**, NCS course seed 
 
 Notebooks under `notebooks/` are research only.
 
-## AI-safety eval (re-run)
+## Re-run the RAGAS assessment
 
-Work-mode briefings, Claude Haiku judge, 200 journeys (50 per stratum). Not the 10-case gold set in `scripts/run_ai_eval.py`. OpenAI is never the judge.
-
-| Metric | Before | After | Mean Δ (95% CI) |
-| --- | ---: | ---: | --- |
-| Faithfulness | 0.34 | 0.69 | +0.35 (0.33–0.38) |
-| Answer relevancy | 0.56 | 0.65 | +0.09 (0.08–0.11) |
-| Context precision | 0.52 | 0.74 | +0.22 (0.21–0.24) |
-| Programmes grounding | 0.31 | 0.80 | +0.50 (0.46–0.53) |
-| Provenance cues | 0.31 | 0.69 | +0.38 (0.35–0.40) |
-
-Before: locked 2 Sep 2026. After: 4 Sep 2026 grounded pipeline. Wilcoxon on paired faithfulness *p* < 0.0001 (*n* = 200; 188 improved, 3 worse, 9 ties).
+Not the 10-case gold set in `scripts/run_ai_eval.py`. Needs `ANTHROPIC_API_KEY`.
 
 ```bash
 python scripts/eval/run_journeys.py
